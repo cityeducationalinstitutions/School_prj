@@ -3,12 +3,14 @@ class UserModel {
   final String name;
   final String email;
   final List<String> roles;
+  final String? schoolId; // Nullable for existing/global users, mandatory for new ones
 
   UserModel({
     required this.uid,
     required this.name,
     required this.email,
     required this.roles,
+    this.schoolId,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map, String uid) {
@@ -17,6 +19,7 @@ class UserModel {
       name: map['name'] ?? '',
       email: map['email'] ?? '',
       roles: List<String>.from(map['roles'] ?? []),
+      schoolId: map['schoolId'],
     );
   }
 
@@ -25,6 +28,7 @@ class UserModel {
       'name': name,
       'email': email,
       'roles': roles,
+      'schoolId': schoolId,
     };
   }
 

@@ -13,9 +13,16 @@ class DiaryRepository {
     final snapshot = await _firestore
         .collection('dairy')
         .where('classId', isEqualTo: classId)
-        .orderBy('date', descending: true)
         .get();
     return snapshot.docs.map((doc) => DiaryModel.fromMap(doc.data(), doc.id)).toList();
+  }
+
+  Future<void> updateDiaryEntry(DiaryModel entry) async {
+    await _firestore.collection('dairy').doc(entry.id).update(entry.toMap());
+  }
+
+  Future<void> deleteDiaryEntry(String id) async {
+    await _firestore.collection('dairy').doc(id).delete();
   }
 }
 
@@ -31,7 +38,9 @@ class DiaryProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      _entries = await _repository.getDiaryEntries(classId);
+      final list = await _repository.getDiaryEntries(classId);
+      list.sort((a, b) => b.date.compareTo(a.date));
+      _entries = list;
     } catch (e) {
       debugPrint('Error fetching diary: $e');
     } finally {
@@ -47,6 +56,36 @@ class DiaryProvider with ChangeNotifier {
       await _repository.addDiaryEntry(entry);
     } catch (e) {
       debugPrint('Error adding diary: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateEntry(DiaryModel entry) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.updateDiaryEntry(entry);
+      await fetchEntries(entry.classId);
+    } catch (e) {
+      debugPrint('Error updating diary: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteEntry(String id, String classId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.deleteDiaryEntry(id);
+      await fetchEntries(classId);
+    } catch (e) {
+      debugPrint('Error deleting diary: $e');
       rethrow;
     } finally {
       _isLoading = false;

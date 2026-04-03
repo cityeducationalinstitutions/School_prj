@@ -8,17 +8,30 @@ class AttendanceProvider with ChangeNotifier {
   List<ClassModel> _classes = [];
   List<StudentModel> _students = [];
   List<AttendanceModel> _history = [];
+  AttendanceModel? _existingRecord;
 
   bool get isLoading => _isLoading;
   List<ClassModel> get classes => _classes;
   List<StudentModel> get students => _students;
   List<AttendanceModel> get history => _history;
+  AttendanceModel? get existingRecord => _existingRecord;
 
-  Future<void> fetchClasses() async {
+  void clearExistingRecord() {
+    _existingRecord = null;
+    notifyListeners();
+  }
+
+  Future<void> fetchClasses(String schoolId) async {
     _isLoading = true;
     notifyListeners();
     try {
-      _classes = await _repository.getClasses();
+      _classes = await _repository.getClasses(schoolId);
+      
+      // Auto-seed if empty to ensure something works out of the box
+      if (_classes.isEmpty) {
+        await seedInitialData();
+        _classes = await _repository.getClasses(schoolId);
+      }
     } catch (e) {
       debugPrint('Error fetching classes: $e');
     } finally {
@@ -34,6 +47,20 @@ class AttendanceProvider with ChangeNotifier {
       _students = await _repository.getStudentsByClass(classId);
     } catch (e) {
       debugPrint('Error fetching students: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchTodayAttendance(String classId, String date, String sessionType) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _existingRecord = await _repository.getAttendanceRecord(classId, date, sessionType);
+    } catch (e) {
+      debugPrint('Error fetching record: $e');
+      _existingRecord = null;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -72,7 +99,6 @@ class AttendanceProvider with ChangeNotifier {
     notifyListeners();
     try {
       await _repository.seedData();
-      await fetchClasses(); // Refresh
     } catch (e) {
       debugPrint('Error seeding: $e');
     } finally {

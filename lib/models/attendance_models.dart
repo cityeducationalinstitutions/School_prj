@@ -64,12 +64,14 @@ class AttendanceModel {
   final String id;
   final String classId;
   final String date; // YYYY-MM-DD
+  final String sessionType; // "Morning" or "Evening"
   final Map<String, bool> studentAttendees; // studentId: isPresent
 
   AttendanceModel({
     required this.id,
     required this.classId,
     required this.date,
+    required this.sessionType,
     required this.studentAttendees,
   });
 
@@ -78,6 +80,7 @@ class AttendanceModel {
       id: id,
       classId: map['classId'] ?? '',
       date: map['date'] ?? '',
+      sessionType: map['sessionType'] ?? 'Morning',
       studentAttendees: Map<String, bool>.from(map['studentAttendees'] ?? {}),
     );
   }
@@ -86,6 +89,7 @@ class AttendanceModel {
     return {
       'classId': classId,
       'date': date,
+      'sessionType': sessionType,
       'studentAttendees': studentAttendees,
     };
   }

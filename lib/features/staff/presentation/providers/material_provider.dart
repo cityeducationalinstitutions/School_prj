@@ -22,13 +22,16 @@ class MaterialRepository {
     final snapshot = await _firestore
         .collection('materials')
         .where('classId', isEqualTo: classId)
-        .orderBy('timestamp', descending: true)
         .get();
     return snapshot.docs.map((doc) => MaterialModel.fromMap(doc.data(), doc.id)).toList();
   }
 
   Future<void> deleteMaterial(String id, String fileUrl) async {
     await _firestore.collection('materials').doc(id).delete();
+  }
+
+  Future<void> updateMaterialTitle(String id, String newTitle) async {
+    await _firestore.collection('materials').doc(id).update({'title': newTitle});
   }
 }
 
@@ -44,7 +47,9 @@ class MaterialProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      _materials = await _repository.getMaterialsByClass(classId);
+      final list = await _repository.getMaterialsByClass(classId);
+      list.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      _materials = list;
     } catch (e) {
       debugPrint('Error fetching materials: $e');
     } finally {
@@ -95,6 +100,21 @@ class MaterialProvider with ChangeNotifier {
       await fetchMaterials(classId);
     } catch (e) {
       debugPrint('Error deleting: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateMaterialTitle(String id, String newTitle, String classId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.updateMaterialTitle(id, newTitle);
+      await fetchMaterials(classId);
+    } catch (e) {
+      debugPrint('Error updating title: $e');
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();

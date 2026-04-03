@@ -5,6 +5,7 @@ class AnnouncementModel {
   final String targetRole; // e.g., 'staff', 'student', 'all'
   final String date;
   final String author;
+  final String schoolId;
 
   AnnouncementModel({
     required this.id,
@@ -13,6 +14,7 @@ class AnnouncementModel {
     required this.targetRole,
     required this.date,
     required this.author,
+    required this.schoolId,
   });
 
   factory AnnouncementModel.fromMap(Map<String, dynamic> map, String id) {
@@ -23,6 +25,7 @@ class AnnouncementModel {
       targetRole: map['targetRole'] ?? 'all',
       date: map['date'] ?? '',
       author: map['author'] ?? '',
+      schoolId: map['schoolId'] ?? '',
     );
   }
 
@@ -33,6 +36,7 @@ class AnnouncementModel {
       'targetRole': targetRole,
       'date': date,
       'author': author,
+      'schoolId': schoolId,
     };
   }
 }

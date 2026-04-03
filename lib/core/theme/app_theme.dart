@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primaryBlue = Color(0xFF1A237E);
+  // Use professional color palette from the screenshot
+  static const Color primaryBlue = Color(0xFF131742); // Dark navy from the screenshot
   static const Color accentBlue = Color(0xFF3949AB);
   static const Color backgroundWhite = Color(0xFFF8F9FA);
-  static const Color textBlack = Color(0xFF212121);
+  static const Color textBlack = Color(0xFF131742);
   static const Color textGrey = Color(0xFF757575);
   static const Color errorRed = Color(0xFFD32F2F);
   static const Color successGreen = Color(0xFF388E3C);
@@ -20,30 +21,49 @@ class AppTheme {
       background: backgroundWhite,
       error: errorRed,
     ),
-    textTheme: GoogleFonts.outfitTextTheme().copyWith(
-      displayLarge: GoogleFonts.outfit(
+    // Setting Inter as the default global font (Sans-Serif)
+    // Setting Playfair Display for Headings (Serif)
+    textTheme: GoogleFonts.interTextTheme().copyWith(
+      displayLarge: GoogleFonts.playfairDisplay(
         fontSize: 32,
         fontWeight: FontWeight.bold,
         color: textBlack,
       ),
-      titleLarge: GoogleFonts.outfit(
-        fontSize: 20,
-        fontWeight: FontWeight.w600,
+      displayMedium: GoogleFonts.playfairDisplay(
+        fontSize: 28,
+        fontWeight: FontWeight.bold,
         color: textBlack,
       ),
-      bodyLarge: GoogleFonts.outfit(
+      displaySmall: GoogleFonts.playfairDisplay(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+        color: textBlack,
+      ),
+      headlineMedium: GoogleFonts.playfairDisplay(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: textBlack,
+      ),
+      titleLarge: GoogleFonts.inter(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        color: textBlack,
+      ),
+      bodyLarge: GoogleFonts.inter(
         fontSize: 16,
         color: textBlack,
+        fontWeight: FontWeight.w500,
       ),
-      bodyMedium: GoogleFonts.outfit(
+      bodyMedium: GoogleFonts.inter(
         fontSize: 14,
         color: textGrey,
       ),
     ),
     cardTheme: CardThemeData(
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: Colors.grey.shade100, width: 1),
       ),
       color: Colors.white,
     ),
@@ -53,9 +73,9 @@ class AppTheme {
         foregroundColor: Colors.white,
         minimumSize: const Size(double.infinity, 56),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
-        textStyle: GoogleFonts.outfit(
+        textStyle: GoogleFonts.inter(
           fontSize: 16,
           fontWeight: FontWeight.bold,
         ),
@@ -65,22 +85,18 @@ class AppTheme {
       filled: true,
       fillColor: Colors.white,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: primaryBlue, width: 2),
       ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: errorRed),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
     ),
   );
 }

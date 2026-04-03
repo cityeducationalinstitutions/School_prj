@@ -9,6 +9,7 @@ class GradeBookRepository {
   }
 
   Future<List<MarksModel>> getMarksByClassAndSubject(String classId, String subject) async {
+    // Note: classId already isolates the school context
     final snapshot = await _firestore
         .collection('marks')
         .where('classId', isEqualTo: classId)

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:management/main.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -28,42 +29,56 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const Color schoolOrange = Color(0xFFE28743);
+    const Color darkNavy = Color(0xFF131742);
+    
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Logo with subtle circular background
             Container(
-              width: 120,
-              height: 120,
+              width: 140,
+              height: 140,
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                color: schoolOrange.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.school_rounded,
-                size: 60,
-                color: Theme.of(context).primaryColor,
+                size: 70,
+                color: schoolOrange,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
+            // Primary Telugu Text in School Orange
             Text(
-              'SCHOOL PRO',
-              style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    letterSpacing: 2.0,
-                    color: Theme.of(context).primaryColor,
-                  ),
+              'శ్రమతో సర్వం సాధ్యం',
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: schoolOrange,
+                letterSpacing: 0.5,
+              ),
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'Management Super App',
-              style: TextStyle(letterSpacing: 1.2, color: Colors.grey),
+            const SizedBox(height: 12),
+            // Subtitle text in Navy to provide contrast
+            Text(
+              'City Educational Institutions',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: darkNavy.withOpacity(0.6),
+                letterSpacing: 1.5,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-            const SizedBox(height: 60),
+            const SizedBox(height: 80),
+            // Loading indicator (Pulse)
             SpinKitPulse(
-              color: Theme.of(context).primaryColor,
-              size: 50.0,
+              color: Colors.grey.withOpacity(0.2),
+              size: 40.0,
             ),
           ],
         ),

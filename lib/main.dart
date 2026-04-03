@@ -10,6 +10,7 @@ import 'package:management/features/staff/presentation/providers/grade_book_prov
 import 'package:management/features/staff/presentation/providers/diary_provider.dart';
 import 'package:management/features/staff/presentation/providers/announcement_provider.dart';
 import 'package:management/features/staff/presentation/providers/material_provider.dart';
+import 'package:management/features/staff/presentation/providers/staff_activity_provider.dart';
 import 'package:management/features/staff/presentation/screens/staff_dashboard.dart';
 
 void main() async {
@@ -24,6 +25,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => DiaryProvider()),
         ChangeNotifierProvider(create: (_) => AnnouncementProvider()),
         ChangeNotifierProvider(create: (_) => MaterialProvider()),
+        ChangeNotifierProvider(create: (_) => StaffActivityProvider()),
       ],
       child: const MyApp(),
     ),
@@ -36,7 +38,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'School Management Super App',
+      title: 'City Educational Institutions',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: const SplashScreenWrapper(),
@@ -60,7 +62,7 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
 
-    if (authProvider.isLoading) {
+    if (authProvider.isInitialCheck) {
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),

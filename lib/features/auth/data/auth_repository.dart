@@ -20,7 +20,7 @@ class AuthRepository {
     return UserModel.fromMap(doc.data()!, uid);
   }
 
-  Future<UserModel?> signIn(String email, String password, {String? requiredRole}) async {
+  Future<UserModel?> signIn(String email, String password, {String? requiredRole, String? selectedSchoolId}) async {
     try {
       final credential = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -30,13 +30,22 @@ class AuthRepository {
       if (credential.user != null) {
         final profile = await getUserProfile(credential.user!.uid);
         
-        // Role-Based Access Control (RBAC)
+        // Step 1: Verification for selected role
         if (requiredRole != null && profile != null) {
           if (!profile.roles.contains(requiredRole)) {
             await _auth.signOut();
             throw Exception('Access Denied: You do not have the required permissions for the $requiredRole role.');
           }
         }
+
+        // Step 2: Verification for selected school (Multi-Tenancy)
+        if (selectedSchoolId != null && profile != null) {
+          if (profile.schoolId != null && profile.schoolId != selectedSchoolId) {
+            await _auth.signOut();
+            throw Exception('Access Denied: This account is registered for another school.');
+          }
+        }
+        
         return profile;
       }
     } catch (e) {
@@ -50,6 +59,7 @@ class AuthRepository {
     required String password,
     required String name,
     required List<String> roles,
+    String? schoolId,
   }) async {
     try {
       final credential = await _auth.createUserWithEmailAndPassword(
@@ -63,17 +73,23 @@ class AuthRepository {
           name: name,
           email: email,
           roles: roles,
+          schoolId: schoolId,
         );
         await _firestore
             .collection('users')
             .doc(credential.user!.uid)
-            .set(userModel.toMap());
+            .set(userModel.toMap())
+            .timeout(const Duration(seconds: 10));
         return userModel;
       }
     } catch (e) {
       rethrow;
     }
     return null;
+  }
+
+  Future<void> updateUserProfile(String uid, Map<String, dynamic> data) async {
+    await _firestore.collection('users').doc(uid).update(data);
   }
 
   Future<void> signOut() async {
