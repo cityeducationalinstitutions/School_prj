@@ -8,11 +8,18 @@ class AuthProvider with ChangeNotifier {
   bool _isLoading = false;
   bool _isInitialCheck = true; // For initial app launch
   String? _selectedSchoolId;
+  String? _selectedRole;
 
   UserModel? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   bool get isInitialCheck => _isInitialCheck;
   String? get selectedSchoolId => _selectedSchoolId;
+  String? get selectedRole => _selectedRole;
+
+  void setRole(String role) {
+    _selectedRole = role;
+    notifyListeners();
+  }
 
   AuthProvider() {
     _init();
@@ -103,6 +110,7 @@ class AuthProvider with ChangeNotifier {
     await _repository.signOut();
     _currentUser = null;
     _selectedSchoolId = null;
+    _selectedRole = null;
     notifyListeners();
   }
 }

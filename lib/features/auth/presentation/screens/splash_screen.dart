@@ -40,16 +40,25 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             // Logo with subtle circular background
             Container(
-              width: 140,
-              height: 140,
+              height: 150,
+              width: 150,
               decoration: BoxDecoration(
-                color: schoolOrange.withOpacity(0.1),
+                color: Colors.white,
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: schoolOrange.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
-              child: const Icon(
-                Icons.school_rounded,
-                size: 70,
-                color: schoolOrange,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(75),
+                child: Image.asset(
+                  'assets/images/school_logo.png',
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const SizedBox(height: 40),

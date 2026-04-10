@@ -181,10 +181,6 @@ class _HeaderSection extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: const Color(0xffF9F9F9),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -196,17 +192,11 @@ class _HeaderSection extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
-              ),
-              child: Opacity(
-                opacity: 0.35,
-                child: Image.asset(
-                  'assets/images/header_bg.png',
-                  fit: BoxFit.cover,
-                ),
+            child: Opacity(
+              opacity: 0.35,
+              child: Image.asset(
+                'assets/images/header_bg.png',
+                fit: BoxFit.cover,
               ),
             ),
           ),

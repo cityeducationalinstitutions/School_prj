@@ -12,6 +12,8 @@ import 'package:management/features/staff/presentation/providers/announcement_pr
 import 'package:management/features/staff/presentation/providers/material_provider.dart';
 import 'package:management/features/staff/presentation/providers/staff_activity_provider.dart';
 import 'package:management/features/staff/presentation/screens/staff_dashboard.dart';
+import 'package:management/features/student/presentation/providers/student_provider.dart';
+import 'package:management/features/student/presentation/screens/student_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +28,12 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AnnouncementProvider()),
         ChangeNotifierProvider(create: (_) => MaterialProvider()),
         ChangeNotifierProvider(create: (_) => StaffActivityProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, StudentProvider>(
+          create: (context) => StudentProvider(studentId: ''),
+          update: (context, auth, previous) => StudentProvider(
+            studentId: auth.currentUser?.uid ?? '',
+          ),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -73,17 +81,23 @@ class AuthWrapper extends StatelessWidget {
     final user = authProvider.currentUser;
 
     if (user != null) {
-      // Automatic routing: If already logged in, show the correct dashboard
-      if (user.roles.contains('admin')) {
-        return const RoleSelectionScreen(); // Admins see selection (they can choose portals)
-      } else if (user.roles.contains('staff')) {
-        return const StaffDashboard();
-      } else {
-        return const RoleSelectionScreen(); 
+      // 1. If we have an explicitly chosen role (e.g. from RoleSelectionScreen), prioritize it
+      if (authProvider.selectedRole != null) {
+        if (authProvider.selectedRole == 'student') return const StudentPortalMain();
+        if (authProvider.selectedRole == 'staff') return const StaffDashboard();
       }
+
+      // 2. Fallback: If we have a selected school and it's a student/staff, we can go direct
+      if (authProvider.selectedSchoolId != null) {
+        if (user.isStudent) return const StudentPortalMain();
+        if (user.isStaff) return const StaffDashboard();
+      }
+
+      // Default fallback to Role Selection if ambiguous
+      return const RoleSelectionScreen();
     }
 
-    // Role selection is the starting point for everyone else
+    // Unauthenticated users go to Role Selection (which leads to Login)
     return const RoleSelectionScreen();
   }
 }

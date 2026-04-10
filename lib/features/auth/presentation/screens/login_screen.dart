@@ -280,6 +280,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           builder: (context) => SignupScreen(
                             defaultSchoolId: widget.schoolId,
                             schoolName: widget.schoolName,
+                            requiredRole: widget.requiredRole,
                           ),
                         ),
                       );

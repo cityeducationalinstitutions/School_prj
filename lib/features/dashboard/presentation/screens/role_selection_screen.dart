@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:management/features/auth/presentation/providers/auth_provider.dart';
 import 'package:management/features/dashboard/presentation/screens/school_selection_screen.dart';
 import 'package:management/features/staff/presentation/screens/staff_dashboard.dart';
+import 'package:management/features/student/presentation/screens/student_dashboard.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
   const RoleSelectionScreen({super.key});
@@ -35,8 +36,9 @@ class RoleSelectionScreen extends StatelessWidget {
               
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
                   children: [
+                    const SizedBox(height: 12),
                     // Welcome Sub-header
                     Padding(
                       padding: const EdgeInsets.only(bottom: 24),
@@ -136,23 +138,21 @@ class RoleSelectionScreen extends StatelessWidget {
   }
 
   void _handleRoleSelection(BuildContext context, String role) {
-    final user = context.read<AuthProvider>().currentUser;
+    final authProvider = context.read<AuthProvider>();
+    final user = authProvider.currentUser;
     
+    // Explicitly set the chosen role in the provider
+    authProvider.setRole(role);
+
     if (user != null) {
-      if (user.roles.contains(role)) {
-        if (role == 'staff') {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffDashboard()));
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('$role portal is coming soon!')),
-          );
-        }
+      // If already logged in, navigate based on role choice
+      if (role == 'staff') {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const StaffDashboard()));
+      } else if (role == 'student') {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const StudentPortalMain()));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Permission Denied: You do not have the $role role.'),
-            backgroundColor: Colors.red.shade800,
-          ),
+          SnackBar(content: Text('$role portal is coming soon!')),
         );
       }
       return;
@@ -215,12 +215,19 @@ class _BrandHeader extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      height: 60,
-                      width: 60,
+                      height: 75,
+                      width: 75,
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
+                        color: Colors.white,
                       ),
-                      child: Image.asset('assets/images/school_crest.png'),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(37.5),
+                        child: Image.asset(
+                          'assets/images/school_logo.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -334,10 +341,17 @@ class _PortalCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 14,
-                  color: Colors.grey.shade300,
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE28743).withOpacity(0.05),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 14,
+                    color: const Color(0xFFE28743), // School Theme Orange
+                  ),
                 ),
               ],
             ),

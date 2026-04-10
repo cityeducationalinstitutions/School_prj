@@ -3,12 +3,19 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:management/models/school_model.dart';
 import 'package:management/features/auth/presentation/providers/auth_provider.dart';
+import 'package:management/main.dart';
 
 class SignupScreen extends StatefulWidget {
   final String? defaultSchoolId;
   final String? schoolName;
+  final String? requiredRole;
 
-  const SignupScreen({super.key, this.defaultSchoolId, this.schoolName});
+  const SignupScreen({
+    super.key, 
+    this.defaultSchoolId, 
+    this.schoolName,
+    this.requiredRole,
+  });
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();
@@ -43,10 +50,15 @@ class _SignupScreenState extends State<SignupScreen> {
             email: _emailController.text,
             password: _passwordController.text,
             name: _nameController.text,
-            roles: ['staff'], // Default to staff for now
+            roles: [widget.requiredRole ?? 'staff'], 
             schoolId: widget.defaultSchoolId,
           );
-      if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => AuthWrapper()),
+          (route) => false,
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Signup failed: ${e.toString()}')),
