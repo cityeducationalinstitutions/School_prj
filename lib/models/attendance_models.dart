@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ClassModel {
   final String id;
   final String name;
@@ -60,37 +62,45 @@ class StudentModel {
   }
 }
 
-class AttendanceModel {
+class AttendanceRecord {
   final String id;
+  final String studentId;
+  final String studentName;
   final String classId;
-  final String date; // YYYY-MM-DD
-  final String sessionType; // "Morning" or "Evening"
-  final Map<String, bool> studentAttendees; // studentId: isPresent
+  final DateTime date;
+  final String status; // 'Present', 'Absent', 'Late'
+  final String sessionType; // 'Morning', 'Evening'
 
-  AttendanceModel({
+  AttendanceRecord({
     required this.id,
+    required this.studentId,
+    required this.studentName,
     required this.classId,
     required this.date,
+    required this.status,
     required this.sessionType,
-    required this.studentAttendees,
   });
 
-  factory AttendanceModel.fromMap(Map<String, dynamic> map, String id) {
-    return AttendanceModel(
+  factory AttendanceRecord.fromMap(Map<String, dynamic> map, String id) {
+    return AttendanceRecord(
       id: id,
+      studentId: map['studentId'] ?? '',
+      studentName: map['studentName'] ?? '',
       classId: map['classId'] ?? '',
-      date: map['date'] ?? '',
+      date: (map['date'] as Timestamp).toDate(),
+      status: map['status'] ?? 'Absent',
       sessionType: map['sessionType'] ?? 'Morning',
-      studentAttendees: Map<String, bool>.from(map['studentAttendees'] ?? {}),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
+      'studentId': studentId,
+      'studentName': studentName,
       'classId': classId,
-      'date': date,
+      'date': Timestamp.fromDate(date),
+      'status': status,
       'sessionType': sessionType,
-      'studentAttendees': studentAttendees,
     };
   }
 }

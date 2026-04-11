@@ -13,7 +13,8 @@ import 'package:management/features/student/presentation/screens/schedule/schedu
 import 'package:management/features/student/presentation/screens/doubts/doubts_main_screen.dart';
 import 'package:management/features/student/presentation/screens/notifications/notifications_screen.dart';
 import 'package:intl/intl.dart';
-import 'package:management/features/student/data/models/student_models.dart';
+import 'package:management/models/academic_models.dart';
+import 'package:management/models/attendance_models.dart';
 import 'package:management/main.dart';
 
 class StudentPortalMain extends StatefulWidget {
@@ -147,7 +148,12 @@ class StudentHomeTab extends StatelessWidget {
                             children: [
                               _SummaryCard(
                                 title: 'Attendance',
-                                value: '94%',
+                                value: () {
+                                  if (studentProvider.monthlyAttendance.isEmpty) return '0%';
+                                  final total = studentProvider.monthlyAttendance.length;
+                                  final present = studentProvider.monthlyAttendance.where((r) => r.status == 'Present').length;
+                                  return '${((present / total) * 100).toInt()}%';
+                                }(),
                                 subtitle: 'Current Month',
                                 icon: Icons.calendar_today_rounded,
                                 color: Colors.blue.shade700,
@@ -447,11 +453,7 @@ class _StudentDiaryTabState extends State<StudentDiaryTab> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<StudentProvider>().fetchDiaryForDate(_selectedDate);
-      // Auto-center the selected date in the horizontal strip
-      if (_dateController.hasClients) {
-        _dateController.animateTo(0, duration: const Duration(milliseconds: 500), curve: Curves.easeOut);
-      }
+      context.read<StudentProvider>().fetchDiary();
     });
   }
 
@@ -516,10 +518,11 @@ class _StudentDiaryTabState extends State<StudentDiaryTab> {
                       );
                     },
                   );
-                  if (picked != null) {
-                    setState(() => _selectedDate = picked);
-                    context.read<StudentProvider>().fetchDiaryForDate(picked);
-                  }
+                    if (picked != null) {
+                      setState(() => _selectedDate = picked);
+                      // In the new system, diary fetch is class-wide, 
+                      // but we could filter locally by date if needed.
+                    }
                 },
               ),
             ),
@@ -627,7 +630,6 @@ class _StudentDiaryTabState extends State<StudentDiaryTab> {
                               onTap: () {
                                 if (!isSelected) {
                                   setState(() => _selectedDate = date);
-                                  context.read<StudentProvider>().fetchDiaryForDate(date);
                                 }
                               },
                               borderRadius: BorderRadius.circular(16),
@@ -688,25 +690,26 @@ class _StudentDiaryTabState extends State<StudentDiaryTab> {
             child: Stack(
               children: [
                 _showAssignments 
-                  ? (studentProvider.upcomingAssignments.isEmpty 
+                  ? (studentProvider.diaryEntries.where((e) => e.homework.isNotEmpty).isEmpty 
                       ? _buildEmptyState('Great Job!', 'No pending assignments. You\'re all caught up.')
                       : ListView.builder(
                           padding: const EdgeInsets.all(24),
                           physics: const BouncingScrollPhysics(),
-                          itemCount: studentProvider.upcomingAssignments.length,
+                          itemCount: studentProvider.diaryEntries.where((e) => e.homework.isNotEmpty).length,
                           itemBuilder: (context, index) {
-                            final assignment = studentProvider.upcomingAssignments[index];
-                            return _buildAssignmentCard(assignment, schoolOrange, schoolBlue);
+                            final entries = studentProvider.diaryEntries.where((e) => e.homework.isNotEmpty).toList();
+                            final entry = entries[index];
+                            return _buildAssignmentCard(entry, schoolOrange, schoolBlue);
                           },
                         ))
-                  : (studentProvider.todayDiary.isEmpty 
+                  : (studentProvider.diaryEntries.isEmpty 
                       ? _buildEmptyState('A Day of Discovery', 'No entries yet. Every lesson is a step toward your future dreams!')
                       : ListView.builder(
                           padding: const EdgeInsets.all(24),
                           physics: const BouncingScrollPhysics(),
-                          itemCount: studentProvider.todayDiary.length,
+                          itemCount: studentProvider.diaryEntries.length,
                           itemBuilder: (context, index) {
-                            final item = studentProvider.todayDiary[index];
+                            final item = studentProvider.diaryEntries[index];
                             return _buildPremiumDiaryCard(item, schoolOrange, schoolBlue);
                           },
                         )),
@@ -727,9 +730,9 @@ class _StudentDiaryTabState extends State<StudentDiaryTab> {
     );
   }
 
-  Widget _buildAssignmentCard(StudentAssignment task, Color orange, Color navy) {
-    bool isCompleted = task.status == 'completed';
-    int daysLeft = task.dueDate.difference(DateTime.now()).inDays;
+  Widget _buildAssignmentCard(DiaryEntry task, Color orange, Color navy) {
+    bool isCompleted = false; // logic for completion can be added later
+    int daysLeft = task.date.difference(DateTime.now()).inDays;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -786,7 +789,7 @@ class _StudentDiaryTabState extends State<StudentDiaryTab> {
             ),
             const SizedBox(height: 16),
             Text(
-              task.title,
+              task.topic,
               style: GoogleFonts.outfit(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -795,7 +798,7 @@ class _StudentDiaryTabState extends State<StudentDiaryTab> {
             ),
             const SizedBox(height: 8),
             Text(
-              task.description,
+              task.homework,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.inter(
@@ -810,7 +813,7 @@ class _StudentDiaryTabState extends State<StudentDiaryTab> {
                 Icon(Icons.calendar_month_rounded, size: 16, color: orange.withOpacity(0.8)),
                 const SizedBox(width: 8),
                 Text(
-                  'Due: ${DateFormat('dd MMM').format(task.dueDate)}',
+                  'Due: ${DateFormat('dd MMM').format(task.date)}',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -844,7 +847,7 @@ class _StudentDiaryTabState extends State<StudentDiaryTab> {
     );
   }
 
-  Widget _buildPremiumDiaryCard(dynamic item, Color orange, Color navy) {
+  Widget _buildPremiumDiaryCard(DiaryEntry item, Color orange, Color navy) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -1129,7 +1132,7 @@ class StudentProfileTab extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Row(
                 children: [
-                  _buildStatItem('Grade', '10-A', themeColor),
+                  _buildStatItem('Grade', '${user?.grade ?? "N/A"} - ${user?.section ?? ""}', themeColor),
                   _buildStatItem('Rank', '12th', themeColor),
                   _buildStatItem('Progress', '92%', themeColor),
                 ],
@@ -1144,8 +1147,8 @@ class StudentProfileTab extends StatelessWidget {
                 children: [
                   _buildSectionTitle('Academic Details'),
                   _buildInfoTile(Icons.school_rounded, 'School', school.name, themeColor),
-                  _buildInfoTile(Icons.badge_rounded, 'Student ID', 'STU-2024-0892', themeColor),
-                  _buildInfoTile(Icons.category_rounded, 'Category', 'Post-Secondary', themeColor),
+                  _buildInfoTile(Icons.badge_rounded, 'Portal ID', user?.uid.substring(0, 8).toUpperCase() ?? 'N/A', themeColor),
+                  _buildInfoTile(Icons.category_rounded, 'Institutional Role', 'Student Apprentice', themeColor),
                   
                   const SizedBox(height: 24),
                   _buildSectionTitle('Personal Settings'),

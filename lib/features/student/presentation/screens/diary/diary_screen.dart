@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:management/features/student/presentation/providers/student_provider.dart';
-import 'package:management/features/student/data/models/student_models.dart';
+import 'package:management/models/academic_models.dart';
 
 class StudentDiaryScreen extends StatefulWidget {
   const StudentDiaryScreen({super.key});
@@ -15,6 +15,12 @@ class StudentDiaryScreen extends StatefulWidget {
 class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
   DateTime _selectedDate = DateTime.now();
   bool _showAssignments = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => context.read<StudentProvider>().fetchDiary());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +69,6 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
       ),
       body: Column(
         children: [
-          // PREMIUM TOGGLE & NAVIGATION
           Container(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
             decoration: const BoxDecoration(
@@ -75,7 +80,6 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
             ),
             child: Column(
               children: [
-                // Toggle Switch
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
@@ -154,7 +158,6 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
             ),
           ),
 
-          // LIST VIEW
           Expanded(
             child: studentProvider.isLoading 
                 ? const Center(child: CircularProgressIndicator())
@@ -263,9 +266,8 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
     );
   }
 
-  Widget _buildAssignmentCard(StudentAssignment task, Color orange, Color navy, Color bg) {
-    bool isCompleted = task.status == 'completed';
-    int daysLeft = task.dueDate.difference(DateTime.now()).inDays;
+  Widget _buildAssignmentCard(DiaryEntry task, Color orange, Color navy, Color bg) {
+    int daysLeft = task.date.difference(DateTime.now()).inDays;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -304,9 +306,7 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
                   ),
                 ),
                 const Spacer(),
-                if (isCompleted)
-                  const Icon(Icons.check_circle_rounded, color: Colors.green, size: 22)
-                else if (daysLeft <= 2 && daysLeft >= 0)
+                if (daysLeft <= 2 && daysLeft >= 0)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
@@ -322,7 +322,7 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              task.title,
+              'Home Academic Mission',
               style: GoogleFonts.outfit(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -331,7 +331,7 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              task.description,
+              task.homework,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.inter(
@@ -346,7 +346,7 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
                 Icon(Icons.calendar_today_rounded, size: 16, color: orange),
                 const SizedBox(width: 8),
                 Text(
-                   'Due: ${DateFormat('dd MMM, yyyy').format(task.dueDate)}',
+                   'Assigned: ${DateFormat('dd MMM, yyyy').format(task.date)}',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -355,11 +355,11 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
                 ),
                 const Spacer(),
                 Text(
-                  isCompleted ? 'COMPLETED' : 'PENDING',
+                  'PENDING',
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: isCompleted ? Colors.green : orange,
+                    color: orange,
                     letterSpacing: 1.0,
                   ),
                 ),

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:management/features/student/presentation/providers/student_provider.dart';
+import 'package:management/models/academic_models.dart';
 
 class StudentAnnouncementsScreen extends StatelessWidget {
   const StudentAnnouncementsScreen({super.key});
@@ -37,11 +38,11 @@ class StudentAnnouncementsScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final announcement = studentProvider.announcements[index];
                     return _AnnouncementCard(
-                      title: announcement['title'] ?? 'Important Update',
-                      content: announcement['content'] ?? '',
-                      author: announcement['author'] ?? 'Admin',
-                      date: (announcement['timestamp'] as dynamic)?.toDate() ?? DateTime.now(),
-                      category: announcement['category'] ?? 'General',
+                      title: announcement.title,
+                      content: announcement.message,
+                      author: 'Official', // senderName not in refined model
+                      date: announcement.createdAt,
+                      category: 'General', // In standardized model, senderType could be used
                     );
                   },
                 ),
@@ -137,7 +138,7 @@ class _AnnouncementCard extends StatelessWidget {
                       radius: 12,
                       backgroundColor: schoolOrange.withOpacity(0.1),
                       child: Text(
-                        author[0].toUpperCase(),
+                        author.isNotEmpty ? author[0].toUpperCase() : 'A',
                         style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: schoolOrange),
                       ),
                     ),
@@ -183,3 +184,5 @@ class _EmptyAnnouncementsView extends StatelessWidget {
     );
   }
 }
+
+

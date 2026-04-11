@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:management/features/student/presentation/providers/student_provider.dart';
-import 'package:management/features/student/data/models/student_models.dart';
-import 'package:intl/intl.dart';
+import 'package:management/models/academic_models.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -26,13 +25,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     } else {
       _selectedDay = 'Monday';
     }
-    Future.microtask(() => context.read<StudentProvider>().fetchSchedules());
+    Future.microtask(() => context.read<StudentProvider>().fetchDashboardData());
   }
 
   @override
   Widget build(BuildContext context) {
     final studentProvider = context.watch<StudentProvider>();
-    final schedules = studentProvider.schedules.where((s) => s.day == _selectedDay).toList();
+    final schedules = studentProvider.periods.where((s) => s.day == _selectedDay).toList();
     
     const Color schoolBlue = Color(0xFF131742);
     const Color schoolOrange = Color(0xFFE28743);
@@ -42,7 +41,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // 1. Signature Elite Timetable Header (Immersive Orange)
           SliverAppBar(
             expandedHeight: 220,
             floating: false,
@@ -57,7 +55,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               collapseMode: CollapseMode.pin,
               background: Stack(
                 children: [
-                  // Branded Orange Gradient
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -67,7 +64,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       ),
                     ),
                   ),
-                  // Decorative Navy Accents
                   Positioned(
                     right: -40,
                     top: -40,
@@ -76,7 +72,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       backgroundColor: schoolBlue.withOpacity(0.06),
                     ),
                   ),
-                  // Dashboard Content
                   Positioned(
                     bottom: 30,
                     left: 24,
@@ -119,7 +114,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             ),
           ),
 
-          // 2. Sticky Day Hub (Persistent Filter Strip)
           SliverPersistentHeader(
             pinned: true,
             delegate: _SliverDayHeaderDelegate(
@@ -167,7 +161,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             ),
           ),
 
-          // 3. Vertical Chronological Timeline Content
           studentProvider.isLoading
               ? const SliverFillRemaining(child: Center(child: CircularProgressIndicator(color: schoolOrange)))
               : schedules.isEmpty
@@ -184,7 +177,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  // Left-side Timeline Anchor
                                   Padding(
                                     padding: const EdgeInsets.only(right: 20),
                                     child: Column(
@@ -209,7 +201,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                       ],
                                     ),
                                   ),
-                                  // Main Schedule Card (Elite V1)
                                   Expanded(
                                     child: Padding(
                                       padding: const EdgeInsets.only(bottom: 24),
@@ -231,16 +222,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 }
 
 class _EliteScheduleCard extends StatelessWidget {
-  final ScheduleEntry entry;
+  final ClassPeriod entry;
   const _EliteScheduleCard({required this.entry});
 
   DateTime _parseTime(String timeStr) {
     try {
-      final parts = timeStr.split(' ');
+      final parts = timeStr.trim().split(' ');
       final timeParts = parts[0].split(':');
       int hour = int.parse(timeParts[0]);
       int minute = int.parse(timeParts[1]);
-      final isPM = parts[1].toUpperCase() == 'PM';
+      final isPM = parts.length > 1 && parts[1].toUpperCase() == 'PM';
 
       if (isPM && hour < 12) hour += 12;
       if (!isPM && hour == 12) hour = 0;
@@ -285,7 +276,6 @@ class _EliteScheduleCard extends StatelessWidget {
       isCompleted = false;
       isPending = true;
     } else {
-      // It is Today - Check Time logic
       final start = _parseTime(entry.startTime);
       final end = _parseTime(entry.endTime);
       isLive = now.isAfter(start) && now.isBefore(end);
@@ -313,7 +303,6 @@ class _EliteScheduleCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Header Status Badge
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
@@ -356,12 +345,10 @@ class _EliteScheduleCard extends StatelessWidget {
               ],
             ),
           ),
-          // Content Padding
           Padding(
             padding: const EdgeInsets.all(24),
             child: Row(
               children: [
-                // Premium Time Block
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   decoration: BoxDecoration(
@@ -379,7 +366,7 @@ class _EliteScheduleCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        entry.startTime.split(' ')[1],
+                        entry.startTime.contains(' ') ? entry.startTime.split(' ')[1] : '',
                         style: GoogleFonts.inter(
                           fontSize: 10, 
                           fontWeight: FontWeight.bold, 
@@ -390,7 +377,6 @@ class _EliteScheduleCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 20),
-                // Subject and Metadata
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -410,7 +396,7 @@ class _EliteScheduleCard extends StatelessWidget {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              entry.teacherName ?? 'Staff',
+                              entry.teacherName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.inter(

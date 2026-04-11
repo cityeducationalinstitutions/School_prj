@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:management/features/student/presentation/providers/student_provider.dart';
 import 'package:management/features/student/presentation/screens/quiz/quiz_screen.dart';
+import 'package:management/models/academic_models.dart';
 
 class StudentMaterialsScreen extends StatefulWidget {
   const StudentMaterialsScreen({super.key});
@@ -229,7 +230,7 @@ class _SliverSubjectFilterDelegate extends SliverPersistentHeaderDelegate {
 }
 
 class _EliteMaterialCard extends StatelessWidget {
-  final material; // StudentMaterial type
+  final AcademicMaterial material; // AcademicMaterial type
   final VoidCallback onView;
   final VoidCallback onGenerateQuiz;
 
@@ -292,7 +293,7 @@ class _EliteMaterialCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            '• ${DateFormat('dd MMM').format(material.uploadDate)}',
+                            '• ${DateFormat('dd MMM').format(material.createdAt)}',
                             style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade400, fontWeight: FontWeight.w500),
                           ),
                         ],

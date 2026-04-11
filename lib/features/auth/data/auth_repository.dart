@@ -60,6 +60,9 @@ class AuthRepository {
     required String name,
     required List<String> roles,
     String? schoolId,
+    String? classId,
+    String? grade,
+    String? section,
   }) async {
     try {
       final credential = await _auth.createUserWithEmailAndPassword(
@@ -74,6 +77,9 @@ class AuthRepository {
           email: email,
           roles: roles,
           schoolId: schoolId,
+          classId: classId,
+          grade: grade,
+          section: section,
         );
         await _firestore
             .collection('users')

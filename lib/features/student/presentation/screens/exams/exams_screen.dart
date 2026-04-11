@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:management/features/student/presentation/providers/student_provider.dart';
+import 'package:management/models/academic_models.dart';
 
 class StudentExamsScreen extends StatefulWidget {
   const StudentExamsScreen({super.key});
@@ -18,7 +19,7 @@ class _StudentExamsScreenState extends State<StudentExamsScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => context.read<StudentProvider>().fetchExams());
+    Future.microtask(() => context.read<StudentProvider>().fetchDashboardData());
   }
 
   @override
@@ -27,18 +28,17 @@ class _StudentExamsScreenState extends State<StudentExamsScreen> {
     const Color schoolBlue = Color(0xFF131742);
     const Color schoolOrange = Color(0xFFE28743);
 
-    // Filter exams based on selected type
     final filteredExams = studentProvider.exams.where((exam) {
       if (_selectedType == 'All') return true;
-      if (_selectedType == 'Weekly') return exam.type.toLowerCase().contains('weekly');
-      if (_selectedType == 'Unit Test') return exam.type.toLowerCase().contains('unit');
-      if (_selectedType == 'Quarterly') return exam.type.toLowerCase().contains('quarterly');
-      if (_selectedType == 'Half-Yearly') return exam.type.toLowerCase().contains('half');
-      if (_selectedType == 'Final') return exam.type.toLowerCase().contains('final');
+      final type = exam.type.toLowerCase();
+      if (_selectedType == 'Weekly') return type.contains('weekly');
+      if (_selectedType == 'Unit Test') return type.contains('unit');
+      if (_selectedType == 'Quarterly') return type.contains('quarterly');
+      if (_selectedType == 'Half-Yearly') return type.contains('half');
+      if (_selectedType == 'Final') return type.contains('final');
       return true;
     }).toList();
 
-    // Calculate countdown for the next exam (using ALL exams for overall awareness)
     String countdownText = 'No Upcoming Exams';
     if (studentProvider.exams.isNotEmpty) {
       final nextExam = studentProvider.exams.first;
@@ -57,7 +57,6 @@ class _StudentExamsScreenState extends State<StudentExamsScreen> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // 1. Signature Elite Countdown Header (Immersive Orange)
           SliverAppBar(
             expandedHeight: 220,
             floating: false,
@@ -72,7 +71,6 @@ class _StudentExamsScreenState extends State<StudentExamsScreen> {
               collapseMode: CollapseMode.pin,
               background: Stack(
                 children: [
-                  // Branded Orange Gradient
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -82,7 +80,6 @@ class _StudentExamsScreenState extends State<StudentExamsScreen> {
                       ),
                     ),
                   ),
-                  // Decorative Navy Accents (Senior Dev Aesthetic)
                   Positioned(
                     right: -40,
                     top: -40,
@@ -91,7 +88,6 @@ class _StudentExamsScreenState extends State<StudentExamsScreen> {
                       backgroundColor: schoolBlue.withOpacity(0.06),
                     ),
                   ),
-                  // Dashboard Content
                   Positioned(
                     bottom: 30,
                     left: 24,
@@ -134,7 +130,6 @@ class _StudentExamsScreenState extends State<StudentExamsScreen> {
             ),
           ),
 
-          // 2. Elite Mission Filter Strip (Sticky)
           SliverPersistentHeader(
             pinned: true,
             delegate: _SliverFilterDelegate(
@@ -183,7 +178,6 @@ class _StudentExamsScreenState extends State<StudentExamsScreen> {
             ),
           ),
 
-          // 3. Vertical Chronological Timeline Content
           studentProvider.isLoading
               ? const SliverFillRemaining(child: Center(child: CircularProgressIndicator(color: schoolOrange)))
               : filteredExams.isEmpty
@@ -200,7 +194,6 @@ class _StudentExamsScreenState extends State<StudentExamsScreen> {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  // Left-side Timeline Anchor
                                   Padding(
                                     padding: const EdgeInsets.only(right: 20),
                                     child: Column(
@@ -225,7 +218,6 @@ class _StudentExamsScreenState extends State<StudentExamsScreen> {
                                       ],
                                     ),
                                   ),
-                                  // Main Exam Card (Elite V1)
                                   Expanded(
                                     child: Padding(
                                       padding: const EdgeInsets.only(bottom: 24),
@@ -247,7 +239,7 @@ class _StudentExamsScreenState extends State<StudentExamsScreen> {
 }
 
 class _EliteExamCard extends StatelessWidget {
-  final exam; // ExamSchedule type
+  final AcademicExam exam;
   const _EliteExamCard({required this.exam});
 
   @override
@@ -268,7 +260,6 @@ class _EliteExamCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Header Status Badge
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
@@ -305,12 +296,10 @@ class _EliteExamCard extends StatelessWidget {
               ],
             ),
           ),
-          // Content Padding
           Padding(
             padding: const EdgeInsets.all(24),
             child: Row(
               children: [
-                // Premium Date Block
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   decoration: BoxDecoration(
@@ -331,7 +320,6 @@ class _EliteExamCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 20),
-                // Subject and Metadata
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,7 +334,7 @@ class _EliteExamCard extends StatelessWidget {
                           Icon(Icons.access_time_rounded, size: 14, color: schoolOrange),
                           const SizedBox(width: 6),
                           Text(
-                            exam.time.format(context),
+                            exam.time,
                             style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(width: 12),

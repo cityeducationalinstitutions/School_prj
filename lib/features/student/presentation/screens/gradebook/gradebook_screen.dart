@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:management/features/student/presentation/providers/student_provider.dart';
-import 'package:management/features/student/data/models/student_models.dart';
+import 'package:management/models/academic_models.dart';
 
 class StudentGradebookScreen extends StatefulWidget {
   const StudentGradebookScreen({super.key});
@@ -15,7 +15,7 @@ class _StudentGradebookScreenState extends State<StudentGradebookScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => context.read<StudentProvider>().fetchGrades());
+    Future.microtask(() => context.read<StudentProvider>().fetchDashboardData());
   }
 
   @override
@@ -42,22 +42,22 @@ class _StudentGradebookScreenState extends State<StudentGradebookScreen> {
       body: studentProvider.isLoading
           ? const Center(child: CircularProgressIndicator(color: schoolOrange, strokeWidth: 3))
           : RefreshIndicator(
-              onRefresh: () => studentProvider.fetchGrades(),
+              onRefresh: () => studentProvider.fetchDashboardData(),
               color: schoolOrange,
-              child: studentProvider.grades.isEmpty
+              child: studentProvider.marks.isEmpty
                   ? _buildEmptyEliteState(schoolBlue)
                   : CustomScrollView(
                       physics: const BouncingScrollPhysics(),
                       slivers: [
                         SliverToBoxAdapter(
-                          child: _AcademicSummaryHeader(grades: studentProvider.grades),
+                          child: _AcademicSummaryHeader(marks: studentProvider.marks),
                         ),
                         SliverPadding(
                           padding: const EdgeInsets.fromLTRB(20, 0, 20, 60),
                           sliver: SliverList(
                             delegate: SliverChildBuilderDelegate(
-                              (context, index) => _EliteGradeCard(grade: studentProvider.grades[index]),
-                              childCount: studentProvider.grades.length,
+                              (context, index) => _EliteGradeCard(mark: studentProvider.marks[index]),
+                              childCount: studentProvider.marks.length,
                             ),
                           ),
                         ),
@@ -101,8 +101,8 @@ class _StudentGradebookScreenState extends State<StudentGradebookScreen> {
 }
 
 class _AcademicSummaryHeader extends StatelessWidget {
-  final List<StudentGrade> grades;
-  const _AcademicSummaryHeader({required this.grades});
+  final List<StudentMark> marks;
+  const _AcademicSummaryHeader({required this.marks});
 
   @override
   Widget build(BuildContext context) {
@@ -111,13 +111,12 @@ class _AcademicSummaryHeader extends StatelessWidget {
 
     double totalObtained = 0;
     double totalMax = 0;
-    for (var g in grades) {
-      totalObtained += g.obtainedMarks;
-      totalMax += g.totalMarks;
+    for (var m in marks) {
+      totalObtained += m.marks;
+      totalMax += m.totalMarks;
     }
-    final overallPercentage = (totalObtained / totalMax) * 100;
+    final overallPercentage = totalMax > 0 ? (totalObtained / totalMax) * 100 : 0.0;
     
-    // Elite Status Color Logic
     final statusColor = overallPercentage < 60 ? Colors.red.shade400 : Colors.green.shade400;
 
     return Container(
@@ -140,7 +139,6 @@ class _AcademicSummaryHeader extends StatelessWidget {
             ),
             child: Row(
               children: [
-                // Branded Indicator
                 Stack(
                   alignment: Alignment.center,
                   children: [
@@ -178,7 +176,6 @@ class _AcademicSummaryHeader extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(width: 24),
-                // Text details
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,7 +187,7 @@ class _AcademicSummaryHeader extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          'SCHOOL THEME',
+                          'SCHOOL PERFORMANCE',
                           style: GoogleFonts.inter(color: navy, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.8),
                         ),
                       ),
@@ -202,9 +199,9 @@ class _AcademicSummaryHeader extends StatelessWidget {
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          _MiniStat(label: 'CGPA', value: '4.0'),
+                          _MiniStat(label: 'MARKS', value: totalObtained.toStringAsFixed(0)),
                           const SizedBox(width: 24),
-                          _MiniStat(label: 'GRADE', value: 'A+'),
+                          _MiniStat(label: 'TOTAL', value: totalMax.toStringAsFixed(0)),
                         ],
                       ),
                     ],
@@ -220,7 +217,7 @@ class _AcademicSummaryHeader extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'High-vibrancy academic breakdown',
+            'Academic breakdown by subject',
             style: GoogleFonts.inter(fontSize: 13, color: navy.withOpacity(0.4), fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 20),
@@ -250,15 +247,13 @@ class _MiniStat extends StatelessWidget {
 }
 
 class _EliteGradeCard extends StatelessWidget {
-  final StudentGrade grade;
-  const _EliteGradeCard({required this.grade});
+  final StudentMark mark;
+  const _EliteGradeCard({required this.mark});
 
   @override
   Widget build(BuildContext context) {
     const Color navy = Color(0xFF131742);
-    final percentage = (grade.obtainedMarks / grade.totalMarks) * 100;
-    
-    // Circle Color Logic (The "Circuit" - Only this is Filled)
+    final percentage = mark.totalMarks > 0 ? (mark.marks / mark.totalMarks) * 100 : 0.0;
     final color = _getStatusColor(percentage);
 
     return Container(
@@ -270,23 +265,20 @@ class _EliteGradeCard extends StatelessWidget {
           BoxShadow(color: navy.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 8)),
         ],
       ),
-      clipBehavior: Clip.antiAlias, // Ensures the strip doesn't overflow
+      clipBehavior: Clip.antiAlias,
       child: IntrinsicHeight(
         child: Row(
           children: [
-            // Vertical Theme Strip (V6 Elite)
             Container(
               width: 8,
               color: color,
             ),
             const SizedBox(width: 16),
-            // Main content
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
                 child: Row(
                   children: [
-                    // Signature Circuit Gauge (School Themed)
                     Stack(
                       alignment: Alignment.center,
                       children: [
@@ -315,13 +307,12 @@ class _EliteGradeCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(width: 20),
-                    // Content
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            grade.subject,
+                            mark.subject,
                             style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: navy),
                           ),
                           const SizedBox(height: 6),
@@ -332,19 +323,18 @@ class _EliteGradeCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              grade.examName.toUpperCase(),
+                              mark.examName.toUpperCase(),
                               style: GoogleFonts.inter(fontSize: 9, color: navy.withOpacity(0.5), fontWeight: FontWeight.bold, letterSpacing: 0.5),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    // Metrics
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '${grade.obtainedMarks.toStringAsFixed(0)}/${grade.totalMarks.toStringAsFixed(0)}',
+                          '${mark.marks.toStringAsFixed(0)}/${mark.totalMarks.toStringAsFixed(0)}',
                           style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.bold, color: navy),
                         ),
                         const SizedBox(height: 6),
@@ -371,8 +361,8 @@ class _EliteGradeCard extends StatelessWidget {
   }
 
   Color _getStatusColor(double percentage) {
-    if (percentage < 60) return Colors.red.shade400; // Academic Warning
-    return Colors.green.shade400; // Satisfactory Performance
+    if (percentage < 60) return Colors.red.shade400;
+    return Colors.green.shade400;
   }
 
   String _getGrade(double percentage) {

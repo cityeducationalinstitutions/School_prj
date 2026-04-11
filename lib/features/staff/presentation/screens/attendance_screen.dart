@@ -21,21 +21,17 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   String _searchQuery = '';
   
   final Map<String, bool> _attendanceMap = {};
-  final String _today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  final String _todayString = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
   String get _currentSession {
     final now = DateTime.now();
-    if (now.hour < 11) return 'Morning';
-    if (now.hour >= 12 && now.hour < 15) return 'Evening';
-    return 'Locked';
+    // For testing purposes: Lock is disabled.
+    // Defaulting to Morning before noon, Evening after noon.
+    if (now.hour < 12) return 'Morning';
+    return 'Evening';
   }
 
-  String get _lockMessage {
-    final now = DateTime.now();
-    if (now.hour >= 11 && now.hour < 12) return 'Morning session locked at 11:00 AM.\nEvening session opens at 12:00 PM.';
-    if (now.hour >= 15) return 'Evening session locked at 3:00 PM.';
-    return 'Attendance is currently locked.';
-  }
+  String get _lockMessage => ''; // No lock messages during testing
 
   List<String> get _availableSections {
     if (_selectedGrade == null) return [];
@@ -61,11 +57,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   void _onGradeChanged(String? val) {
     setState(() {
       _selectedGrade = val;
-      _selectedSection = null; // Clear section when grade changes
+      _selectedSection = null; 
       _matchingClass = null;
       _attendanceMap.clear();
       _searchQuery = '';
-      context.read<AttendanceProvider>().clearExistingRecord();
+      context.read<AttendanceProvider>().clearCurrentSessionRecords();
     });
   }
 
@@ -74,7 +70,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       _selectedSection = val;
       _attendanceMap.clear();
       _searchQuery = '';
-      context.read<AttendanceProvider>().clearExistingRecord();
+      context.read<AttendanceProvider>().clearCurrentSessionRecords();
     });
     
     _findMatchingClass();
@@ -93,10 +89,22 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       setState(() => _matchingClass = match);
       provider.fetchStudents(match.id).then((_) {
         if (_currentSession != 'Locked') {
-          provider.fetchTodayAttendance(match.id, _today, _currentSession).then((_) {
-            if (provider.existingRecord != null) {
+          provider.fetchTodayAttendance(match.id, DateTime.now(), _currentSession).then((_) {
+            if (provider.currentSessionRecords.isNotEmpty) {
               for (var student in provider.students) {
-                _attendanceMap[student.id] = provider.existingRecord!.studentAttendees[student.id] ?? true;
+                final record = provider.currentSessionRecords.firstWhere(
+                  (r) => r.studentId == student.id,
+                  orElse: () => AttendanceRecord(
+                    id: '', 
+                    studentId: student.id, 
+                    studentName: student.name, 
+                    classId: match.id, 
+                    date: DateTime.now(), 
+                    status: 'Present', 
+                    sessionType: _currentSession
+                  ),
+                );
+                _attendanceMap[student.id] = record.status == 'Present';
               }
             } else {
               for (var student in provider.students) {
@@ -115,30 +123,41 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   void _saveAttendance() async {
     if (_matchingClass == null) return;
 
-    final attendance = AttendanceModel(
-      id: '',
-      classId: _matchingClass!.id,
-      date: _today,
-      sessionType: _currentSession,
-      studentAttendees: _attendanceMap,
-    );
+    final records = provider.students.map((student) {
+      return AttendanceRecord(
+        id: '',
+        studentId: student.id,
+        studentName: student.name,
+        classId: _matchingClass!.id,
+        date: DateTime.now(),
+        status: (_attendanceMap[student.id] ?? true) ? 'Present' : 'Absent',
+        sessionType: _currentSession,
+      );
+    }).toList();
 
     try {
-      await context.read<AttendanceProvider>().saveAttendance(attendance);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Attendance saved successfully!')),
-      );
-      Navigator.pop(context);
+      await context.read<AttendanceProvider>().submitAttendance(records);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Attendance saved successfully!')),
+        );
+        Navigator.pop(context);
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     }
   }
 
+  // Need a local provider getter for build
+  AttendanceProvider get provider => context.read<AttendanceProvider>();
+
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<AttendanceProvider>();
+    final watchProvider = context.watch<AttendanceProvider>();
     final selectedSchoolId = context.watch<AuthProvider>().selectedSchoolId;
     
     final school = SchoolModel.schools.firstWhere(
@@ -147,7 +166,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     );
     final themeColor = school.themeColor;
     
-    final grades = provider.classes.map((c) => c.name).toSet().toList();
+    final grades = watchProvider.classes.map((c) => c.name).toSet().toList();
     grades.sort((a, b) {
       final numA = int.tryParse(a.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
       final numB = int.tryParse(b.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
@@ -169,12 +188,12 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF131742)),
         actions: [
-          if (!provider.isLoading)
+          if (!watchProvider.isLoading)
             IconButton(
               onPressed: () async {
-                await provider.seedInitialData();
+                await watchProvider.seedInitialData();
                 if (context.mounted) {
-                  provider.fetchClasses(selectedSchoolId!);
+                  watchProvider.fetchClasses(selectedSchoolId!);
                 }
               },
               icon: Icon(Icons.auto_awesome, color: themeColor),
@@ -184,7 +203,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       ),
       body: Column(
         children: [
-          // Date & Selectors Container
           Container(
             padding: const EdgeInsets.all(24.0),
             decoration: BoxDecoration(
@@ -204,7 +222,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Date Chip
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
@@ -217,7 +234,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       Icon(Icons.calendar_month_rounded, color: themeColor, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        '${_currentSession == "Locked" ? "" : "$_currentSession | "}$_today',
+                        '${_currentSession == "Locked" ? "" : "$_currentSession | "}$_todayString',
                         style: GoogleFonts.inter(
                           color: themeColor,
                           fontWeight: FontWeight.w700,
@@ -229,7 +246,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 ),
                 const SizedBox(height: 24),
                 
-                // Fancy Dropdown 1
                 _buildDropdown(
                   label: 'Grade',
                   value: _selectedGrade,
@@ -242,7 +258,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 
                 if (_selectedGrade != null) ...[
                   const SizedBox(height: 16),
-                  // Fancy Dropdown 2
                   _buildDropdown(
                     label: 'Section',
                     value: _selectedSection,
@@ -259,7 +274,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           
           const SizedBox(height: 16),
           
-          // Students List
           Expanded(
             child: _matchingClass != null
                 ? Column(
@@ -284,7 +298,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                '${provider.students.length} Total',
+                                '${watchProvider.students.length} Total',
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.w600,
                                   color: const Color(0xFF131742),
@@ -295,8 +309,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                         ),
                       ),
                       
-                      // SEARCH BAR
-                      if (!provider.isLoading && provider.students.isNotEmpty)
+                      if (!watchProvider.isLoading && watchProvider.students.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(left: 24, right: 24, bottom: 8),
                           child: Container(
@@ -324,15 +337,15 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                         ),
                         
                       Expanded(
-                        child: provider.isLoading
+                        child: watchProvider.isLoading
                             ? Center(child: CircularProgressIndicator(color: themeColor))
                             : (() {
-                                final filteredStudents = provider.students.where((s) {
+                                final filteredStudents = watchProvider.students.where((s) {
                                   final q = _searchQuery.toLowerCase();
                                   return s.name.toLowerCase().contains(q) || s.rollNo.toLowerCase().contains(q);
                                 }).toList();
                                 
-                                if (provider.students.isEmpty) {
+                                if (watchProvider.students.isEmpty) {
                                   return Center(
                                     child: Text(
                                       'No students found.',
@@ -445,8 +458,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       ),
           ),
           
-          // Submit Button
-          if (_matchingClass != null && provider.students.isNotEmpty)
+          if (_matchingClass != null && watchProvider.students.isNotEmpty)
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -460,7 +472,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 ],
               ),
               child: SafeArea(
-                child: provider.isLoading
+                child: watchProvider.isLoading
                     ? Center(child: CircularProgressIndicator(color: themeColor))
                     : _currentSession == 'Locked'
                         ? Container(
@@ -498,7 +510,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                 shadowColor: themeColor.withOpacity(0.5),
                               ),
                               child: Text(
-                                provider.existingRecord != null ? 'EDIT ATTENDANCE' : 'SUBMIT ATTENDANCE',
+                                watchProvider.currentSessionRecords.isNotEmpty ? 'EDIT ATTENDANCE' : 'SUBMIT ATTENDANCE',
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,

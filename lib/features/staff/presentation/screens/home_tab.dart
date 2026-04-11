@@ -7,6 +7,11 @@ import 'package:management/features/staff/presentation/screens/grade_book_screen
 import 'package:management/features/staff/presentation/screens/diary_screen.dart';
 import 'package:management/features/staff/presentation/screens/announcement_screen.dart';
 import 'package:management/features/staff/presentation/screens/material_screen.dart';
+import 'package:management/features/staff/presentation/screens/exam_management_screen.dart';
+import 'package:management/features/staff/presentation/providers/attendance_provider.dart';
+import 'package:management/features/staff/presentation/providers/announcement_provider.dart';
+import 'package:management/features/staff/presentation/providers/exam_provider.dart';
+import 'package:management/models/attendance_models.dart';
 import 'package:management/models/school_model.dart';
 
 class StaffHomeTab extends StatelessWidget {
@@ -148,6 +153,20 @@ class StaffHomeTab extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const AnnouncementScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        _QuickActionCard(
+                          title: 'Exam Scheduling',
+                          subtitle: 'Academic Calendar',
+                          imagePath: 'assets/icons/exams.png',
+                          color: Colors.indigo,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ExamManagementScreen(),
                               ),
                             );
                           },

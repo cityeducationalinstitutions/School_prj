@@ -11,6 +11,7 @@ import 'package:management/features/staff/presentation/providers/diary_provider.
 import 'package:management/features/staff/presentation/providers/announcement_provider.dart';
 import 'package:management/features/staff/presentation/providers/material_provider.dart';
 import 'package:management/features/staff/presentation/providers/staff_activity_provider.dart';
+import 'package:management/features/staff/presentation/providers/exam_provider.dart';
 import 'package:management/features/staff/presentation/screens/staff_dashboard.dart';
 import 'package:management/features/student/presentation/providers/student_provider.dart';
 import 'package:management/features/student/presentation/screens/student_dashboard.dart';
@@ -28,10 +29,19 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AnnouncementProvider()),
         ChangeNotifierProvider(create: (_) => MaterialProvider()),
         ChangeNotifierProvider(create: (_) => StaffActivityProvider()),
+        ChangeNotifierProvider(create: (_) => StaffExamProvider()),
         ChangeNotifierProxyProvider<AuthProvider, StudentProvider>(
-          create: (context) => StudentProvider(studentId: ''),
+          create: (context) => StudentProvider(
+            studentId: '',
+            classId: null,
+            grade: null,
+            section: null,
+          ),
           update: (context, auth, previous) => StudentProvider(
             studentId: auth.currentUser?.uid ?? '',
+            classId: auth.currentUser?.classId,
+            grade: auth.currentUser?.grade,
+            section: auth.currentUser?.section,
           ),
         ),
       ],

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:management/features/student/data/models/student_models.dart';
+import 'package:management/models/academic_models.dart';
 
 class DoubtDetailScreen extends StatelessWidget {
-  final StudentDoubt doubt;
+  final AcademicDoubt doubt;
 
   const DoubtDetailScreen({super.key, required this.doubt});
 
@@ -27,7 +27,6 @@ class DoubtDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Status & Subject
             Row(
               children: [
                 _buildBadge(doubt.subject, schoolOrange.withOpacity(0.1), schoolOrange),
@@ -41,7 +40,6 @@ class DoubtDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             
-            // Title
             SelectionArea(
               child: Text(
                 doubt.title,
@@ -55,8 +53,7 @@ class DoubtDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            // Question Description
-            _SectionHeader('My Question'),
+            const _SectionHeader('My Question'),
             const SizedBox(height: 12),
             SelectionArea(
               child: Text(
@@ -66,9 +63,8 @@ class DoubtDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Attachment
             if (doubt.attachmentUrl != null) ...[
-              _SectionHeader('Attachment'),
+              const _SectionHeader('Attachment'),
               const SizedBox(height: 12),
               GestureDetector(
                 onTap: () => _showFullImage(context, doubt.attachmentUrl!),
@@ -88,10 +84,9 @@ class DoubtDetailScreen extends StatelessWidget {
 
             const Divider(height: 64),
 
-            // Teacher Reply
-            _SectionHeader('Teacher\'s Response'),
+            const _SectionHeader('Teacher\'s Response'),
             const SizedBox(height: 16),
-            if (doubt.reply == null)
+            if (doubt.answer == null)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
@@ -137,7 +132,7 @@ class DoubtDetailScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     SelectionArea(
                       child: Text(
-                        doubt.reply!,
+                        doubt.answer!,
                         style: GoogleFonts.inter(fontSize: 16, color: Colors.green.shade900, height: 1.6),
                       ),
                     ),

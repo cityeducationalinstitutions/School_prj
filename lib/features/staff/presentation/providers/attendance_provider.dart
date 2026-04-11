@@ -7,17 +7,17 @@ class AttendanceProvider with ChangeNotifier {
   bool _isLoading = false;
   List<ClassModel> _classes = [];
   List<StudentModel> _students = [];
-  List<AttendanceModel> _history = [];
-  AttendanceModel? _existingRecord;
+  List<AttendanceRecord> _history = [];
+  List<AttendanceRecord> _currentSessionRecords = [];
 
   bool get isLoading => _isLoading;
   List<ClassModel> get classes => _classes;
   List<StudentModel> get students => _students;
-  List<AttendanceModel> get history => _history;
-  AttendanceModel? get existingRecord => _existingRecord;
+  List<AttendanceRecord> get history => _history;
+  List<AttendanceRecord> get currentSessionRecords => _currentSessionRecords;
 
-  void clearExistingRecord() {
-    _existingRecord = null;
+  void clearCurrentSessionRecords() {
+    _currentSessionRecords = [];
     notifyListeners();
   }
 
@@ -27,7 +27,6 @@ class AttendanceProvider with ChangeNotifier {
     try {
       _classes = await _repository.getClasses(schoolId);
       
-      // Auto-seed if empty to ensure something works out of the box
       if (_classes.isEmpty) {
         await seedInitialData();
         _classes = await _repository.getClasses(schoolId);
@@ -53,25 +52,25 @@ class AttendanceProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchTodayAttendance(String classId, String date, String sessionType) async {
+  Future<void> fetchTodayAttendance(String classId, DateTime date, String sessionType) async {
     _isLoading = true;
     notifyListeners();
     try {
-      _existingRecord = await _repository.getAttendanceRecord(classId, date, sessionType);
+      _currentSessionRecords = await _repository.getAttendanceRecord(classId, date, sessionType);
     } catch (e) {
-      debugPrint('Error fetching record: $e');
-      _existingRecord = null;
+      debugPrint('Error fetching records: $e');
+      _currentSessionRecords = [];
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> saveAttendance(AttendanceModel attendance) async {
+  Future<void> submitAttendance(List<AttendanceRecord> records) async {
     _isLoading = true;
     notifyListeners();
     try {
-      await _repository.saveAttendance(attendance);
+      await _repository.saveAttendance(records);
     } catch (e) {
       debugPrint('Error saving attendance: $e');
       rethrow;

@@ -67,6 +67,9 @@ class AuthProvider with ChangeNotifier {
     required String name,
     required List<String> roles,
     String? schoolId,
+    String? classId,
+    String? grade,
+    String? section,
   }) async {
     _isLoading = true;
     notifyListeners();
@@ -77,6 +80,9 @@ class AuthProvider with ChangeNotifier {
         name: name,
         roles: roles,
         schoolId: schoolId,
+        classId: classId,
+        grade: grade,
+        section: section,
       );
       _selectedSchoolId = schoolId;
     } catch (e) {

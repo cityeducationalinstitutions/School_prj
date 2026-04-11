@@ -7,7 +7,7 @@ import 'package:management/features/staff/presentation/providers/attendance_prov
 import 'package:management/features/staff/presentation/providers/material_provider.dart';
 import 'package:management/features/auth/presentation/providers/auth_provider.dart';
 import 'package:management/models/attendance_models.dart';
-import 'package:management/models/material_model.dart';
+import 'package:management/models/academic_models.dart';
 import 'package:management/models/school_model.dart';
 
 class MaterialScreen extends StatefulWidget {
@@ -21,6 +21,8 @@ class _MaterialScreenState extends State<MaterialScreen> {
   ClassModel? _selectedClass;
   final _titleController = TextEditingController();
   File? _selectedFile;
+  String _selectedSubject = 'Mathematics';
+  final List<String> _subjects = ['Telugu', 'Hindi', 'English', 'Mathematics', 'Physical Science','Biological Science','Chemistry','Social Studies'];
 
   @override
   void initState() {
@@ -55,7 +57,9 @@ class _MaterialScreenState extends State<MaterialScreen> {
             file: _selectedFile!,
             title: _titleController.text,
             classId: _selectedClass!.id,
-            uploadedBy: user?.name ?? 'Staff',
+            grade: _selectedClass!.name,
+            section: _selectedClass!.section,
+            subject: _selectedSubject,
           );
       setState(() {
         _selectedFile = null;
@@ -71,7 +75,7 @@ class _MaterialScreenState extends State<MaterialScreen> {
     }
   }
 
-  void _renameMaterial(MaterialModel material) async {
+  void _renameMaterial(AcademicMaterial material) async {
     final controller = TextEditingController(text: material.title);
     final schoolId = context.read<AuthProvider>().selectedSchoolId;
     if (schoolId == null) return;
@@ -98,7 +102,7 @@ class _MaterialScreenState extends State<MaterialScreen> {
     try {
       final messenger = ScaffoldMessenger.of(context);
       if (newTitle != null && newTitle.isNotEmpty && newTitle != material.title) {
-        await context.read<MaterialProvider>().updateMaterialTitle(material.id, newTitle, _selectedClass!.id);
+        await context.read<MaterialProvider>().updateMaterialTitle(material.id, newTitle, _selectedClass!.name, _selectedClass!.section);
         messenger.showSnackBar(const SnackBar(content: Text('Material renamed!')));
       }
     } catch (e) {
@@ -186,7 +190,7 @@ class _MaterialScreenState extends State<MaterialScreen> {
                         itemLabelBuilder: (c) => '${c.name} - ${c.section}',
                         onChanged: (val) {
                           setState(() => _selectedClass = val);
-                          if (val != null) materialProvider.fetchMaterials(val.id);
+                          if (val != null) materialProvider.fetchMaterials(val.name, val.section);
                         },
                       ),
                       if (_selectedClass != null) ...[
@@ -265,6 +269,15 @@ class _MaterialScreenState extends State<MaterialScreen> {
               border: InputBorder.none,
             ),
           ),
+          _buildDropdown<String>(
+            label: 'Subject',
+            value: _selectedSubject,
+            items: _subjects,
+            hint: 'Select Subject',
+            icon: Icons.book_rounded,
+            themeColor: themeColor,
+            onChanged: (val) => setState(() => _selectedSubject = val!),
+          ),
           const Divider(),
           Row(
             children: [
@@ -301,7 +314,7 @@ class _MaterialScreenState extends State<MaterialScreen> {
     );
   }
 
-  Widget _buildResourceCard(MaterialModel material, MaterialProvider provider, Color themeColor) {
+  Widget _buildResourceCard(AcademicMaterial material, MaterialProvider provider, Color themeColor) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -326,7 +339,7 @@ class _MaterialScreenState extends State<MaterialScreen> {
           child: const Icon(Icons.picture_as_pdf_rounded, color: Colors.red),
         ),
         title: Text(material.title, style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF131742))),
-        subtitle: Text('Uploaded by: ${material.uploadedBy}', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey)),
+        subtitle: Text('Subject: ${material.subject}', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey)),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -336,7 +349,7 @@ class _MaterialScreenState extends State<MaterialScreen> {
             ),
             IconButton(
               icon: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 20),
-              onPressed: () => provider.deleteMaterial(material.id, material.fileUrl, _selectedClass!.id),
+              onPressed: () => provider.deleteMaterial(material.id, _selectedClass!.name, _selectedClass!.section),
             ),
           ],
         ),

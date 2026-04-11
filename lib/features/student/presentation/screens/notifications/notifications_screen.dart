@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:management/features/student/presentation/providers/student_provider.dart';
-import 'package:management/features/student/data/models/student_models.dart';
+import 'package:management/models/academic_models.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -134,7 +134,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _buildFilterChip(String label) {
     final isSelected = _selectedCategory == label;
     const Color schoolBlue = Color(0xFF131742);
-    const Color schoolOrange = Color(0xFFE28743);
 
     return GestureDetector(
       onTap: () => setState(() => _selectedCategory = label),

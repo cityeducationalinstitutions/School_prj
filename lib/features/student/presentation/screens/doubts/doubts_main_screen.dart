@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:management/features/student/presentation/providers/student_provider.dart';
-import 'package:management/features/student/data/models/student_models.dart';
+import 'package:management/models/academic_models.dart';
 import 'package:management/features/student/presentation/screens/doubts/raise_doubt_screen.dart';
 import 'package:management/features/student/presentation/screens/doubts/doubt_detail_screen.dart';
 
@@ -16,6 +16,12 @@ class DoubtsMainScreen extends StatefulWidget {
 
 class _DoubtsMainScreenState extends State<DoubtsMainScreen> {
   String _activeFilter = 'all';
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => context.read<StudentProvider>().fetchDashboardData());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +40,6 @@ class _DoubtsMainScreenState extends State<DoubtsMainScreen> {
           : CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
-                // Signature Elite Collapsible Header
                 SliverAppBar(
                   expandedHeight: 200,
                   pinned: true,
@@ -59,7 +64,6 @@ class _DoubtsMainScreenState extends State<DoubtsMainScreen> {
                             ),
                           ),
                         ),
-                        // Decorative Pattern
                         Positioned(
                           right: -50,
                           top: -20,
@@ -101,7 +105,6 @@ class _DoubtsMainScreenState extends State<DoubtsMainScreen> {
                   ),
                 ),
 
-                // Sticky Status Strip
                 SliverPersistentHeader(
                   pinned: true,
                   delegate: _SliverFilterDelegate(
@@ -139,7 +142,6 @@ class _DoubtsMainScreenState extends State<DoubtsMainScreen> {
                   ),
                 ),
 
-                // Content
                 filteredDoubts.isEmpty
                     ? SliverFillRemaining(
                         hasScrollBody: false,
@@ -258,7 +260,7 @@ class _FilterChip extends StatelessWidget {
 }
 
 class _EliteDoubtCard extends StatelessWidget {
-  final StudentDoubt doubt;
+  final AcademicDoubt doubt;
   const _EliteDoubtCard({required this.doubt});
 
   @override
@@ -342,7 +344,7 @@ class _EliteDoubtCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if (doubt.reply != null)
+                  if (doubt.answer != null)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(

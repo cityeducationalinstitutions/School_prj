@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:management/features/auth/presentation/providers/auth_provider.dart';
 import 'package:management/features/staff/presentation/providers/attendance_provider.dart';
 import 'package:management/features/staff/presentation/providers/grade_book_provider.dart';
@@ -34,8 +35,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     });
     if (value != null) {
       context.read<AttendanceProvider>().fetchHistory(value.id);
-      // Also fetch marks to analyze performance
-      context.read<GradeBookProvider>().fetchMarksByClassAndSubject(value.id, 'Mathematics'); // Default subject for analytics
+      context.read<GradeBookProvider>().fetchMarksByClassAndSubject(value.id, 'Mathematics');
     }
   }
 
@@ -47,7 +47,6 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     final school = SchoolModel.schools.firstWhere((s) => s.id == schoolId, orElse: () => SchoolModel.schools.first);
     final themeColor = school.themeColor;
 
-    // Smart Class Selection (Deduplicated & Sorted)
     final classesMap = <String, ClassModel>{};
     for (var c in attendanceProvider.classes) {
       final numGrade = int.tryParse(c.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
@@ -76,6 +75,19 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
       return a.section.compareTo(b.section);
     });
 
+    // Grouping logic for history
+    final Map<String, List<AttendanceRecord>> groupedHistory = {};
+    for (var record in attendanceProvider.history) {
+      final dateStr = DateFormat('yyyy-MM-dd').format(record.date);
+      final key = '${dateStr}_${record.sessionType}';
+      if (!groupedHistory.containsKey(key)) {
+        groupedHistory[key] = [];
+      }
+      groupedHistory[key]!.add(record);
+    }
+    
+    final sortedKeys = groupedHistory.keys.toList()..sort((a, b) => b.compareTo(a));
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
       appBar: AppBar(
@@ -87,103 +99,75 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
-            child: Column(
-              children: [
-                // PREMIUM FILTER CARD
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      _buildDropdown<ClassModel>(
-                        label: 'Class',
-                        value: _selectedClass,
-                        items: sortedClasses,
-                        hint: 'Select Class',
-                        icon: Icons.analytics_rounded,
-                        themeColor: themeColor,
-                        itemLabelBuilder: (c) => '${c.name} - ${c.section}',
-                        onChanged: _onClassSelected,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            child: Container(
+              width: double.infinity,
+              margin: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 20, offset: const Offset(0, 10)),
+                ],
+              ),
+              child: _buildDropdown<ClassModel>(
+                label: 'Class',
+                value: _selectedClass,
+                items: sortedClasses,
+                hint: 'Select Class',
+                icon: Icons.analytics_rounded,
+                themeColor: themeColor,
+                itemLabelBuilder: (c) => '${c.name} - ${c.section}',
+                onChanged: _onClassSelected,
+              ),
             ),
           ),
           
           if (_selectedClass != null) ...[
             SliverToBoxAdapter(
-              child: _buildQuickStats(attendanceProvider, gradeProvider, themeColor),
+              child: _buildQuickStats(attendanceProvider.history, gradeProvider, themeColor),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
             const SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Record Timeline',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF131742)),
-                  ),
+                child: Text(
+                  'Record Timeline',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF131742)),
                 ),
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
             if (attendanceProvider.isLoading)
-              const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (attendanceProvider.history.isEmpty)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: _buildEmptyState('No records found for this class.'),
-              )
+              const SliverFillRemaining(hasScrollBody: false, child: Center(child: CircularProgressIndicator()))
+            else if (groupedHistory.isEmpty)
+              SliverFillRemaining(hasScrollBody: false, child: _buildEmptyState('No records found for this class.'))
             else
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      final record = attendanceProvider.history[index];
-                      return _buildHistoryCard(record, themeColor);
+                      final key = sortedKeys[index];
+                      final records = groupedHistory[key]!;
+                      return _buildGroupedHistoryCard(key, records, themeColor);
                     },
-                    childCount: attendanceProvider.history.length,
+                    childCount: sortedKeys.length,
                   ),
                 ),
               ),
           ] else
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: _buildEmptyState('Select a class to begin analysis'),
-            ),
+            SliverFillRemaining(hasScrollBody: false, child: _buildEmptyState('Select a class to begin analysis')),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
     );
   }
 
-  Widget _buildQuickStats(AttendanceProvider attendance, GradeBookProvider grades, Color themeColor) {
-    int totalPresent = 0;
-    int totalPossible = 0;
-    for (var h in attendance.history) {
-      totalPresent += h.studentAttendees.values.where((v) => v).length;
-      totalPossible += h.studentAttendees.length;
-    }
-    final attendancePct = totalPossible > 0 ? (totalPresent / totalPossible * 100).toStringAsFixed(1) : '0';
+  Widget _buildQuickStats(List<AttendanceRecord> history, GradeBookProvider grades, Color themeColor) {
+    int totalPresent = history.where((r) => r.status == 'Present').length;
+    int totalCount = history.length;
+    final attendancePct = totalCount > 0 ? (totalPresent / totalCount * 100).toStringAsFixed(1) : '0';
     
     final passCount = grades.marks.where((m) => m.marksObtained >= 35).length;
     final failCount = grades.marks.where((m) => m.marksObtained >= 0 && m.marksObtained < 35).length;
@@ -193,13 +177,9 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
-          Expanded(
-            child: _statTile('Attendance', '$attendancePct%', Icons.how_to_reg_rounded, Colors.blue),
-          ),
+          Expanded(child: _statTile('Attendance', '$attendancePct%', Icons.how_to_reg_rounded, Colors.blue)),
           const SizedBox(width: 16),
-          Expanded(
-            child: _statTile('Pass Ratio', '$passPct%', Icons.auto_graph_rounded, Colors.green),
-          ),
+          Expanded(child: _statTile('Pass Ratio', '$passPct%', Icons.auto_graph_rounded, Colors.green)),
         ],
       ),
     );
@@ -225,10 +205,15 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     );
   }
 
-  Widget _buildHistoryCard(AttendanceModel record, Color themeColor) {
-    final present = record.studentAttendees.values.where((v) => v).length;
-    final total = record.studentAttendees.length;
+  Widget _buildGroupedHistoryCard(String key, List<AttendanceRecord> records, Color themeColor) {
+    final present = records.where((r) => r.status == 'Present').length;
+    final total = records.length;
     final pct = total > 0 ? (present / total * 100) : 0.0;
+    
+    // Key format is yyyy-MM-dd_SessionType
+    final parts = key.split('_');
+    final date = parts[0];
+    final session = parts.length > 1 ? parts[1] : '';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -236,16 +221,12 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 5)),
         ],
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(20),
-        title: Text(record.date, style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF131742))),
+        title: Text('$date ($session)', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF131742))),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 8.0),
           child: Row(
@@ -253,10 +234,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
               Container(
                 height: 6,
                 width: 100,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(3),
-                ),
+                decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(3)),
                 child: FractionallySizedBox(
                   alignment: Alignment.centerLeft,
                   widthFactor: pct / 100,

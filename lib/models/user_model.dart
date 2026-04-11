@@ -5,6 +5,8 @@ class UserModel {
   final List<String> roles;
   final String? schoolId; // Nullable for existing/global users, mandatory for new ones
   final String? classId; // Optional class assignment for students
+  final String? grade; // Human-readable grade (e.g., 10th)
+  final String? section; // Human-readable section (e.g., S1)
 
   UserModel({
     required this.uid,
@@ -13,6 +15,8 @@ class UserModel {
     required this.roles,
     this.schoolId,
     this.classId,
+    this.grade,
+    this.section,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map, String uid) {
@@ -23,6 +27,8 @@ class UserModel {
       roles: List<String>.from(map['roles'] ?? []),
       schoolId: map['schoolId'],
       classId: map['classId'],
+      grade: map['grade'],
+      section: map['section'],
     );
   }
 
@@ -33,6 +39,8 @@ class UserModel {
       'roles': roles,
       'schoolId': schoolId,
       'classId': classId,
+      'grade': grade,
+      'section': section,
     };
   }
 

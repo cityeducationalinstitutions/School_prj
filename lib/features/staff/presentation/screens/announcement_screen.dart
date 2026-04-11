@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:management/features/staff/presentation/providers/announcement_provider.dart';
+import 'package:management/features/staff/presentation/providers/attendance_provider.dart';
 import 'package:management/features/auth/presentation/providers/auth_provider.dart';
-import 'package:management/models/announcement_model.dart';
+import 'package:management/models/academic_models.dart';
+import 'package:management/models/attendance_models.dart';
 import 'package:management/models/school_model.dart';
 
 class AnnouncementScreen extends StatefulWidget {
@@ -40,61 +42,53 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
     });
   }
 
+  ClassModel? _selectedClass;
+
   void _addAnnouncement() async {
     if (_titleController.text.isEmpty || _contentController.text.isEmpty) return;
 
     final authProvider = context.read<AuthProvider>();
-    final user = authProvider.currentUser;
     final schoolId = authProvider.selectedSchoolId;
     final provider = context.read<AnnouncementProvider>();
 
     if (schoolId == null) return;
 
-    final announcement = AnnouncementModel(
+    final announcement = Announcement(
       id: _editingId ?? '',
+      classId: _selectedClass?.id ?? 'all',
+      grade: _selectedClass?.name ?? 'All',
+      section: _selectedClass?.section ?? 'All',
       title: _titleController.text,
-      content: _contentController.text,
-      targetRole: _targetRole,
-      date: _editingId != null 
-          ? provider.announcements.firstWhere((a) => a.id == _editingId).date
-          : DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
-      author: user?.name ?? 'Staff',
-      schoolId: schoolId,
+      message: _contentController.text,
+      createdAt: DateTime.now(),
     );
 
     try {
       final messenger = ScaffoldMessenger.of(context);
       if (_editingId != null) {
+        // Update logic
         await provider.updateAnnouncement(announcement);
-        messenger.showSnackBar(
-          const SnackBar(content: Text('Announcement updated!')),
-        );
+        messenger.showSnackBar(const SnackBar(content: Text('Notice updated!')));
       } else {
-        await provider.addAnnouncement(announcement);
-        messenger.showSnackBar(
-          const SnackBar(content: Text('Announcement posted!')),
-        );
+        await provider.createAnnouncement(announcement);
+        messenger.showSnackBar(const SnackBar(content: Text('Notice broadcasted!')));
       }
       
       _cancelEdit();
-      if (mounted) {
-        provider.fetchAnnouncements(schoolId);
-      }
+      setState(() => _selectedClass = null);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
 
-  void _editAnnouncement(AnnouncementModel announcement) {
+  void _editAnnouncement(Announcement announcement) {
     setState(() {
       _editingId = announcement.id;
       _titleController.text = announcement.title;
-      _contentController.text = announcement.content;
-      _targetRole = announcement.targetRole;
+      _contentController.text = announcement.message;
+      _selectedClass = null; // Reset selection for edit
     });
   }
 
@@ -135,10 +129,27 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final attendanceProvider = context.watch<AttendanceProvider>();
     final provider = context.watch<AnnouncementProvider>();
     final schoolId = context.read<AuthProvider>().selectedSchoolId;
     final school = SchoolModel.schools.firstWhere((s) => s.id == schoolId, orElse: () => SchoolModel.schools.first);
     final themeColor = school.themeColor;
+
+    // Class Selection Sorting
+    final classesMap = <String, ClassModel>{};
+    for (var c in attendanceProvider.classes) {
+      final key = '${c.name}_${c.section}'.toLowerCase();
+      if (!classesMap.containsKey(key)) {
+        classesMap[key] = c;
+      }
+    }
+    final sortedClasses = classesMap.values.toList();
+    sortedClasses.sort((a, b) {
+      final numA = int.tryParse(a.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+      final numB = int.tryParse(b.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+      if (numA != numB) return numA.compareTo(numB);
+      return a.section.compareTo(b.section);
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
@@ -187,7 +198,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      _buildFormSection(themeColor, provider),
+                      _buildFormSection(themeColor, provider, sortedClasses),
                     ],
                   ),
                 ),
@@ -236,7 +247,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
     );
   }
 
-  Widget _buildFormSection(Color themeColor, AnnouncementProvider provider) {
+  Widget _buildFormSection(Color themeColor, AnnouncementProvider provider, List<ClassModel> sortedClasses) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -267,15 +278,15 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
             maxLines: 2,
           ),
           const Divider(),
-          _buildDropdown<String>(
-            label: 'Target Audience',
-            value: _targetRole,
-            items: ['all', 'staff', 'student'],
-            hint: 'Select Audience',
+          _buildDropdown<ClassModel>(
+            label: 'Target Audience (Optional)',
+            value: _selectedClass,
+            items: sortedClasses,
+            hint: 'Select Class (or leave for Everyone)',
             icon: Icons.groups_rounded,
             themeColor: themeColor,
-            itemLabelBuilder: (val) => val == 'all' ? 'Everyone' : (val == 'staff' ? 'Staff Only' : 'Students Only'),
-            onChanged: (val) => setState(() => _targetRole = val!),
+            itemLabelBuilder: (c) => '${c.name} - ${c.section}',
+            onChanged: (val) => setState(() => _selectedClass = val),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -297,7 +308,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
     );
   }
 
-  Widget _buildNoticeCard(AnnouncementModel notice, Color themeColor) {
+  Widget _buildNoticeCard(Announcement notice, Color themeColor) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -322,20 +333,20 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: notice.targetRole == 'staff' ? Colors.purple.withOpacity(0.1) : Colors.green.withOpacity(0.1),
+                    color: notice.grade == 'All' ? Colors.blue.withOpacity(0.1) : Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    notice.targetRole.toUpperCase(),
+                    notice.grade == 'All' ? 'EVERYONE' : '${notice.grade} - ${notice.section}',
                     style: GoogleFonts.inter(
-                      color: notice.targetRole == 'staff' ? Colors.purple : Colors.green, 
+                      color: notice.grade == 'All' ? Colors.blue : Colors.green, 
                       fontWeight: FontWeight.bold, 
                       fontSize: 10
                     ),
                   ),
                 ),
                 Text(
-                  notice.date,
+                  DateFormat('dd MMM, HH:mm').format(notice.createdAt),
                   style: GoogleFonts.inter(color: Colors.grey, fontSize: 11),
                 ),
               ],
@@ -347,24 +358,14 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              notice.content,
+              notice.message,
               style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade700, height: 1.4),
             ),
             const SizedBox(height: 16),
             const Divider(),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.person_pin_rounded, size: 14, color: Colors.grey),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Posted by ${notice.author}',
-                      style: GoogleFonts.inter(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
                 Row(
                   children: [
                     IconButton(

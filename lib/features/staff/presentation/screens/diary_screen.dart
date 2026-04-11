@@ -6,7 +6,7 @@ import 'package:management/features/auth/presentation/providers/auth_provider.da
 import 'package:management/features/staff/presentation/providers/attendance_provider.dart';
 import 'package:management/features/staff/presentation/providers/diary_provider.dart';
 import 'package:management/models/attendance_models.dart';
-import 'package:management/models/diary_model.dart';
+import 'package:management/models/academic_models.dart';
 import 'package:management/models/school_model.dart';
 
 class DiaryScreen extends StatefulWidget {
@@ -52,12 +52,14 @@ class _DiaryScreenState extends State<DiaryScreen> {
     if (_selectedClass == null || _topicController.text.isEmpty) return;
     final provider = context.read<DiaryProvider>();
 
-    final diary = DiaryModel(
+    final diary = DiaryEntry(
       id: _editingId ?? '',
       classId: _selectedClass!.id,
+      grade: _selectedClass!.name,
+      section: _selectedClass!.section,
       date: _editingId != null 
           ? provider.entries.firstWhere((e) => e.id == _editingId).date
-          : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+          : DateTime.now(),
       subject: _selectedSubject,
       topic: _topicController.text,
       homework: _homeworkController.text,
@@ -82,7 +84,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
     }
   }
 
-  void _editEntry(DiaryModel entry) {
+  void _editEntry(DiaryEntry entry) {
     setState(() {
       _editingId = entry.id;
       _selectedSubject = entry.subject;
@@ -268,7 +270,6 @@ class _DiaryScreenState extends State<DiaryScreen> {
               ),
             ),
           
-          // Bottom padding for keyboard/spacing
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
@@ -335,7 +336,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
     );
   }
 
-  Widget _buildDiaryCard(DiaryModel entry, Color themeColor) {
+  Widget _buildDiaryCard(DiaryEntry entry, Color themeColor) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -369,7 +370,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                   ),
                 ),
                 Text(
-                  entry.date,
+                  DateFormat('dd MMM, yyyy').format(entry.date),
                   style: GoogleFonts.inter(color: Colors.grey, fontSize: 12),
                 ),
               ],

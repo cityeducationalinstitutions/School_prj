@@ -1,47 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:management/models/announcement_model.dart';
-
-class AnnouncementRepository {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  Future<void> addAnnouncement(AnnouncementModel announcement) async {
-    await _firestore.collection('announcements').add(announcement.toMap());
-  }
-
-  Future<List<AnnouncementModel>> getAnnouncements(String schoolId) async {
-    final snapshot = await _firestore
-        .collection('announcements')
-        .where('schoolId', isEqualTo: schoolId) // Filter by school
-        .get();
-    return snapshot.docs.map((doc) => AnnouncementModel.fromMap(doc.data(), doc.id)).toList();
-  }
-
-  Future<void> updateAnnouncement(AnnouncementModel announcement) async {
-    await _firestore.collection('announcements').doc(announcement.id).update(announcement.toMap());
-  }
-
-  Future<void> deleteAnnouncement(String id) async {
-    await _firestore.collection('announcements').doc(id).delete();
-  }
-}
+import 'package:management/models/academic_models.dart';
+import 'package:management/features/staff/data/academic_repository.dart';
 
 class AnnouncementProvider with ChangeNotifier {
-  final AnnouncementRepository _repository = AnnouncementRepository();
+  final AcademicRepository _repository = AcademicRepository();
   bool _isLoading = false;
-  List<AnnouncementModel> _announcements = [];
+  List<Announcement> _announcements = [];
 
   bool get isLoading => _isLoading;
-  List<AnnouncementModel> get announcements => _announcements;
+  List<Announcement> get announcements => _announcements;
 
   Future<void> fetchAnnouncements(String schoolId) async {
     _isLoading = true;
     notifyListeners();
     try {
-      final list = await _repository.getAnnouncements(schoolId);
-      // Sort manually to avoid index requirement
-      list.sort((a, b) => b.date.compareTo(a.date));
-      _announcements = list;
+      final snapshot = await FirebaseFirestore.instance
+          .collection('announcements')
+          .get(); 
+      
+      _announcements = snapshot.docs
+          .map((doc) => Announcement.fromMap(doc.data(), doc.id))
+          .toList();
+      _announcements.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     } catch (e) {
       debugPrint('Error fetching announcements: $e');
     } finally {
@@ -50,11 +31,12 @@ class AnnouncementProvider with ChangeNotifier {
     }
   }
 
-  Future<void> addAnnouncement(AnnouncementModel announcement) async {
+  Future<void> createAnnouncement(Announcement announcement) async {
     _isLoading = true;
     notifyListeners();
     try {
-      await _repository.addAnnouncement(announcement);
+      await _repository.createAnnouncement(announcement);
+      await fetchAnnouncements('temp_id'); // Refresh
     } catch (e) {
       debugPrint('Error adding announcement: $e');
       rethrow;
@@ -64,12 +46,15 @@ class AnnouncementProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateAnnouncement(AnnouncementModel announcement) async {
+  Future<void> updateAnnouncement(Announcement announcement) async {
     _isLoading = true;
     notifyListeners();
     try {
-      await _repository.updateAnnouncement(announcement);
-      await fetchAnnouncements(announcement.schoolId);
+      await FirebaseFirestore.instance
+          .collection('announcements')
+          .doc(announcement.id)
+          .set(announcement.toMap());
+      await fetchAnnouncements('temp_id');
     } catch (e) {
       debugPrint('Error updating announcement: $e');
       rethrow;
@@ -83,7 +68,7 @@ class AnnouncementProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      await _repository.deleteAnnouncement(id);
+      await FirebaseFirestore.instance.collection('announcements').doc(id).delete();
       await fetchAnnouncements(schoolId);
     } catch (e) {
       debugPrint('Error deleting announcement: $e');

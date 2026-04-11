@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:management/features/student/presentation/providers/student_provider.dart';
+import 'package:management/models/attendance_models.dart';
 
 class StudentAttendanceScreen extends StatefulWidget {
   const StudentAttendanceScreen({super.key});
@@ -17,15 +18,32 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
   final Color schoolOrange = const Color(0xFFE28743);
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchData();
+    });
+  }
+
+  void _fetchData() {
+    context.read<StudentProvider>().fetchAttendance(_focusedMonth.month, _focusedMonth.year);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // final studentProvider = context.watch<StudentProvider>(); // To be used for dynamic data
+    final studentProvider = context.watch<StudentProvider>();
+    final attendanceList = studentProvider.monthlyAttendance;
+    
+    // Calculate metrics
+    final totalWorkingDays = attendanceList.length;
+    final presentDays = attendanceList.where((a) => a.status.toLowerCase() == 'present').length;
+    final presencePercentage = totalWorkingDays > 0 ? (presentDays / totalWorkingDays * 100).toInt() : 0;
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBFBFE),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // 1. Signature Elite Presence Header (Immersive Orange)
           SliverAppBar(
             expandedHeight: 320,
             floating: false,
@@ -40,7 +58,6 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
               collapseMode: CollapseMode.pin,
               background: Stack(
                 children: [
-                  // Branded Orange Gradient
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -50,22 +67,19 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
                       ),
                     ),
                   ),
-                  // Dashboard Content (Gauges & Metrics)
                   Positioned(
                     bottom: 20,
                     left: 24,
                     right: 24,
                     child: Column(
                       children: [
-                        // Central Attendance Gauge
-                        _AttendanceGauge(percentage: 94, schoolBlue: schoolBlue),
+                        _AttendanceGauge(percentage: presencePercentage, schoolBlue: schoolBlue),
                         const SizedBox(height: 24),
-                        // Quick Metrics Row
                         Row(
                           children: [
-                            Expanded(child: _EliteMetricCard(label: 'Total Working Days', value: '22', icon: Icons.calendar_month, color: schoolBlue)),
+                            Expanded(child: _EliteMetricCard(label: 'Total Working Days', value: totalWorkingDays.toString(), icon: Icons.calendar_month, color: schoolBlue)),
                             const SizedBox(width: 16),
-                            Expanded(child: _EliteMetricCard(label: 'Days Present', value: '20', icon: Icons.check_circle_rounded, color: Colors.green.shade700)),
+                            Expanded(child: _EliteMetricCard(label: 'Days Present', value: presentDays.toString(), icon: Icons.check_circle_rounded, color: Colors.green.shade700)),
                           ],
                         ),
                       ],
@@ -76,7 +90,6 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
             ),
           ),
 
-          // 2. Month Selector & Insights
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 30, 24, 0),
@@ -85,18 +98,22 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
                   _MonthSelector(
                     focusedMonth: _focusedMonth,
                     schoolBlue: schoolBlue,
-                    onPrev: () => setState(() => _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month - 1)),
-                    onNext: () => setState(() => _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1)),
+                    onPrev: () {
+                      setState(() => _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month - 1));
+                      _fetchData();
+                    },
+                    onNext: () {
+                      setState(() => _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1));
+                      _fetchData();
+                    },
                   ),
                   const SizedBox(height: 20),
-                  // Smart Insight Strip
                   _PresenceInsightStrip(schoolBlue: schoolBlue, schoolOrange: schoolOrange),
                 ],
               ),
             ),
           ),
 
-          // 3. Premium Presence Calendar
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
             sliver: SliverToBoxAdapter(
@@ -111,7 +128,6 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
                 ),
                 child: Column(
                   children: [
-                    // Weekday Headers
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => Expanded(
@@ -124,9 +140,8 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
                       )).toList(),
                     ),
                     const SizedBox(height: 20),
-                    _buildEliteCalendarGrid(),
+                    _buildEliteCalendarGrid(attendanceList),
                     const SizedBox(height: 32),
-                    // Legend
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -147,7 +162,7 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
     );
   }
 
-  Widget _buildEliteCalendarGrid() {
+  Widget _buildEliteCalendarGrid(List<AttendanceRecord> attendance) {
     final firstDay = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
     final lastDay = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0);
     final daysInMonth = lastDay.day;
@@ -162,9 +177,17 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
     for (var i = 1; i <= daysInMonth; i++) {
       final date = DateTime(_focusedMonth.year, _focusedMonth.month, i);
       final isSunday = date.weekday == DateTime.sunday;
-      final isToday = date.day == DateTime.now().day && date.month == DateTime.now().month && date.year == DateTime.now().year;
-      final isAbsent = (i == 5 || i == 18); // Mocking for V1
-      final isHoliday = (i == 10 || i == 25); // Mocking for V1
+      final isToday = DateUtils.isSameDay(date, DateTime.now());
+      
+      final record = attendance.cast<AttendanceRecord?>().firstWhere(
+        (a) => DateUtils.isSameDay(a?.date, date),
+        orElse: () => null,
+      );
+
+      final status = record?.status.toLowerCase() ?? (isSunday ? 'holiday' : 'none');
+      final isAbsent = status == 'absent';
+      final isHoliday = status == 'holiday' || isSunday;
+      final isPresent = status == 'present';
       
       dayWidgets.add(
         Expanded(
@@ -175,9 +198,11 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
               decoration: BoxDecoration(
                 color: isAbsent 
                     ? Colors.red.shade50
-                    : isHoliday || isSunday
+                    : isHoliday
                         ? schoolOrange.withOpacity(0.08)
-                        : Colors.green.shade50.withOpacity(0.5),
+                        : isPresent 
+                            ? Colors.green.shade50.withOpacity(0.5)
+                            : Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(14),
                 border: isToday ? Border.all(color: schoolOrange, width: 2) : null,
               ),
@@ -186,12 +211,14 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
                   i.toString(),
                   style: GoogleFonts.inter(
                     fontSize: 14,
-                    fontWeight: isToday || isAbsent || isHoliday ? FontWeight.bold : FontWeight.w500,
+                    fontWeight: isToday || isAbsent || isHoliday || isPresent ? FontWeight.bold : FontWeight.w500,
                     color: isAbsent 
                         ? Colors.red.shade400
-                        : isHoliday || isSunday
+                        : isHoliday
                             ? schoolOrange
-                            : Colors.green.shade600,
+                            : isPresent
+                                ? Colors.green.shade600
+                                : Colors.grey.shade400,
                   ),
                 ),
               ),
