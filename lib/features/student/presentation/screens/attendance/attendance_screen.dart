@@ -33,10 +33,13 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
   Widget build(BuildContext context) {
     final studentProvider = context.watch<StudentProvider>();
     final attendanceList = studentProvider.monthlyAttendance;
+    final currentMonthRecords = attendanceList.where((a) => 
+      a.date.month == _focusedMonth.month && a.date.year == _focusedMonth.year
+    ).toList();
     
-    // Calculate metrics
-    final totalWorkingDays = attendanceList.length;
-    final presentDays = attendanceList.where((a) => a.status.toLowerCase() == 'present').length;
+    // Calculate metrics based on filtered records
+    final totalWorkingDays = currentMonthRecords.length;
+    final presentDays = currentMonthRecords.where((a) => a.status.toLowerCase() == 'present').length;
     final presencePercentage = totalWorkingDays > 0 ? (presentDays / totalWorkingDays * 100).toInt() : 0;
 
     return Scaffold(

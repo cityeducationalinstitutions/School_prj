@@ -149,9 +149,18 @@ class StudentHomeTab extends StatelessWidget {
                               _SummaryCard(
                                 title: 'Attendance',
                                 value: () {
-                                  if (studentProvider.monthlyAttendance.isEmpty) return '0%';
-                                  final total = studentProvider.monthlyAttendance.length;
-                                  final present = studentProvider.monthlyAttendance.where((r) => r.status == 'Present').length;
+                                  final now = DateTime.now();
+                                  final currentMonthRecords = studentProvider.monthlyAttendance.where((r) => 
+                                    r.date.month == now.month && r.date.year == now.year
+                                  ).toList();
+
+                                  if (currentMonthRecords.isEmpty) return '0%';
+                                  
+                                  final total = currentMonthRecords.length;
+                                  final present = currentMonthRecords.where((r) => 
+                                    r.status.toLowerCase() == 'present'
+                                  ).length;
+                                  
                                   return '${((present / total) * 100).toInt()}%';
                                 }(),
                                 subtitle: 'Current Month',
@@ -702,17 +711,28 @@ class _StudentDiaryTabState extends State<StudentDiaryTab> {
                             return _buildAssignmentCard(entry, schoolOrange, schoolBlue);
                           },
                         ))
-                  : (studentProvider.diaryEntries.isEmpty 
-                      ? _buildEmptyState('A Day of Discovery', 'No entries yet. Every lesson is a step toward your future dreams!')
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(24),
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: studentProvider.diaryEntries.length,
-                          itemBuilder: (context, index) {
-                            final item = studentProvider.diaryEntries[index];
-                            return _buildPremiumDiaryCard(item, schoolOrange, schoolBlue);
-                          },
-                        )),
+                  : (() {
+                      final filteredEntries = studentProvider.diaryEntries.where((e) => 
+                        DateUtils.isSameDay(e.date, _selectedDate)
+                      ).toList();
+
+                      if (filteredEntries.isEmpty) {
+                        return _buildEmptyState(
+                          'A Day of Discovery', 
+                          'No entries for ${DateFormat('dd MMM').format(_selectedDate)}. Every lesson is a step toward your future dreams!'
+                        );
+                      }
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.all(24),
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: filteredEntries.length,
+                        itemBuilder: (context, index) {
+                          final item = filteredEntries[index];
+                          return _buildPremiumDiaryCard(item, schoolOrange, schoolBlue);
+                        },
+                      );
+                    })(),
                 if (studentProvider.isLoading)
                   Positioned.fill(
                     child: Container(

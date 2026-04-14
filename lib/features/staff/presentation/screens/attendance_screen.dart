@@ -6,6 +6,7 @@ import 'package:management/features/auth/presentation/providers/auth_provider.da
 import 'package:management/features/staff/presentation/providers/attendance_provider.dart';
 import 'package:management/models/attendance_models.dart';
 import 'package:management/models/school_model.dart';
+import 'package:management/core/widgets/smart_class_selector.dart';
 
 class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key});
@@ -25,23 +26,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
   String get _currentSession {
     final now = DateTime.now();
-    // For testing purposes: Lock is disabled.
-    // Defaulting to Morning before noon, Evening after noon.
     if (now.hour < 12) return 'Morning';
     return 'Evening';
   }
 
-  String get _lockMessage => ''; // No lock messages during testing
-
-  List<String> get _availableSections {
-    if (_selectedGrade == null) return [];
-    return context.read<AttendanceProvider>().classes
-        .where((c) => c.name == _selectedGrade)
-        .map((c) => c.section)
-        .toSet()
-        .toList()
-      ..sort();
-  }
+  String get _lockMessage => '';
 
   @override
   void initState() {
@@ -54,82 +43,53 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     });
   }
 
-  void _onGradeChanged(String? val) {
-    setState(() {
-      _selectedGrade = val;
-      _selectedSection = null; 
-      _matchingClass = null;
-      _attendanceMap.clear();
-      _searchQuery = '';
-      context.read<AttendanceProvider>().clearCurrentSessionRecords();
-    });
-  }
-
-  void _onSectionChanged(String? val) {
-    setState(() {
-      _selectedSection = val;
-      _attendanceMap.clear();
-      _searchQuery = '';
-      context.read<AttendanceProvider>().clearCurrentSessionRecords();
-    });
-    
-    _findMatchingClass();
-  }
-
   void _findMatchingClass() {
-    if (_selectedGrade == null || _selectedSection == null) return;
+    if (_matchingClass == null) return;
     
     final provider = context.read<AttendanceProvider>();
-    final match = provider.classes.firstWhere(
-      (c) => c.name == _selectedGrade && c.section == _selectedSection,
-      orElse: () => ClassModel(id: '', name: '', branchId: '', section: ''),
-    );
-
-    if (match.id.isNotEmpty) {
-      setState(() => _matchingClass = match);
-      provider.fetchStudents(match.id).then((_) {
-        if (_currentSession != 'Locked') {
-          provider.fetchTodayAttendance(match.id, DateTime.now(), _currentSession).then((_) {
-            if (provider.currentSessionRecords.isNotEmpty) {
-              for (var student in provider.students) {
-                final record = provider.currentSessionRecords.firstWhere(
-                  (r) => r.studentId == student.id,
-                  orElse: () => AttendanceRecord(
-                    id: '', 
-                    studentId: student.id, 
-                    studentName: student.name, 
-                    classId: match.id, 
-                    date: DateTime.now(), 
-                    status: 'Present', 
-                    sessionType: _currentSession
-                  ),
-                );
-                _attendanceMap[student.id] = record.status == 'Present';
-              }
-            } else {
-              for (var student in provider.students) {
-                _attendanceMap[student.id] = true;
-              }
+    provider.fetchStudents(_matchingClass!.id).then((_) {
+      if (_currentSession != 'Locked') {
+        provider.fetchTodayAttendance(_matchingClass!.id, DateTime.now(), _currentSession).then((_) {
+          if (provider.currentSessionRecords.isNotEmpty) {
+            for (var student in provider.students) {
+              final record = provider.currentSessionRecords.firstWhere(
+                (r) => r.studentId == student.id,
+                orElse: () => AttendanceRecord(
+                  id: '', 
+                  studentId: student.id, 
+                  studentName: student.name, 
+                  classId: _matchingClass!.id, 
+                  date: DateTime.now(), 
+                  status: 'Present', 
+                  sessionType: _currentSession
+                ),
+              );
+              _attendanceMap[student.id] = record.status == 'Present';
             }
-            if (mounted) setState(() {});
-          });
-        }
-      });
-    } else {
-      setState(() => _matchingClass = null);
-    }
+          } else {
+            for (var student in provider.students) {
+              _attendanceMap[student.id] = true;
+            }
+          }
+          if (mounted) setState(() {});
+        });
+      }
+    });
   }
 
   void _saveAttendance() async {
     if (_matchingClass == null) return;
 
     final records = provider.students.map((student) {
+      final now = DateTime.now();
+      final normalizedDate = DateTime(now.year, now.month, now.day);
+      
       return AttendanceRecord(
         id: '',
         studentId: student.id,
         studentName: student.name,
         classId: _matchingClass!.id,
-        date: DateTime.now(),
+        date: normalizedDate,
         status: (_attendanceMap[student.id] ?? true) ? 'Present' : 'Absent',
         sessionType: _currentSession,
       );
@@ -152,7 +112,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     }
   }
 
-  // Need a local provider getter for build
   AttendanceProvider get provider => context.read<AttendanceProvider>();
 
   @override
@@ -166,13 +125,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     );
     final themeColor = school.themeColor;
     
-    final grades = watchProvider.classes.map((c) => c.name).toSet().toList();
-    grades.sort((a, b) {
-      final numA = int.tryParse(a.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      final numB = int.tryParse(b.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      return numA.compareTo(numB);
-    });
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: const Color(0xffF9F9F9),
@@ -203,22 +155,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       ),
       body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(24.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(32),
-                bottomRight: Radius.circular(32),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -244,35 +182,33 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
                 
-                _buildDropdown(
-                  label: 'Grade',
-                  value: _selectedGrade,
-                  items: grades,
-                  hint: 'Choose Grade (e.g., 1st, 10th)',
-                  icon: Icons.school_rounded,
+                SmartClassSelector(
+                  initialClass: _matchingClass,
                   themeColor: themeColor,
-                  onChanged: _onGradeChanged,
+                  onClassSelected: (cls) {
+                    setState(() {
+                      _matchingClass = cls;
+                      if (cls != null) {
+                        _selectedGrade = cls.name;
+                        _selectedSection = cls.section;
+                      } else {
+                        _selectedGrade = null;
+                        _selectedSection = null;
+                      }
+                      _attendanceMap.clear();
+                      _searchQuery = '';
+                      context.read<AttendanceProvider>().clearCurrentSessionRecords();
+                    });
+                    if (cls != null) _findMatchingClass();
+                  },
                 ),
-                
-                if (_selectedGrade != null) ...[
-                  const SizedBox(height: 16),
-                  _buildDropdown(
-                    label: 'Section',
-                    value: _selectedSection,
-                    items: _availableSections,
-                    hint: 'Choose Section',
-                    icon: Icons.meeting_room_rounded,
-                    themeColor: themeColor,
-                    onChanged: _onSectionChanged,
-                  ),
-                ],
               ],
             ),
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           
           Expanded(
             child: _matchingClass != null
@@ -312,27 +248,33 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       if (!watchProvider.isLoading && watchProvider.students.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(left: 24, right: 24, bottom: 8),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade200),
-                            ),
-                            child: TextField(
-                              onChanged: (val) {
-                                setState(() {
-                                  _searchQuery = val;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(Icons.search_rounded, color: themeColor),
-                                hintText: 'Search students...',
-                                hintStyle: GoogleFonts.inter(color: Colors.grey.shade400),
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          child: TextField(
+                            onChanged: (val) {
+                              setState(() {
+                                _searchQuery = val;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              prefixIcon: Icon(Icons.search_rounded, color: themeColor),
+                              hintText: 'Search students...',
+                              hintStyle: GoogleFonts.inter(color: Colors.grey.shade400),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade200),
                               ),
-                              style: GoogleFonts.inter(color: const Color(0xFF131742)),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade200),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: themeColor, width: 1.5),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                             ),
+                            style: GoogleFonts.inter(color: const Color(0xFF131742)),
                           ),
                         ),
                         
@@ -445,7 +387,9 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                             Icon(Icons.checklist_rtl_rounded, size: 64, color: Colors.grey.withOpacity(0.3)),
                             const SizedBox(height: 16),
                             Text(
-                              'Select a Grade and Section\nto start marking attendance',
+                              AttendanceProvider.shouldShowSection(selectedSchoolId)
+                                  ? 'Select a Grade and Section\nto start marking attendance'
+                                  : 'Select a Grade to start marking attendance',
                               textAlign: TextAlign.center,
                               style: GoogleFonts.inter(
                                 color: Colors.grey,
@@ -474,28 +418,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               child: SafeArea(
                 child: watchProvider.isLoading
                     ? Center(child: CircularProgressIndicator(color: themeColor))
-                    : _currentSession == 'Locked'
-                        ? Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.red.withOpacity(0.3)),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.lock_clock_rounded, color: Colors.red),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    _lockMessage,
-                                    style: GoogleFonts.inter(color: Colors.red, fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : SizedBox(
+                    : SizedBox(
                             width: double.infinity,
                             height: 56,
                             child: ElevatedButton(
@@ -522,44 +445,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildDropdown({
-    required String label,
-    required String? value,
-    required List<String> items,
-    required String hint,
-    required IconData icon,
-    required Color themeColor,
-    required ValueChanged<String?> onChanged,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: DropdownButtonFormField<String>(
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: GoogleFonts.inter(color: Colors.grey.shade600),
-          prefixIcon: Icon(icon, color: themeColor),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        ),
-        icon: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey.shade600),
-        value: value,
-        items: items.map((g) => DropdownMenuItem(
-          value: g, 
-          child: Text(
-            g, 
-            style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFF131742)),
-          ),
-        )).toList(),
-        onChanged: onChanged,
-        hint: Text(hint, style: GoogleFonts.inter(color: Colors.grey.shade400)),
       ),
     );
   }

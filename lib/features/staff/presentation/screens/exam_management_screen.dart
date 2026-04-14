@@ -8,6 +8,7 @@ import 'package:management/features/auth/presentation/providers/auth_provider.da
 import 'package:management/models/attendance_models.dart';
 import 'package:management/models/academic_models.dart';
 import 'package:management/models/school_model.dart';
+import 'package:management/core/widgets/smart_class_selector.dart';
 
 class ExamManagementScreen extends StatefulWidget {
   const ExamManagementScreen({super.key});
@@ -75,14 +76,11 @@ class _ExamManagementScreenState extends State<ExamManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final attendanceProvider = context.watch<AttendanceProvider>();
     final examProvider = context.watch<StaffExamProvider>();
     final schoolId = context.read<AuthProvider>().selectedSchoolId;
     final school = SchoolModel.schools.firstWhere((s) => s.id == schoolId, orElse: () => SchoolModel.schools.first);
     final themeColor = school.themeColor;
 
-    final sortedClasses = attendanceProvider.classes.toList(); // Simplified sorting for now
-    
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
       appBar: AppBar(
@@ -107,15 +105,10 @@ class _ExamManagementScreenState extends State<ExamManagementScreen> {
                     ),
                     child: Column(
                       children: [
-                        _buildDropdown<ClassModel>(
-                          label: 'Class',
-                          value: _selectedClass,
-                          items: sortedClasses,
-                          hint: 'Select Class',
-                          icon: Icons.school_rounded,
+                        SmartClassSelector(
+                          initialClass: _selectedClass,
                           themeColor: themeColor,
-                          itemLabelBuilder: (c) => '${c.name} - ${c.section}',
-                          onChanged: (val) {
+                          onClassSelected: (val) {
                             setState(() => _selectedClass = val);
                             if (val != null) examProvider.fetchExams(val.name, val.section);
                           },
@@ -160,25 +153,38 @@ class _ExamManagementScreenState extends State<ExamManagementScreen> {
       children: [
         TextField(
           controller: _titleController,
-          decoration: InputDecoration(labelText: 'Exam Title (e.g. Finals)', icon: Icon(Icons.title, color: themeColor)),
+          decoration: InputDecoration(
+            labelText: 'Exam Title (e.g. Finals)', 
+            icon: Icon(Icons.title, color: themeColor),
+            labelStyle: GoogleFonts.inter(fontSize: 14),
+          ),
         ),
         TextField(
           controller: _subjectController,
-          decoration: InputDecoration(labelText: 'Subject', icon: Icon(Icons.book, color: themeColor)),
+          decoration: InputDecoration(
+            labelText: 'Subject', 
+            icon: Icon(Icons.book, color: themeColor),
+            labelStyle: GoogleFonts.inter(fontSize: 14),
+          ),
         ),
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: Icon(Icons.calendar_today, color: themeColor),
-          title: Text(DateFormat('dd MMM yyyy').format(_selectedDate)),
-          trailing: TextButton(onPressed: _selectDate, child: const Text('SELECT DATE')),
+          title: Text(DateFormat('dd MMM yyyy').format(_selectedDate), style: GoogleFonts.inter()),
+          trailing: TextButton(onPressed: _selectDate, child: Text('SELECT DATE', style: TextStyle(color: themeColor))),
         ),
         const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
+          height: 50,
           child: ElevatedButton(
             onPressed: provider.isLoading ? null : _saveExam,
-            style: ElevatedButton.styleFrom(backgroundColor: themeColor),
-            child: const Text('SCHEDULE EXAM', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: themeColor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+            ),
+            child: Text('SCHEDULE EXAM', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ),
       ],
@@ -188,34 +194,20 @@ class _ExamManagementScreenState extends State<ExamManagementScreen> {
   Widget _buildExamCard(AcademicExam exam, Color themeColor, StaffExamProvider provider) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(
+        color: Colors.white, 
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10)],
+      ),
       child: ListTile(
-        title: Text(exam.type, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('${exam.subject} • ${DateFormat('dd MMM').format(exam.date)}'),
+        contentPadding: const EdgeInsets.all(16),
+        title: Text(exam.type, style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF131742))),
+        subtitle: Text('${exam.subject} • ${DateFormat('dd MMM yyyy').format(exam.date)}', style: GoogleFonts.inter(color: Colors.grey.shade600)),
         trailing: IconButton(
-          icon: const Icon(Icons.delete, color: Colors.red),
+          icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
           onPressed: () => provider.deleteExam(exam.id, exam.grade, exam.section),
         ),
       ),
-    );
-  }
-
-  Widget _buildDropdown<T>({
-    required String label,
-    required T? value,
-    required List<T> items,
-    required String hint,
-    required IconData icon,
-    required Color themeColor,
-    required ValueChanged<T?> onChanged,
-    String Function(T)? itemLabelBuilder,
-  }) {
-    return DropdownButtonFormField<T>(
-      value: value,
-      decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon, color: themeColor)),
-      items: items.map((i) => DropdownMenuItem(value: i, child: Text(itemLabelBuilder!(i)))).toList(),
-      onChanged: onChanged,
     );
   }
 }

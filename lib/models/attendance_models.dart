@@ -70,6 +70,8 @@ class AttendanceRecord {
   final DateTime date;
   final String status; // 'Present', 'Absent', 'Late'
   final String sessionType; // 'Morning', 'Evening'
+  final String? grade;
+  final String? section;
 
   AttendanceRecord({
     required this.id,
@@ -79,17 +81,34 @@ class AttendanceRecord {
     required this.date,
     required this.status,
     required this.sessionType,
+    this.grade,
+    this.section,
   });
 
   factory AttendanceRecord.fromMap(Map<String, dynamic> map, String id) {
+    DateTime parsedDate;
+    final dateValue = map['date'];
+
+    if (dateValue is Timestamp) {
+      parsedDate = dateValue.toDate();
+    } else if (dateValue is String) {
+      parsedDate = DateTime.tryParse(dateValue) ?? DateTime.now();
+    } else if (dateValue is int) {
+      parsedDate = DateTime.fromMillisecondsSinceEpoch(dateValue);
+    } else {
+      parsedDate = DateTime.now();
+    }
+
     return AttendanceRecord(
       id: id,
       studentId: map['studentId'] ?? '',
       studentName: map['studentName'] ?? '',
       classId: map['classId'] ?? '',
-      date: (map['date'] as Timestamp).toDate(),
+      date: parsedDate,
       status: map['status'] ?? 'Absent',
       sessionType: map['sessionType'] ?? 'Morning',
+      grade: map['grade'],
+      section: map['section'],
     );
   }
 
@@ -101,6 +120,8 @@ class AttendanceRecord {
       'date': Timestamp.fromDate(date),
       'status': status,
       'sessionType': sessionType,
+      'grade': grade,
+      'section': section,
     };
   }
 }

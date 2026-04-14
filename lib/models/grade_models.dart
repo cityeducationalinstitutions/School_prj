@@ -7,6 +7,9 @@ class MarksModel {
   final double marksObtained;
   final double totalMarks;
 
+  final String? grade;
+  final String? section;
+
   MarksModel({
     required this.id,
     required this.studentId,
@@ -15,6 +18,8 @@ class MarksModel {
     required this.examType,
     required this.marksObtained,
     required this.totalMarks,
+    this.grade,
+    this.section,
   });
 
   factory MarksModel.fromMap(Map<String, dynamic> map, String id) {
@@ -26,6 +31,8 @@ class MarksModel {
       examType: map['examType'] ?? '',
       marksObtained: (map['marksObtained'] ?? 0).toDouble(),
       totalMarks: (map['totalMarks'] ?? 100).toDouble(),
+      grade: map['grade'],
+      section: map['section'],
     );
   }
 
@@ -37,6 +44,8 @@ class MarksModel {
       'examType': examType,
       'marksObtained': marksObtained,
       'totalMarks': totalMarks,
+      'grade': grade,
+      'section': section,
     };
   }
 }

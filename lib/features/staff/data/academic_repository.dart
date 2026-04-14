@@ -12,6 +12,10 @@ class AcademicRepository {
     await _firestore.collection('diary').doc(entry.id.isEmpty ? null : entry.id).set(entry.toMap());
   }
 
+  Future<void> deleteDiaryEntry(String id) async {
+    await _firestore.collection('diary').doc(id).delete();
+  }
+
   // MATERIALS
   Future<void> uploadMaterial(AcademicMaterial material, File file) async {
     // 1. Upload to Storage
@@ -66,7 +70,6 @@ class AcademicRepository {
     final snapshot = await _firestore
         .collection('diary')
         .where('classId', isEqualTo: classId)
-        .orderBy('date', descending: true)
         .get();
     return snapshot.docs.map((doc) => DiaryEntry.fromMap(doc.data(), doc.id)).toList();
   }

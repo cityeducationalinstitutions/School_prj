@@ -10,15 +10,16 @@ class StudentRepository {
 
   // DIARY (Synchronized with Staff 'diary' collection)
   Future<List<DiaryEntry>> getDiaryEntries(String grade, String section) async {
+    final normalizedSection = section.toLowerCase();
+    
     final snapshot = await _firestore
         .collection('diary')
         .where('grade', isEqualTo: grade)
-        .where('section', isEqualTo: section)
-        .orderBy('date', descending: true)
         .get();
     
     return snapshot.docs
         .map((doc) => DiaryEntry.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .where((entry) => entry.section.toLowerCase() == normalizedSection)
         .toList();
   }
 
@@ -28,15 +29,25 @@ class StudentRepository {
         .collection('attendance')
         .where('studentId', isEqualTo: studentId)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => AttendanceRecord.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList());
+        .map((snapshot) {
+          final records = <AttendanceRecord>[];
+          for (var doc in snapshot.docs) {
+            try {
+              records.add(AttendanceRecord.fromMap(doc.data() as Map<String, dynamic>, doc.id));
+            } catch (e) {
+              print('Warning: Skipping malformed attendance record ${doc.id}: $e');
+            }
+          }
+          return records;
+        });
   }
 
   Future<List<AttendanceRecord>> getAttendance(String studentId, int month, int year) async {
     final startOfMonth = DateTime(year, month, 1);
-    final endOfMonth = DateTime(year, month + 1, 1).subtract(const Duration(seconds: 1)); // More precise end
+    final endOfMonth = DateTime(year, month + 1, 0); // Last day of the month
 
+    // The stream is typically better for real-time, but for history 
+    // we use normalized midnight timestamps.
     final snapshot = await _firestore
         .collection('attendance')
         .where('studentId', isEqualTo: studentId)
@@ -90,16 +101,37 @@ class StudentRepository {
   }
 
   // ANNOUNCEMENTS (Institutional, Real-time Stream)
-  Stream<List<Announcement>> getAnnouncementsStream(String grade, String section) {
-    return _firestore
-        .collection('announcements')
-        .where('grade', isEqualTo: grade)
-        .where('section', isEqualTo: section)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Announcement.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList());
+  Stream<List<Announcement>> getAnnouncementsStream(String grade, String section, {String? schoolId}) {
+    // Note: Fetching broadly to allow for historical data and global notices
+    // that might be missing the schoolId field.
+    return _firestore.collection('announcements').snapshots().map((snapshot) {
+      final normSection = section.trim().toLowerCase();
+      final normGrade = grade.trim().toLowerCase();
+
+      final announcements = snapshot.docs
+          .map((doc) => Announcement.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .where((a) {
+            // Institutional Check: Show if school matches OR if notice is untagged (Legacy/Global)
+            final isInstitutional = schoolId == null || a.schoolId == null || a.schoolId == schoolId;
+            if (!isInstitutional) return false;
+
+            // Audience Check
+            final isGlobal = a.grade.trim().toLowerCase() == 'all';
+            
+            // Smart Matching: Trim and Case-Insensitive
+            final aGrade = a.grade.trim().toLowerCase();
+            final aSection = a.section.trim().toLowerCase();
+            
+            final isMatch = aGrade == normGrade && aSection == normSection;
+            
+            return isGlobal || isMatch;
+          })
+          .toList();
+
+      // Client-side sort: Latest first
+      announcements.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return announcements;
+    });
   }
 
   // SCHEDULES (Institutional)
@@ -117,14 +149,21 @@ class StudentRepository {
 
   // DOUBTS (Personal, Real-time Stream for replies)
   Stream<List<AcademicDoubt>> streamMyDoubts(String studentId) {
+    // Note: Removed server-side .orderBy('createdAt') to bypass composite index requirement.
+    // We sort client-side instead.
     return _firestore
         .collection('doubts')
         .where('studentId', isEqualTo: studentId)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => AcademicDoubt.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList());
+        .map((snapshot) {
+      final doubts = snapshot.docs
+          .map((doc) => AcademicDoubt.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .toList();
+      
+      // Client-side sort: Latest first
+      doubts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return doubts;
+    });
   }
 
   Future<void> raiseDoubt(AcademicDoubt doubt, File? attachment) async {

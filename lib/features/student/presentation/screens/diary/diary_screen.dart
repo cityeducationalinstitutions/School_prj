@@ -175,21 +175,33 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
                               bgLight,
                             ),
                           ))
-                    : (studentProvider.todayDiary.isEmpty 
-                        ? _buildEmptyView('A New Opportunity!', 'No formal lessons recorded today. Stay curious and keep exploring your academic goals!', schoolBlue)
-                        : ListView.builder(
-                            padding: const EdgeInsets.all(24),
-                            physics: const BouncingScrollPhysics(),
-                            itemCount: studentProvider.todayDiary.length,
-                            itemBuilder: (context, index) {
-                              final entry = studentProvider.todayDiary[index];
-                              return _PremiumDiaryEntryCard(
-                                subject: entry.subject,
-                                topic: entry.topic,
-                                homework: entry.homework,
-                              );
-                            },
-                          )),
+                    : (() {
+                        final filteredEntries = studentProvider.diaryEntries.where((e) => 
+                          DateUtils.isSameDay(e.date, _selectedDate)
+                        ).toList();
+
+                        if (filteredEntries.isEmpty) {
+                          return _buildEmptyView(
+                            'A New Opportunity!', 
+                            'No formal lessons recorded for ${DateFormat('dd MMM').format(_selectedDate)}. Stay curious and keep exploring your academic goals!', 
+                            schoolBlue
+                          );
+                        }
+
+                        return ListView.builder(
+                          padding: const EdgeInsets.all(24),
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: filteredEntries.length,
+                          itemBuilder: (context, index) {
+                            final entry = filteredEntries[index];
+                            return _PremiumDiaryEntryCard(
+                              subject: entry.subject,
+                              topic: entry.topic,
+                              homework: entry.homework,
+                            );
+                          },
+                        );
+                      })()),
           ),
         ],
       ),

@@ -7,6 +7,20 @@ class AnnouncementProvider with ChangeNotifier {
   final AcademicRepository _repository = AcademicRepository();
   bool _isLoading = false;
   List<Announcement> _announcements = [];
+  bool _isDisposed = false;
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_isDisposed) {
+      super.notifyListeners();
+    }
+  }
 
   bool get isLoading => _isLoading;
   List<Announcement> get announcements => _announcements;
@@ -15,12 +29,14 @@ class AnnouncementProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
+      // Fetch all to avoid "Missing Index" and "Null Field" visibility blockers
       final snapshot = await FirebaseFirestore.instance
           .collection('announcements')
           .get(); 
       
       _announcements = snapshot.docs
           .map((doc) => Announcement.fromMap(doc.data(), doc.id))
+          .where((a) => a.schoolId == null || a.schoolId == schoolId) // Resilient filter
           .toList();
       _announcements.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     } catch (e) {
@@ -36,7 +52,7 @@ class AnnouncementProvider with ChangeNotifier {
     notifyListeners();
     try {
       await _repository.createAnnouncement(announcement);
-      await fetchAnnouncements('temp_id'); // Refresh
+      await fetchAnnouncements(announcement.schoolId ?? 'temp_id'); // Refresh
     } catch (e) {
       debugPrint('Error adding announcement: $e');
       rethrow;
@@ -54,7 +70,7 @@ class AnnouncementProvider with ChangeNotifier {
           .collection('announcements')
           .doc(announcement.id)
           .set(announcement.toMap());
-      await fetchAnnouncements('temp_id');
+      await fetchAnnouncements(announcement.schoolId ?? 'temp_id');
     } catch (e) {
       debugPrint('Error updating announcement: $e');
       rethrow;

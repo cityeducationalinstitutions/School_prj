@@ -8,6 +8,7 @@ import 'package:management/features/staff/presentation/providers/diary_provider.
 import 'package:management/models/attendance_models.dart';
 import 'package:management/models/academic_models.dart';
 import 'package:management/models/school_model.dart';
+import 'package:management/core/widgets/smart_class_selector.dart';
 
 class DiaryScreen extends StatefulWidget {
   const DiaryScreen({super.key});
@@ -112,7 +113,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
       ),
     );
 
-    if (confirm == true) {
+  if (confirm == true) {
       try {
         await context.read<DiaryProvider>().deleteEntry(id, _selectedClass!.id);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lesson deleted!')));
@@ -124,40 +125,10 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final attendanceProvider = context.watch<AttendanceProvider>();
     final diaryProvider = context.watch<DiaryProvider>();
     final schoolId = context.read<AuthProvider>().selectedSchoolId;
     final school = SchoolModel.schools.firstWhere((s) => s.id == schoolId, orElse: () => SchoolModel.schools.first);
     final themeColor = school.themeColor;
-
-    // Smart Class Selection (Deduplicated & Sorted)
-    final classesMap = <String, ClassModel>{};
-    for (var c in attendanceProvider.classes) {
-      final numGrade = int.tryParse(c.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      bool isValid = false;
-      if (numGrade >= 1 && numGrade <= 5) {
-        isValid = ['A', 'B', 'C'].contains(c.section);
-      } else if (numGrade >= 6 && numGrade <= 10) {
-        isValid = ['S1', 'S2', 'Talent', 'Regular'].contains(c.section);
-      } else {
-        isValid = true;
-      }
-      
-      if (isValid) {
-        final key = '${c.name}_${c.section}'.toLowerCase();
-        if (!classesMap.containsKey(key)) {
-          classesMap[key] = c;
-        }
-      }
-    }
-    
-    final sortedClasses = classesMap.values.toList();
-    sortedClasses.sort((a, b) {
-      final numA = int.tryParse(a.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      final numB = int.tryParse(b.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      if (numA != numB) return numA.compareTo(numB);
-      return a.section.compareTo(b.section);
-    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
@@ -205,15 +176,10 @@ class _DiaryScreenState extends State<DiaryScreen> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      _buildDropdown<ClassModel>(
-                        label: 'Class',
-                        value: _selectedClass,
-                        items: sortedClasses,
-                        hint: 'Select Class',
-                        icon: Icons.school_rounded,
+                      SmartClassSelector(
+                        initialClass: _selectedClass,
                         themeColor: themeColor,
-                        itemLabelBuilder: (c) => '${c.name} - ${c.section}',
-                        onChanged: (val) {
+                        onClassSelected: (val) {
                           setState(() => _selectedClass = val);
                           if (val != null) diaryProvider.fetchEntries(val.id);
                         },

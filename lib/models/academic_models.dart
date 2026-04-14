@@ -30,7 +30,7 @@ class DiaryEntry {
       subject: map['subject'] ?? '',
       topic: map['topic'] ?? '',
       homework: map['homework'] ?? '',
-      date: (map['date'] as Timestamp).toDate(),
+      date: (map['date'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
@@ -77,7 +77,7 @@ class AcademicMaterial {
       subject: map['subject'] ?? '',
       title: map['title'] ?? '',
       fileUrl: map['fileUrl'] ?? '',
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
@@ -96,6 +96,7 @@ class AcademicMaterial {
 
 class Announcement {
   final String id;
+  final String? schoolId;
   final String classId;
   final String grade;
   final String section;
@@ -105,6 +106,7 @@ class Announcement {
 
   Announcement({
     required this.id,
+    this.schoolId,
     required this.classId,
     required this.grade,
     required this.section,
@@ -116,17 +118,20 @@ class Announcement {
   factory Announcement.fromMap(Map<String, dynamic> map, String id) {
     return Announcement(
       id: id,
+      schoolId: map['schoolId'],
       classId: map['classId'] ?? '',
       grade: map['grade'] ?? '',
       section: map['section'] ?? '',
       title: map['title'] ?? '',
-      message: map['message'] ?? '',
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      // Supporting both 'message' (Academic) and 'content' (Staff/Legacy) keys
+      message: map['message'] ?? map['content'] ?? '',
+      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
+      if (schoolId != null) 'schoolId': schoolId,
       'classId': classId,
       'grade': grade,
       'section': section,
@@ -159,8 +164,10 @@ class StudentMark {
       id: id,
       studentId: map['studentId'] ?? '',
       subject: map['subject'] ?? '',
-      examName: map['examName'] ?? '',
-      marks: (map['marks'] ?? 0).toDouble(),
+      // Supporting both 'examName' (legacy) and 'examType' (Staff App)
+      examName: map['examName'] ?? map['examType'] ?? '',
+      // Supporting both 'marks' (legacy) and 'marksObtained' (Staff App)
+      marks: (map['marks'] ?? map['marksObtained'] ?? 0).toDouble(),
       totalMarks: (map['totalMarks'] ?? 100).toDouble(),
     );
   }
@@ -261,7 +268,7 @@ class AcademicExam {
       grade: map['grade'] ?? '',
       section: map['section'] ?? '',
       subject: map['subject'] ?? '',
-      date: (map['date'] as Timestamp).toDate(),
+      date: (map['date'] as Timestamp?)?.toDate() ?? DateTime.now(),
       time: map['time'] ?? '',
       type: map['type'] ?? 'Unit Test',
       room: map['room'],
@@ -324,7 +331,7 @@ class AcademicDoubt {
       status: map['status'] ?? 'pending',
       answer: map['answer'],
       attachmentUrl: map['attachmentUrl'],
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
@@ -368,7 +375,7 @@ class AppNotification {
       title: map['title'] ?? '',
       message: map['message'] ?? '',
       type: map['type'] ?? 'general',
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       isRead: map['isRead'] ?? false,
     );
   }

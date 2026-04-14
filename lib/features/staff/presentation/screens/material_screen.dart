@@ -9,6 +9,7 @@ import 'package:management/features/auth/presentation/providers/auth_provider.da
 import 'package:management/models/attendance_models.dart';
 import 'package:management/models/academic_models.dart';
 import 'package:management/models/school_model.dart';
+import 'package:management/core/widgets/smart_class_selector.dart';
 
 class MaterialScreen extends StatefulWidget {
   const MaterialScreen({super.key});
@@ -51,7 +52,6 @@ class _MaterialScreenState extends State<MaterialScreen> {
   void _upload() async {
     if (_selectedClass == null || _selectedFile == null || _titleController.text.isEmpty) return;
 
-    final user = context.read<AuthProvider>().currentUser;
     try {
       await context.read<MaterialProvider>().uploadMaterial(
             file: _selectedFile!,
@@ -114,40 +114,10 @@ class _MaterialScreenState extends State<MaterialScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final attendanceProvider = context.watch<AttendanceProvider>();
     final materialProvider = context.watch<MaterialProvider>();
     final schoolId = context.read<AuthProvider>().selectedSchoolId;
     final school = SchoolModel.schools.firstWhere((s) => s.id == schoolId, orElse: () => SchoolModel.schools.first);
     final themeColor = school.themeColor;
-
-    // Smart Class Selection (Deduplicated & Sorted)
-    final classesMap = <String, ClassModel>{};
-    for (var c in attendanceProvider.classes) {
-      final numGrade = int.tryParse(c.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      bool isValid = false;
-      if (numGrade >= 1 && numGrade <= 5) {
-        isValid = ['A', 'B', 'C'].contains(c.section);
-      } else if (numGrade >= 6 && numGrade <= 10) {
-        isValid = ['S1', 'S2', 'Talent', 'Regular'].contains(c.section);
-      } else {
-        isValid = true;
-      }
-      
-      if (isValid) {
-        final key = '${c.name}_${c.section}'.toLowerCase();
-        if (!classesMap.containsKey(key)) {
-          classesMap[key] = c;
-        }
-      }
-    }
-    
-    final sortedClasses = classesMap.values.toList();
-    sortedClasses.sort((a, b) {
-      final numA = int.tryParse(a.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      final numB = int.tryParse(b.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      if (numA != numB) return numA.compareTo(numB);
-      return a.section.compareTo(b.section);
-    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
@@ -180,15 +150,10 @@ class _MaterialScreenState extends State<MaterialScreen> {
                   ),
                   child: Column(
                     children: [
-                      _buildDropdown<ClassModel>(
-                        label: 'Class',
-                        value: _selectedClass,
-                        items: sortedClasses,
-                        hint: 'Select Class',
-                        icon: Icons.school_rounded,
+                      SmartClassSelector(
+                        initialClass: _selectedClass,
                         themeColor: themeColor,
-                        itemLabelBuilder: (c) => '${c.name} - ${c.section}',
-                        onChanged: (val) {
+                        onClassSelected: (val) {
                           setState(() => _selectedClass = val);
                           if (val != null) materialProvider.fetchMaterials(val.name, val.section);
                         },
@@ -259,16 +224,27 @@ class _MaterialScreenState extends State<MaterialScreen> {
         border: Border.all(color: themeColor.withOpacity(0.1)),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 6),
+            child: Text('Resource Title', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: themeColor.withOpacity(0.7), letterSpacing: 0.5)),
+          ),
+          TextFormField(
             controller: _titleController,
             decoration: InputDecoration(
-              labelText: 'Resource Title',
-              labelStyle: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 13),
+              filled: true,
+              fillColor: Colors.white,
               prefixIcon: Icon(Icons.edit_note, color: themeColor),
-              border: InputBorder.none,
+              hintText: 'Enter title...',
+              hintStyle: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 14),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: Colors.grey.shade200, width: 1)),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: Colors.grey.shade200, width: 1)),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: themeColor, width: 1.5)),
             ),
           ),
+          const SizedBox(height: 16),
           _buildDropdown<String>(
             label: 'Subject',
             value: _selectedSubject,
@@ -278,6 +254,7 @@ class _MaterialScreenState extends State<MaterialScreen> {
             themeColor: themeColor,
             onChanged: (val) => setState(() => _selectedSubject = val!),
           ),
+          const SizedBox(height: 16),
           const Divider(),
           Row(
             children: [
@@ -380,34 +357,60 @@ class _MaterialScreenState extends State<MaterialScreen> {
     required ValueChanged<T?> onChanged,
     String Function(T)? itemLabelBuilder,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: DropdownButtonFormField<T>(
-        isExpanded: true,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 12),
-          prefixIcon: Icon(icon, color: themeColor),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        ),
-        icon: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey.shade600),
-        value: value,
-        items: items.map((item) => DropdownMenuItem<T>(
-          value: item,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 6),
           child: Text(
-            itemLabelBuilder != null ? itemLabelBuilder(item) : item.toString(),
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFF131742)),
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: themeColor.withOpacity(0.7),
+              letterSpacing: 0.5,
+            ),
           ),
-        )).toList(),
-        onChanged: onChanged,
-        hint: Text(hint, style: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 14)),
-      ),
+        ),
+        DropdownButtonFormField<T>(
+          isExpanded: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            prefixIcon: Container(
+              margin: const EdgeInsets.only(left: 8, right: 4),
+              child: Icon(icon, color: themeColor, size: 22),
+            ),
+            prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: themeColor, width: 1.5),
+            ),
+          ),
+          icon: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey.shade500, size: 22),
+          dropdownColor: Colors.white,
+          value: value,
+          items: items.map((item) => DropdownMenuItem<T>(
+            value: item,
+            child: Text(
+              itemLabelBuilder != null ? itemLabelBuilder(item) : item.toString(),
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 14, color: const Color(0xFF131742)),
+            ),
+          )).toList(),
+          onChanged: onChanged,
+          hint: Text(hint, style: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 14)),
+        ),
+      ],
     );
   }
 }

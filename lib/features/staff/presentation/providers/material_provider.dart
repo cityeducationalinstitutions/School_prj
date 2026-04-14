@@ -8,6 +8,20 @@ class MaterialProvider with ChangeNotifier {
   final AcademicRepository _repository = AcademicRepository();
   bool _isLoading = false;
   List<AcademicMaterial> _materials = [];
+  bool _isDisposed = false;
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_isDisposed) {
+      super.notifyListeners();
+    }
+  }
 
   bool get isLoading => _isLoading;
   List<AcademicMaterial> get materials => _materials;

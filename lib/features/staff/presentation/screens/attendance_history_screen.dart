@@ -7,6 +7,7 @@ import 'package:management/features/staff/presentation/providers/attendance_prov
 import 'package:management/features/staff/presentation/providers/grade_book_provider.dart';
 import 'package:management/models/attendance_models.dart';
 import 'package:management/models/school_model.dart';
+import 'package:management/core/widgets/smart_class_selector.dart';
 
 class AttendanceHistoryScreen extends StatefulWidget {
   const AttendanceHistoryScreen({super.key});
@@ -35,7 +36,8 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     });
     if (value != null) {
       context.read<AttendanceProvider>().fetchHistory(value.id);
-      context.read<GradeBookProvider>().fetchMarksByClassAndSubject(value.id, 'Mathematics');
+      context.read<AttendanceProvider>().fetchStudents(value.id);
+      context.read<GradeBookProvider>().fetchMarksByClass(value.id);
     }
   }
 
@@ -46,34 +48,6 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     final schoolId = context.read<AuthProvider>().selectedSchoolId;
     final school = SchoolModel.schools.firstWhere((s) => s.id == schoolId, orElse: () => SchoolModel.schools.first);
     final themeColor = school.themeColor;
-
-    final classesMap = <String, ClassModel>{};
-    for (var c in attendanceProvider.classes) {
-      final numGrade = int.tryParse(c.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      bool isValid = false;
-      if (numGrade >= 1 && numGrade <= 5) {
-        isValid = ['A', 'B', 'C'].contains(c.section);
-      } else if (numGrade >= 6 && numGrade <= 10) {
-        isValid = ['S1', 'S2', 'Talent', 'Regular'].contains(c.section);
-      } else {
-        isValid = true;
-      }
-      
-      if (isValid) {
-        final key = '${c.name}_${c.section}'.toLowerCase();
-        if (!classesMap.containsKey(key)) {
-          classesMap[key] = c;
-        }
-      }
-    }
-    
-    final sortedClasses = classesMap.values.toList();
-    sortedClasses.sort((a, b) {
-      final numA = int.tryParse(a.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      final numB = int.tryParse(b.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      if (numA != numB) return numA.compareTo(numB);
-      return a.section.compareTo(b.section);
-    });
 
     // Grouping logic for history
     final Map<String, List<AttendanceRecord>> groupedHistory = {};
@@ -110,15 +84,10 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                   BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 20, offset: const Offset(0, 10)),
                 ],
               ),
-              child: _buildDropdown<ClassModel>(
-                label: 'Class',
-                value: _selectedClass,
-                items: sortedClasses,
-                hint: 'Select Class',
-                icon: Icons.analytics_rounded,
+              child: SmartClassSelector(
+                initialClass: _selectedClass,
                 themeColor: themeColor,
-                itemLabelBuilder: (c) => '${c.name} - ${c.section}',
-                onChanged: _onClassSelected,
+                onClassSelected: _onClassSelected,
               ),
             ),
           ),
@@ -169,8 +138,8 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     int totalCount = history.length;
     final attendancePct = totalCount > 0 ? (totalPresent / totalCount * 100).toStringAsFixed(1) : '0';
     
-    final passCount = grades.marks.where((m) => m.marksObtained >= 35).length;
-    final failCount = grades.marks.where((m) => m.marksObtained >= 0 && m.marksObtained < 35).length;
+    final passCount = grades.marks.where((m) => m.totalMarks > 0 && (m.marksObtained / m.totalMarks) >= 0.35).length;
+    final failCount = grades.marks.where((m) => m.totalMarks > 0 && (m.marksObtained / m.totalMarks) < 0.35).length;
     final passPct = (passCount + failCount) > 0 ? (passCount / (passCount + failCount) * 100).toStringAsFixed(0) : 'N/A';
 
     return Padding(
@@ -206,8 +175,16 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
   }
 
   Widget _buildGroupedHistoryCard(String key, List<AttendanceRecord> records, Color themeColor) {
-    final present = records.where((r) => r.status == 'Present').length;
-    final total = records.length;
+    // Collect unique student data for this session
+    final Map<String, AttendanceRecord> uniqueSessionRecords = {};
+    for (var r in records) {
+      if (!uniqueSessionRecords.containsKey(r.studentId)) {
+        uniqueSessionRecords[r.studentId] = r;
+      }
+    }
+
+    final present = uniqueSessionRecords.values.where((r) => r.status == 'Present').length;
+    final total = uniqueSessionRecords.length;
     final pct = total > 0 ? (present / total * 100) : 0.0;
     
     // Key format is yyyy-MM-dd_SessionType
@@ -226,6 +203,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(20),
+        onTap: () => _showRecordDetails(records, themeColor),
         title: Text('$date ($session)', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF131742))),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 8.0),
@@ -256,6 +234,113 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     );
   }
 
+  void _showRecordDetails(List<AttendanceRecord> records, Color themeColor) {
+    // De-duplicate records by studentId to handle data inconsistencies
+    final Map<String, AttendanceRecord> uniqueRecords = {};
+    for (var r in records) {
+      if (!uniqueRecords.containsKey(r.studentId)) {
+        uniqueRecords[r.studentId] = r;
+      }
+    }
+    final sortedRecords = uniqueRecords.values.toList()
+      ..sort((a, b) => a.studentName.compareTo(b.studentName));
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(color: themeColor.withOpacity(0.1), borderRadius: BorderRadius.circular(16)),
+                    child: Icon(Icons.people_alt_rounded, color: themeColor),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    'Attendance Details',
+                    style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFF131742)),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(24),
+                itemCount: sortedRecords.length,
+                itemBuilder: (context, index) {
+                  final record = sortedRecords[index];
+                  final isPresent = record.status == 'Present';
+                  final isLate = record.status == 'Late';
+                  
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.white,
+                          child: Text(
+                            record.studentName.isNotEmpty ? record.studentName[0].toUpperCase() : '?',
+                            style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: themeColor),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            record.studentName,
+                            style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFF131742)),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isPresent ? Colors.green.withOpacity(0.1) : (isLate ? Colors.orange.withOpacity(0.1) : Colors.red.withOpacity(0.1)),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            record.status.toUpperCase(),
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: isPresent ? Colors.green : (isLate ? Colors.orange : Colors.red),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyState(String message) {
     return Center(
       child: Column(
@@ -265,47 +350,6 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
           const SizedBox(height: 16),
           Text(message, style: GoogleFonts.inter(color: Colors.grey.shade500)),
         ],
-      ),
-    );
-  }
-
-  Widget _buildDropdown<T>({
-    required String label,
-    required T? value,
-    required List<T> items,
-    required String hint,
-    required IconData icon,
-    required Color themeColor,
-    required ValueChanged<T?> onChanged,
-    String Function(T)? itemLabelBuilder,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: DropdownButtonFormField<T>(
-        isExpanded: true,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 12),
-          prefixIcon: Icon(icon, color: themeColor),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        ),
-        icon: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey.shade600),
-        value: value,
-        items: items.map((item) => DropdownMenuItem<T>(
-          value: item,
-          child: Text(
-            itemLabelBuilder != null ? itemLabelBuilder(item) : item.toString(),
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFF131742)),
-          ),
-        )).toList(),
-        onChanged: onChanged,
-        hint: Text(hint, style: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 14)),
       ),
     );
   }

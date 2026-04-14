@@ -15,7 +15,7 @@ class RoleSelectionScreen extends StatelessWidget {
     final user = authProvider.currentUser;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xffF9F9F9),
       body: Stack(
         children: [
           // Institutional Background Texture
@@ -38,7 +38,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
                   children: [
-                    const SizedBox(height: 12),
+                   
                     // Welcome Sub-header
                     Padding(
                       padding: const EdgeInsets.only(bottom: 24),
@@ -175,41 +175,22 @@ class _BrandHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: const Color(0xffF9F9F9),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
+      color: const Color(0xffF9F9F9),
       child: Stack(
         children: [
           Positioned.fill(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(32),
-                bottomRight: Radius.circular(32),
-              ),
-              child: Opacity(
-                opacity: 0.35,
-                child: Image.asset(
-                  'assets/images/header_bg.png',
-                  fit: BoxFit.cover,
-                ),
+            child: Opacity(
+              opacity: 0.35,
+              child: Image.asset(
+                'assets/images/header_bg.png',
+                fit: BoxFit.cover,
               ),
             ),
           ),
           SafeArea(
             bottom: false,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 15),
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -219,7 +200,7 @@ class _BrandHeader extends StatelessWidget {
                       width: 75,
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white,
+                        color: Colors.black,
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(37.5),
@@ -229,7 +210,7 @@ class _BrandHeader extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+
                     Text(
                       title,
                       textAlign: TextAlign.center,

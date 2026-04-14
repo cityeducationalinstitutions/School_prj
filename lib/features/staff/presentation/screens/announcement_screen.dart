@@ -8,6 +8,7 @@ import 'package:management/features/auth/presentation/providers/auth_provider.da
 import 'package:management/models/academic_models.dart';
 import 'package:management/models/attendance_models.dart';
 import 'package:management/models/school_model.dart';
+import 'package:management/core/widgets/smart_class_selector.dart';
 
 class AnnouncementScreen extends StatefulWidget {
   const AnnouncementScreen({super.key});
@@ -38,6 +39,8 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
       final schoolId = context.read<AuthProvider>().selectedSchoolId;
       if (schoolId != null) {
         context.read<AnnouncementProvider>().fetchAnnouncements(schoolId);
+        // Important: Restore class list for targeted broadcasts
+        context.read<AttendanceProvider>().fetchClasses(schoolId);
       }
     });
   }
@@ -55,6 +58,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
 
     final announcement = Announcement(
       id: _editingId ?? '',
+      schoolId: schoolId,
       classId: _selectedClass?.id ?? 'all',
       grade: _selectedClass?.name ?? 'All',
       section: _selectedClass?.section ?? 'All',
@@ -129,27 +133,10 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final attendanceProvider = context.watch<AttendanceProvider>();
     final provider = context.watch<AnnouncementProvider>();
     final schoolId = context.read<AuthProvider>().selectedSchoolId;
     final school = SchoolModel.schools.firstWhere((s) => s.id == schoolId, orElse: () => SchoolModel.schools.first);
     final themeColor = school.themeColor;
-
-    // Class Selection Sorting
-    final classesMap = <String, ClassModel>{};
-    for (var c in attendanceProvider.classes) {
-      final key = '${c.name}_${c.section}'.toLowerCase();
-      if (!classesMap.containsKey(key)) {
-        classesMap[key] = c;
-      }
-    }
-    final sortedClasses = classesMap.values.toList();
-    sortedClasses.sort((a, b) {
-      final numA = int.tryParse(a.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      final numB = int.tryParse(b.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      if (numA != numB) return numA.compareTo(numB);
-      return a.section.compareTo(b.section);
-    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
@@ -198,7 +185,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      _buildFormSection(themeColor, provider, sortedClasses),
+                      _buildFormSection(themeColor, provider),
                     ],
                   ),
                 ),
@@ -247,7 +234,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
     );
   }
 
-  Widget _buildFormSection(Color themeColor, AnnouncementProvider provider, List<ClassModel> sortedClasses) {
+  Widget _buildFormSection(Color themeColor, AnnouncementProvider provider) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -278,15 +265,13 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
             maxLines: 2,
           ),
           const Divider(),
-          _buildDropdown<ClassModel>(
-            label: 'Target Audience (Optional)',
-            value: _selectedClass,
-            items: sortedClasses,
-            hint: 'Select Class (or leave for Everyone)',
-            icon: Icons.groups_rounded,
+          SmartClassSelector(
+            initialClass: _selectedClass,
+            showAllOption: true,
             themeColor: themeColor,
-            itemLabelBuilder: (c) => '${c.name} - ${c.section}',
-            onChanged: (val) => setState(() => _selectedClass = val),
+            onClassSelected: (cls) {
+              setState(() => _selectedClass = cls);
+            },
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -337,7 +322,11 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    notice.grade == 'All' ? 'EVERYONE' : '${notice.grade} - ${notice.section}',
+                    notice.grade == 'All' 
+                      ? 'EVERYONE' 
+                      : (AttendanceProvider.shouldShowSection(notice.schoolId)
+                          ? '${notice.grade} - ${notice.section}'
+                          : notice.grade),
                     style: GoogleFonts.inter(
                       color: notice.grade == 'All' ? Colors.blue : Colors.green, 
                       fontWeight: FontWeight.bold, 
@@ -400,47 +389,6 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
           const SizedBox(height: 16),
           Text(message, style: GoogleFonts.inter(color: Colors.grey.shade500)),
         ],
-      ),
-    );
-  }
-
-  Widget _buildDropdown<T>({
-    required String label,
-    required T? value,
-    required List<T> items,
-    required String hint,
-    required IconData icon,
-    required Color themeColor,
-    required ValueChanged<T?> onChanged,
-    String Function(T)? itemLabelBuilder,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: DropdownButtonFormField<T>(
-        isExpanded: true,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 12),
-          prefixIcon: Icon(icon, color: themeColor),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        ),
-        icon: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey.shade600),
-        value: value,
-        items: items.map((item) => DropdownMenuItem<T>(
-          value: item,
-          child: Text(
-            itemLabelBuilder != null ? itemLabelBuilder(item) : item.toString(),
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFF131742)),
-          ),
-        )).toList(),
-        onChanged: onChanged,
-        hint: Text(hint, style: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 14)),
       ),
     );
   }

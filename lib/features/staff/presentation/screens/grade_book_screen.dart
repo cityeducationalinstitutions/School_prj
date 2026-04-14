@@ -8,6 +8,7 @@ import 'package:management/models/grade_models.dart';
 import 'package:management/models/school_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:management/features/staff/data/grade_book_pdf_service.dart';
+import 'package:management/core/widgets/smart_class_selector.dart';
 
 class GradeBookScreen extends StatefulWidget {
   const GradeBookScreen({super.key});
@@ -123,24 +124,6 @@ class _GradeBookScreenState extends State<GradeBookScreen> {
     );
     final themeColor = school.themeColor;
 
-    // Sorting & Filtering & De-duplicating Classes for Premium Experience
-    final classesMap = <String, ClassModel>{};
-    for (var c in attendanceProvider.classes) {
-      final key = '${c.name}_${c.section}'.toLowerCase();
-      if (!classesMap.containsKey(key)) {
-        classesMap[key] = c;
-      }
-    }
-    
-    final sortedClasses = classesMap.values.toList();
-
-    sortedClasses.sort((a, b) {
-      final numA = int.tryParse(a.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      final numB = int.tryParse(b.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      if (numA != numB) return numA.compareTo(numB);
-      return a.section.compareTo(b.section);
-    });
-
     return Scaffold(
       backgroundColor: const Color(0xffF9F9F9),
       appBar: AppBar(
@@ -185,29 +168,14 @@ class _GradeBookScreenState extends State<GradeBookScreen> {
         slivers: [
           // Filter Card
           SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(32),
-                  bottomRight: Radius.circular(32),
-                ),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, 4)),
-                ],
-              ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
               child: Column(
                 children: [
-                  _buildDropdown(
-                    label: 'Class',
-                    value: _selectedClass,
-                    items: sortedClasses,
-                    hint: 'Select Class',
-                    icon: Icons.class_rounded,
+                  SmartClassSelector(
+                    initialClass: _selectedClass,
                     themeColor: themeColor,
-                    onChanged: _onClassSelected,
-                    itemLabelBuilder: (c) => '${c.name} - ${c.section}',
+                    onClassSelected: _onClassSelected,
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -262,22 +230,29 @@ class _GradeBookScreenState extends State<GradeBookScreen> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade200),
-                    ),
-                    child: TextField(
-                      onChanged: (val) => setState(() => _searchQuery = val),
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.search_rounded, color: themeColor),
-                        hintText: 'Search students...',
-                        hintStyle: GoogleFonts.inter(color: Colors.grey.shade400),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: TextField(
+                    onChanged: (val) => setState(() => _searchQuery = val),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      prefixIcon: Icon(Icons.search_rounded, color: themeColor),
+                      hintText: 'Search students...',
+                      hintStyle: GoogleFonts.inter(color: Colors.grey.shade400),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade200),
                       ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade200),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: themeColor, width: 1.5),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
+                    style: GoogleFonts.inter(color: const Color(0xFF131742)),
                   ),
                 ),
               ),
@@ -387,42 +362,68 @@ class _GradeBookScreenState extends State<GradeBookScreen> {
     String Function(T)? itemLabelBuilder,
     bool compact = false,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: DropdownButtonFormField<T>(
-        isExpanded: true,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: compact ? 10 : 12),
-          prefixIcon: Icon(icon, color: themeColor, size: compact ? 18 : 24),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: compact ? 8 : 16, vertical: 8),
-        ),
-        icon: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey.shade600, size: compact ? 18 : 24),
-        value: value,
-        items: items.map((item) => DropdownMenuItem<T>(
-          value: item,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 6),
           child: Text(
-            itemLabelBuilder != null ? itemLabelBuilder(item) : item.toString(),
-            overflow: TextOverflow.ellipsis,
+            label,
             style: GoogleFonts.inter(
-              fontWeight: FontWeight.w600, 
-              color: const Color(0xFF131742),
-              fontSize: compact ? 13 : 14,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: themeColor.withOpacity(0.7),
+              letterSpacing: 0.5,
             ),
           ),
-        )).toList(),
-        onChanged: onChanged,
-        hint: Text(
-          hint, 
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: compact ? 12 : 14),
         ),
-      ),
+        DropdownButtonFormField<T>(
+          isExpanded: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            prefixIcon: Container(
+              margin: EdgeInsets.only(left: compact ? 4 : 8, right: 4),
+              child: Icon(icon, color: themeColor, size: compact ? 18 : 22),
+            ),
+            prefixIconConstraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            contentPadding: EdgeInsets.symmetric(horizontal: compact ? 8 : 12, vertical: compact ? 10 : 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: themeColor, width: 1.5),
+            ),
+          ),
+          icon: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey.shade500, size: compact ? 18 : 22),
+          dropdownColor: Colors.white,
+          value: value,
+          items: items.map((item) => DropdownMenuItem<T>(
+            value: item,
+            child: Text(
+              itemLabelBuilder != null ? itemLabelBuilder(item) : item.toString(),
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w600, 
+                color: const Color(0xFF131742),
+                fontSize: compact ? 13 : 14,
+              ),
+            ),
+          )).toList(),
+          onChanged: onChanged,
+          hint: Text(
+            hint, 
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: compact ? 12 : 14),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:management/models/attendance_models.dart';
+import 'package:management/features/staff/presentation/providers/attendance_provider.dart';
 import 'package:management/models/grade_models.dart';
 import 'package:management/models/school_model.dart';
 import 'package:file_picker/file_picker.dart';
@@ -44,7 +45,12 @@ class GradeBookPdfService {
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text('Class: ${clazz.name} - ${clazz.section}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.Text(
+                      AttendanceProvider.shouldShowSection(school.id)
+                          ? 'Class: ${clazz.name} - ${clazz.section}'
+                          : 'Class: ${clazz.name}',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
                     pw.Text('Subject: $subject'),
                   ],
                 ),

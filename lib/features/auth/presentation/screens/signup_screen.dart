@@ -4,8 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:management/models/school_model.dart';
 import 'package:management/models/attendance_models.dart';
 import 'package:management/features/auth/presentation/providers/auth_provider.dart';
-import 'package:management/features/staff/data/attendance_repository.dart';
+import 'package:management/features/staff/presentation/providers/attendance_provider.dart';
 import 'package:management/main.dart';
+import 'package:management/core/widgets/smart_class_selector.dart';
 
 class SignupScreen extends StatefulWidget {
   final String? defaultSchoolId;
@@ -29,38 +30,15 @@ class _SignupScreenState extends State<SignupScreen> {
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
 
-  // Enrollment State
-  final AttendanceRepository _attendanceRepository = AttendanceRepository();
-  List<ClassModel> _availableClasses = [];
   ClassModel? _selectedFullClass;
-  bool _isLoadingClasses = false;
 
   @override
   void initState() {
     super.initState();
     if (widget.requiredRole == 'student' && widget.defaultSchoolId != null) {
-      _fetchClasses();
-    }
-  }
-
-  Future<void> _fetchClasses() async {
-    setState(() => _isLoadingClasses = true);
-    try {
-      final classes = await _attendanceRepository.getClasses(widget.defaultSchoolId!);
-      setState(() {
-        _availableClasses = classes;
-        // Sort classes logically (Grade then Section)
-        _availableClasses.sort((a, b) {
-          final numA = int.tryParse(a.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-          final numB = int.tryParse(b.name.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-          if (numA != numB) return numA.compareTo(numB);
-          return a.section.compareTo(b.section);
-        });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<AttendanceProvider>().fetchClasses(widget.defaultSchoolId!);
       });
-    } catch (e) {
-      debugPrint('Error fetching classes for signup: $e');
-    } finally {
-      setState(() => _isLoadingClasses = false);
     }
   }
 
@@ -102,7 +80,7 @@ class _SignupScreenState extends State<SignupScreen> {
           );
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => AuthWrapper()),
+          MaterialPageRoute(builder: (context) => const AuthWrapper()),
           (route) => false,
         );
       }
@@ -210,15 +188,11 @@ class _SignupScreenState extends State<SignupScreen> {
                   style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF131742)),
                 ),
                 const SizedBox(height: 12),
-                if (_isLoadingClasses)
-                  const Center(child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(),
-                  ))
-                else if (_availableClasses.isEmpty)
-                  Text('No classes available for this school.', style: TextStyle(color: Colors.red.shade400, fontSize: 13))
-                else
-                  _buildClassDropdown(themeColor),
+                SmartClassSelector(
+                  initialClass: _selectedFullClass,
+                  themeColor: themeColor,
+                  onClassSelected: (cls) => setState(() => _selectedFullClass = cls),
+                ),
               ],
 
               const SizedBox(height: 40),
@@ -290,31 +264,4 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
     );
   }
-
-  Widget _buildClassDropdown(Color themeColor) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButtonFormField<ClassModel>(
-          decoration: const InputDecoration(border: InputBorder.none),
-          value: _selectedFullClass,
-          hint: Text('Choose Grade & Section', style: GoogleFonts.inter(color: Colors.grey, fontSize: 14)),
-          isExpanded: true,
-          items: _availableClasses.map((c) {
-            return DropdownMenuItem(
-              value: c,
-              child: Text('${c.name} - ${c.section}', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600)),
-            );
-          }).toList(),
-          onChanged: (val) => setState(() => _selectedFullClass = val),
-        ),
-      ),
-    );
-  }
 }
-

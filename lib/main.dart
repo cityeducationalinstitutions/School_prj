@@ -33,12 +33,14 @@ void main() async {
         ChangeNotifierProxyProvider<AuthProvider, StudentProvider>(
           create: (context) => StudentProvider(
             studentId: '',
+            schoolId: null,
             classId: null,
             grade: null,
             section: null,
           ),
           update: (context, auth, previous) => StudentProvider(
             studentId: auth.currentUser?.uid ?? '',
+            schoolId: auth.selectedSchoolId,
             classId: auth.currentUser?.classId,
             grade: auth.currentUser?.grade,
             section: auth.currentUser?.section,
