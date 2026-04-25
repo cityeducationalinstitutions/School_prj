@@ -129,8 +129,8 @@ export default function Home() {
             ].map((school, idx) => (
               <div key={idx} className="group relative flex flex-col items-center">
                 <Link to={school.path} className="w-full aspect-[3/2] rounded-[2.5rem] overflow-hidden shadow-elite group-hover:shadow-2xl transition-all duration-700 relative border-4 border-white/20">
-                  <div className="absolute inset-0 bg-transparent group-hover:bg-black/10 transition-colors duration-700 z-10 flex items-center justify-center">
-                    <span className="text-white text-[10px] font-black uppercase tracking-[0.4em] opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0 duration-500 bg-brand-accent px-4 py-2 rounded-full">
+                  <div className="absolute inset-0 z-10 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-black uppercase tracking-[0.4em] opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 bg-brand-accent px-4 py-2 rounded-full">
                       View Campus
                     </span>
                   </div>
