@@ -7,37 +7,77 @@ interface AboutHeroProps {
   image?: string;
 }
 
-const AboutHero = ({ title, subtitle, description, image = "/about_hero.png" }: AboutHeroProps) => {
+const AboutHero = ({ title, subtitle, description, image = "/about_hero_wonderla.jpg" }: AboutHeroProps) => {
   return (
-    <section className="relative min-h-[500px] h-[calc(100vh-140px)] max-h-[850px] flex items-center pt-16 overflow-hidden bg-brand-primary">
-      {/* Background Image with Overlay */}
+    <section className="relative min-h-[500px] h-[calc(100vh-80px)] max-h-[850px] flex items-center overflow-hidden bg-[#0A1F44]">
+      {/* 1. Background Layer: Overall Background Image */}
       <div className="absolute inset-0 z-0">
         <img 
           src={image} 
           alt={title} 
-          className="w-full h-full object-cover object-top opacity-60"
+          className="w-full h-full object-cover object-center"
+          style={{ filter: 'brightness(0.95) contrast(1.05)' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-primary via-brand-primary/40 to-transparent"></div>
+        
+        {/* 2. Cinematic Gradient Overlay (Left to Right) */}
+        <div 
+          className="absolute inset-0 z-10"
+          style={{
+            background: `linear-gradient(
+              to right,
+              rgba(10, 31, 68, 0.95) 0%,
+              rgba(10, 31, 68, 0.85) 25%,
+              rgba(10, 31, 68, 0.6) 50%,
+              rgba(10, 31, 68, 0.3) 75%,
+              rgba(10, 31, 68, 0.1) 100%
+            )`
+          }}
+        ></div>
       </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
+      {/* 3. Content Layer: Positioned on the Left */}
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-6 md:px-20 lg:px-24">
         <motion.div
-          initial={{ opacity: 0, x: -30 }}
+          initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1 }}
-          className="max-w-4xl"
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          className="max-w-2xl"
         >
-          <h1 className="text-[clamp(1.75rem,7vh,4.5rem)] text-white font-serif font-bold leading-[1.05] tracking-tighter mb-6">
-            {title} <br/>
-            <span className="text-brand-accent drop-shadow-sm leading-tight">{subtitle}</span>
+          {/* Label Section */}
+          <p className="text-[#F28C38] font-serif text-2xl mb-4 tracking-wide font-medium">
+            {title}
+          </p>
+          
+          {/* Heading Section */}
+          <h1 className="text-[clamp(2.5rem,8vh,5rem)] font-serif font-bold leading-[1.05] tracking-tight text-white mb-8">
+            <span className="block mb-2 drop-shadow-lg">
+              {subtitle.split(' ').slice(0, 2).join(' ')}
+            </span>
+            <span className="text-[#F28C38] drop-shadow-lg">
+              {subtitle.split(' ').slice(2).join(' ')}
+            </span>
           </h1>
           
-          {/* Accent Line */}
-          <div className="w-48 h-[2px] bg-white/40 mb-8"></div>
+          {/* Subtle Horizontal Divider */}
+          <div className="w-48 h-[1px] bg-white/10 mb-8"></div>
           
-          <p className="text-lg md:text-xl text-white/80 max-w-3xl leading-relaxed">
+          {/* Description Section */}
+          <p className="text-lg md:text-xl text-white/95 max-w-xl leading-relaxed mb-12 font-light tracking-wide drop-shadow-md">
             {description}
           </p>
+
+          {/* Button Section */}
+          <motion.button
+            whileHover={{ 
+              scale: 1.05, 
+              boxShadow: "0 10px 30px -5px rgba(242, 140, 56, 0.3)"
+            }}
+            whileTap={{ scale: 0.98 }}
+            className="group flex items-center gap-4 bg-[#F28C38] text-white px-10 py-4 rounded-full font-semibold transition-all shadow-lg"
+          >
+            Our Journey
+            <span className="text-xl group-hover:translate-x-1 transition-transform">→</span>
+          </motion.button>
         </motion.div>
       </div>
     </section>

@@ -1,27 +1,30 @@
 import { motion } from 'framer-motion';
-import { Lightbulb, Target, Users, TrendingUp } from 'lucide-react';
+import lightbulb3d from '../../assets/icons/lightbulb_3d.png';
+import target3d from '../../assets/icons/target_3d.png';
+import users3d from '../../assets/icons/users_3d.png';
+import chart3d from '../../assets/icons/chart_3d.png';
 
 const ApproachSection = () => {
   const approaches = [
     {
       title: 'Concept-Based Learning',
-      desc: 'Moving beyond rote memorization to ensuring students deeply understand the "why" and "how" of every subject.',
-      icon: Lightbulb,
+      desc: 'We move beyond rote memorization to build a deep understanding of concepts, enabling students to grasp the “why” and “how” behind every subject.',
+      icon: lightbulb3d,
     },
     {
       title: 'Practical Understanding',
-      desc: 'Bridging the gap between theory and practice through experiments, project-based work, and real-world application.',
-      icon: Target,
+      desc: 'We bridge the gap between theory and real-world application through hands-on learning, experiments, and project-based activities.',
+      icon: target3d,
     },
     {
       title: 'Student Engagement',
-      desc: 'Interactive classrooms where every student is encouraged to participate, question, and explore ideas.',
-      icon: Users,
+      desc: 'We foster interactive learning environments where every student is encouraged to participate, ask questions, and explore ideas with confidence.',
+      icon: users3d,
     },
     {
       title: 'Continuous Improvement',
-      desc: 'A dynamic curriculum that evolves with global trends and individual student performance tracking.',
-      icon: TrendingUp,
+      desc: 'We follow a dynamic and evolving curriculum, supported by continuous assessment and personalized feedback to ensure consistent student growth.',
+      icon: chart3d,
     },
   ];
 
@@ -49,8 +52,8 @@ const ApproachSection = () => {
             >
               {/* Content Container */}
               <div className="relative z-10 flex flex-col items-center">
-                <div className="w-16 h-16 rounded-2xl bg-brand-accent/10 flex items-center justify-center mb-8 transform group-hover:rotate-6 transition-transform duration-500">
-                  <item.icon className="w-8 h-8 text-brand-accent" />
+                <div className="w-24 h-24 rounded-2xl bg-brand-accent/5 flex items-center justify-center mb-8 transform group-hover:scale-110 transition-transform duration-500">
+                  <img src={item.icon} alt={item.title} className="w-20 h-20 object-contain drop-shadow-xl" />
                 </div>
                 <h3 className="text-2xl font-serif font-bold text-brand-accent mb-4 leading-tight">
                   {item.title}
