@@ -10,8 +10,8 @@ const About = () => {
       <AboutHero 
         title="About"
         subtitle="City Educational Institutions"
-        description="At City Educational Institutions, we provide a transformative learning experience that combines academic rigor, character development, and innovative thinking — preparing students to excel in a dynamic and competitive world."
-        image="/about_students_v1.png"
+        description="Built on strong foundations and a legacy of trust, we nurture young minds through quality education, modern learning, and values that last a lifetime."
+        image="/about_hero_wonderla.jpg"
       />
       <AboutIntro />
       <ApproachSection />

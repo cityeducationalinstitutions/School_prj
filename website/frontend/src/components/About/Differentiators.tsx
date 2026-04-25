@@ -1,37 +1,48 @@
 import { motion } from 'framer-motion';
-import { ShieldCheck, Monitor, Heart, GraduationCap, Award } from 'lucide-react';
+import faculty3d from '../../assets/icons/faculty_3d.png';
+import tech3d from '../../assets/icons/tech_3d.png';
+import student3d from '../../assets/icons/student_3d.png';
+import balance3d from '../../assets/icons/balance_3d.png';
+import values3d from '../../assets/icons/values_3d.png';
+import early3d from '../../assets/icons/early_3d.png';
 
 const Differentiators = () => {
   const highlights = [
     {
       id: '01',
       title: 'Experienced Faculty',
-      desc: 'Our teachers are mentors with decades of collective experience in academic leadership, fostering a culture of mentorship.',
-      icon: GraduationCap,
+      desc: 'Our educators are accomplished mentors with years of academic expertise and classroom experience. They guide students with a strong commitment to excellence, fostering a culture of continuous learning and meaningful mentorship.',
+      icon: faculty3d,
     },
     {
       id: '02',
       title: 'Technology-Enabled',
-      desc: 'Smart classrooms equipped with modern digital tools and AI-assisted learning to enhance global competency.',
-      icon: Monitor,
+      desc: 'We integrate modern digital tools and smart classroom solutions to enhance the learning experience. Our technology-driven approach equips students with the skills and adaptability required to thrive in a rapidly evolving global environment.',
+      icon: tech3d,
     },
     {
       id: '03',
-      title: 'Student-Focused',
-      desc: 'We maintain optimal 1:15 student-teacher ratios, ensuring every child receives personalized attention.',
-      icon: Heart,
+      title: 'Student-Centered',
+      desc: 'Every student receives personalized attention through optimal teacher-student ratios. We focus on individual learning styles, ensuring that each child progresses with confidence, clarity, and academic strength.',
+      icon: student3d,
     },
     {
       id: '04',
       title: 'Balanced Excellence',
-      desc: 'A perfect synergy between rigorous academics and national-level co-curricular development tracks.',
-      icon: Award,
+      desc: 'We maintain a strong balance between rigorous academics and co-curricular development. Our approach nurtures intellectual growth while encouraging creativity, collaboration, and holistic development.',
+      icon: balance3d,
     },
     {
       id: '05',
       title: 'Strong Values',
-      desc: 'Integrity and discipline form the core of our culture, preparing students to be responsible global citizens.',
-      icon: ShieldCheck,
+      desc: 'Integrity, discipline, and responsibility form the foundation of our educational philosophy. We cultivate ethical thinking and character development, preparing students to become responsible and respectful global citizens.',
+      icon: values3d,
+    },
+    {
+      id: '06',
+      title: 'Early Learning Excellence',
+      desc: 'For our youngest learners (Pre-KG to Grade 2), we implement the Kerdo Method—a specialized approach focused on experiential, hands-on learning in language, numeracy, and social interaction.',
+      icon: early3d,
     },
   ];
 
@@ -71,8 +82,8 @@ const Differentiators = () => {
               className="group relative p-6 sm:p-12 rounded-[2rem] sm:rounded-[3.5rem] glass-card glass-card-hover flex flex-col items-center text-center"
             >
               <div className="relative z-10 flex flex-col items-center">
-                <div className="w-16 h-16 rounded-2xl bg-brand-accent flex items-center justify-center mb-10 group-hover:rotate-12 transition-all duration-700 shadow-xl shadow-brand-accent/20">
-                  <item.icon className="w-8 h-8 text-white" />
+                <div className="w-24 h-24 rounded-2xl bg-brand-accent/5 flex items-center justify-center mb-10 group-hover:scale-110 transition-all duration-700">
+                  <img src={item.icon} alt={item.title} className="w-20 h-20 object-contain drop-shadow-xl" />
                 </div>
                 
                 <h3 className="text-2xl font-serif font-bold text-brand-accent mb-6 tracking-tight leading-none uppercase tracking-wider">

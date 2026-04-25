@@ -124,7 +124,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-10 lg:gap-14">
             {[
               { name: 'City Talent', desc: 'Nurturing creativity, confidence, and all-round excellence.', image: '/schools/city-talent-final.png', path: '/campuses/city-talent' },
-              { name: 'City Elite', desc: 'Delivering advanced learning with a focus on performance and leadership.', image: 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?q=80&w=800&auto=format&fit=crop', path: '/campuses/city-elite' },
+              { name: 'City Elite', desc: 'Delivering advanced learning with a focus on performance and leadership.', image: '/schools/city_elite_main.jpg', path: '/campuses/city-elite' },
               { name: 'New Vision', desc: 'Shaping future-ready minds through innovation and technology.', image: 'https://images.unsplash.com/photo-1564981797816-1043664bf78d?q=80&w=800&auto=format&fit=crop', path: '/campuses/new-vision' }
             ].map((school, idx) => (
               <div key={idx} className="group relative flex flex-col items-center">
