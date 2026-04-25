@@ -69,7 +69,7 @@ export default function Hero() {
 
   return (
     <div 
-      className="relative min-h-[500px] h-[calc(100vh-140px)] max-h-[850px] flex flex-col items-center justify-center overflow-hidden bg-brand-primary group pt-16"
+      className="relative min-h-[500px] h-screen flex flex-col items-center justify-center overflow-hidden bg-brand-primary group pt-24 lg:pt-32"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

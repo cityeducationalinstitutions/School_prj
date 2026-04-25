@@ -51,7 +51,6 @@ export default function Home() {
         
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left Side: Staggered Images */}
-          {/* Left Side: Staggered Images */}
           <div className="relative h-[600px] w-full hidden md:block">
             <div className="absolute top-4 left-4 w-[48%] h-[65%] rounded-[2.5rem] overflow-hidden shadow-elite z-10 border-4 border-white/40 group/img">
               <img 
@@ -200,7 +199,7 @@ export default function Home() {
             
             <div className="relative z-10 flex flex-col md:flex-row items-stretch justify-between">
               {/* Text Side */}
-              <div className="md:w-3/5 px-8 md:px-16 py-6 md:py-8 space-y-3 text-center md:text-left">
+              <div className="md:w-3/5 px-8 md:px-16 py-8 md:py-12 space-y-2 text-center md:text-left">
                 <motion.div
                   initial={{ opacity: 0, x: -50 }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -211,10 +210,10 @@ export default function Home() {
                     Where Potential Begins, <br/>
                     <span className="text-brand-primary">Excellence Follows</span>
                   </h3>
-                  <p className="text-white/90 text-base md:text-lg max-w-xl leading-relaxed mt-4">
+                  <p className="text-white/90 text-base md:text-lg max-w-xl leading-relaxed mt-2">
                     Step into a dynamic learning environment where innovation meets opportunity. Our state-of-the-art facilities, engaging spaces, and enriching campus life empower students to explore, grow, and excel.
                   </p>
-                  <div className="pt-6">
+                  <div className="pt-4">
                     <Link 
                       to="/gallery" 
                       className="inline-flex items-center px-8 py-4 rounded-full bg-brand-primary text-white font-bold tracking-wider hover:bg-white hover:text-brand-primary transition-all duration-300 shadow-lg shadow-brand-primary/30 glow-on-hover uppercase text-sm"
@@ -226,16 +225,16 @@ export default function Home() {
                 </motion.div>
               </div>
               
-              {/* Image Side - Full Bleed Right */}
-              <div className="md:w-[45%] relative mt-8 md:mt-0 overflow-hidden flex items-end">
+              {/* Image Side - Full Bleed */}
+              <div className="md:w-1/2 relative mt-4 md:mt-0 overflow-hidden">
                 <motion.img 
-                  initial={{ opacity: 0, scale: 1.1, x: 50 }}
-                  whileInView={{ opacity: 1, scale: 1, x: 0 }}
+                  initial={{ opacity: 0, scale: 1.05 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 1, delay: 0.2 }}
+                  transition={{ duration: 1 }}
                   src="/home/student_banner_v2.png" 
                   alt="Confident Student" 
-                  className="w-full h-full object-cover object-top md:object-center"
+                  className="absolute inset-0 w-full h-full object-cover object-[center_30%]"
                 />
               </div>
             </div>
@@ -303,7 +302,7 @@ export default function Home() {
             alt="Library Books" 
             className="w-full h-full object-cover grayscale"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-accent/95 via-brand-accent/90 to-brand-accent/95 backdrop-blur-[2px]"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-accent/75 via-brand-accent/65 to-brand-accent/85 backdrop-blur-[1px]"></div>
         </div>
 
         <div className="max-w-7xl mx-auto relative z-10">
