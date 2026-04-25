@@ -9,7 +9,7 @@ interface AboutHeroProps {
 
 const AboutHero = ({ title, subtitle, description, image = "/about_hero_wonderla.jpg" }: AboutHeroProps) => {
   return (
-    <section className="relative min-h-[500px] h-[calc(100vh-80px)] max-h-[850px] flex items-center overflow-hidden bg-[#0A1F44]">
+    <section className="relative min-h-[500px] h-screen max-h-[850px] flex items-center overflow-hidden bg-[#0A1F44] pt-[64px] lg:pt-[108px]">
       {/* 1. Background Layer: Overall Background Image */}
       <div className="absolute inset-0 z-0">
         <img 

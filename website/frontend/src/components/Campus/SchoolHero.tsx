@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export default function SchoolHero({ 
   campusName = "City Talent",
@@ -10,7 +11,7 @@ export default function SchoolHero({
   image?: string;
 }) {
   return (
-    <section className="relative min-h-[500px] h-[calc(100vh-140px)] max-h-[850px] flex items-center pt-16 overflow-hidden bg-brand-light">
+    <section className="relative min-h-[500px] h-screen max-h-[850px] flex items-center overflow-hidden bg-brand-light pt-[80px] lg:pt-[108px]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           
@@ -33,12 +34,16 @@ export default function SchoolHero({
             </p>
 
             <div className="flex gap-4 pt-4">
-              <button className="px-8 py-4 bg-brand-accent text-white text-sm font-bold tracking-widest uppercase hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-accent/20 hover:bg-brand-primary transition-all duration-300">
-                Admissions
-              </button>
-              <button className="px-8 py-4 bg-brand-accent text-white text-sm font-bold tracking-widest uppercase hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-accent/20 hover:bg-brand-primary transition-all duration-300">
-                Contact Us
-              </button>
+              <Link to="/admissions">
+                <button className="px-8 py-4 bg-brand-accent text-white text-sm font-bold tracking-widest uppercase hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-accent/20 hover:bg-brand-primary transition-all duration-300">
+                  Admissions
+                </button>
+              </Link>
+              <Link to="/academics">
+                <button className="px-8 py-4 bg-brand-accent text-white text-sm font-bold tracking-widest uppercase hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-accent/20 hover:bg-brand-primary transition-all duration-300">
+                  Academics
+                </button>
+              </Link>
             </div>
           </motion.div>
 
@@ -46,13 +51,13 @@ export default function SchoolHero({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="relative h-[45vh] lg:h-[60vh] w-[90%] lg:w-[85%] ml-auto hidden md:block"
+            className="relative h-[45vh] lg:h-[60vh] w-full hidden md:block"
           >
-            <div className="absolute inset-0 bg-gray-100 mix-blend-multiply rounded-2xl overflow-hidden shadow-2xl">
+            <div className="absolute inset-0 bg-white rounded-2xl overflow-hidden shadow-2xl">
               <img 
                 src={image} 
                 alt={`${campusName} Campus`} 
-                className="w-full h-full object-cover grayscale opacity-90 transition-transform duration-1000 hover:scale-105 hover:grayscale-0"
+                className="w-full h-full object-cover transition-transform duration-1000 hover:scale-110 scale-[1.12]"
               />
             </div>
           </motion.div>

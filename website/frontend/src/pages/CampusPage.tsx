@@ -11,8 +11,8 @@ import PrincipalMessage from '../components/Campus/PrincipalMessage';
 const CAMPUS_CONTENT: Record<string, any> = {
   'city-talent': {
     name: "City Talent",
-    heroDescription: "Nurturing creativity and building character. At City Talent, we believe in a holistic approach where arts, literature, and standard academics blend to create well-rounded global citizens.",
-    heroImage: "https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1600",
+    heroDescription: "Nurturing creativity, confidence, and all-round excellence, we provide a learning environment that balances academic rigor with holistic development. Our approach encourages students to think independently, express themselves creatively, and build strong character through values and discipline. By integrating experiential learning with structured academics, we prepare students to become confident, capable, and responsible individuals ready to excel in a dynamic global world.",
+    heroImage: "/schools/city_talent_campus.jpg",
     philosophy: "We believe in building a foundation that supports both intellectual growth and moral character. Our curriculum is designed to spark curiosity and foster a lifelong love for learning.",
     academicsDesc1: "We follow a rigorous <strong class=\"text-black font-semibold\">CBSE Curriculum</strong> balanced with intensive co-curricular activities in arts and humanities.",
     academicsDesc2: "Our goal is to ensure every student finds their unique voice through specialized workshops and creative mentorship programs.",
@@ -32,7 +32,7 @@ const CAMPUS_CONTENT: Record<string, any> = {
   'city-elite': {
     name: "City Elite",
     heroDescription: "The peak of premium education. City Elite offers a high-performance environment with world-class facilities designed for students who aspire toward global leadership and elite excellence.",
-    heroImage: "https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?q=80&w=1600",
+    heroImage: "/schools/city_elite_campus.jpg",
     philosophy: "Elite education is about precision, discipline, and advanced mentorship. We provide a hybrid learning environment that bridges traditional values with futuristic methodologies.",
     academicsDesc1: "City Elite proudly implements the revolutionary <strong class=\"text-black font-semibold\">Kerdo Method</strong> for our Pre-KG to Class 2 students, focusing on multisensory cognitive development.",
     academicsDesc2: "For higher grades, we follow a globally aligned CBSE framework with specialized logic and analytical training sessions.",

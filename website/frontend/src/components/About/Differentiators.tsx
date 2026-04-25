@@ -60,13 +60,13 @@ const Differentiators = () => {
             transition={{ duration: 0.8 }}
           >
             <span className="text-brand-accent font-bold tracking-[0.3em] uppercase text-xs mb-4 block">The Pillars of City</span>
-            <h2 className="text-[clamp(1.75rem,5.5vh,3.5rem)] font-serif text-brand-primary tracking-tighter leading-none">
-              The <span className="text-brand-accent">Institutional</span> <br />
-              Differentiators.
+            <h2 className="text-[clamp(1.75rem,5.5vh,3.5rem)] font-serif font-bold text-brand-primary tracking-tighter leading-[1.1] mb-8">
+              Defining the <span className="text-brand-accent italic">Standards</span> <br />
+              of Modern Education
             </h2>
-            <p className="text-gray-500 text-lg sm:text-xl leading-relaxed mt-8">
-              We go beyond the traditional syllabus to ensure our students are 
-              academically sound, value-driven, and ready for global challenges.
+            <p className="text-gray-500 text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto">
+              We go beyond conventional education to build a future-ready generation.
+              At City Educational Institutions, we combine academic rigor, innovative learning methodologies, and strong values to shape confident, capable, and responsible individuals prepared to excel in a global world.
             </p>
           </motion.div>
         </div>

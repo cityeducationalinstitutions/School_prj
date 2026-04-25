@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 
 const ManagementHero = () => {
   return (
-    <section className="relative min-h-[500px] h-[calc(100vh-140px)] max-h-[850px] flex items-center bg-brand-primary overflow-hidden">
+    <section className="relative min-h-[500px] h-screen max-h-[850px] flex items-center bg-brand-primary overflow-hidden pt-[80px] lg:pt-[108px]">
       {/* Background Image with Elite Overlay */}
       <div className="absolute inset-0 z-0">
         <img 

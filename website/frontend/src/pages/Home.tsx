@@ -62,8 +62,8 @@ export default function Home() {
             </div>
             <div className="absolute bottom-4 right-4 w-[48%] h-[65%] rounded-[2.5rem] overflow-hidden shadow-elite z-20 border-8 border-white group/img2">
               <img 
-                src="/about/lecture_hall_elite.png" 
-                alt="Modern school lecture hall" 
+                src="/about/independence_day.jpg" 
+                alt="Students participating in school celebration" 
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover/img2:scale-105" 
               />
               <div className="absolute inset-0 ring-1 ring-inset ring-brand-primary/10 rounded-[2.5rem]"></div>
