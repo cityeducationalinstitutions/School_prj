@@ -21,6 +21,18 @@ migrate_working_dir/
 # Visual Studio Code related
 .vscode/
 
+# Node.js / Web related
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+# Project specific temporary files
+analysis_output.txt
+analysis_results.txt
+brain_paths.txt
+*.log
+.firebase/
+
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
@@ -28,7 +40,7 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
+**/build/
 /coverage/
 
 # Symbolication related
@@ -72,3 +84,5 @@ app.*.map.json
 **/web/main.dart.js
 **/web/main.dart.js.map
 **/web/main.dart.js.deps
+
+.vercel

@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #131742;
+  --color-brand-secondary: #3949AB;
+  --color-brand-accent: #E28743;
+  --color-brand-light: #FFFBF8;
+  --color-brand-error: #D32F2F;
+  --color-brand-success: #388E3C;
+  
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+
+  /* Elite Level Shadows */
+  --shadow-elite: 0 20px 50px -12px rgba(19, 23, 66, 0.08), 0 10px 20px -5px rgba(19, 23, 66, 0.04);
+  --shadow-elite-hover: 0 30px 60px -12px rgba(19, 23, 66, 0.12), 0 15px 30px -5px rgba(19, 23, 66, 0.06);
+  --shadow-glass: 0 8px 32px 0 rgba(19, 23, 66, 0.05);
+}
+
+@layer base {
+html, body, #root {
+  @apply overflow-x-hidden max-w-full;
+  width: 100%;
+}
+
+body {
+  @apply bg-brand-light text-brand-primary font-sans antialiased selection:bg-brand-accent/30 tracking-tight;
+}
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-brand-primary font-serif tracking-tighter;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-glass;
+  }
+  
+  .glass-card-hover {
+    @apply hover:bg-white/80 hover:shadow-elite-hover hover:-translate-y-2 transition-all duration-500 ease-out;
+  }
+
+  .premium-shadow {
+    box-shadow: 0 30px 60px -15px rgba(19, 23, 66, 0.1), 0 10px 30px -10px rgba(19, 23, 66, 0.05);
+  }
+
+  .glow-on-hover {
+    @apply relative overflow-hidden;
+  }
+  
+  .glow-on-hover::after {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500;
+    background: radial-gradient(circle at center, var(--color-brand-accent) 0%, transparent 70%);
+    filter: blur(40px);
+    z-index: -1;
+  }
+
+  .glow-on-hover:hover::after {
+    @apply opacity-20;
+  }
+
+  .silk-gradient {
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+  }
+}
