@@ -6,25 +6,27 @@ import { ChevronLeft, ChevronRight, ArrowRight, BookOpen } from 'lucide-react';
 const slides = [
   {
     id: 1,
-    image: '/hero_students_v1.png',
+    image: '/hero_main_v3.jpg',
     title: 'Shaping Future Leaders',
     highlight: 'Through Excellence',
     subtitle: 'A tradition of academic rigor combined with modern innovation. Discover a nurturing environment where your child can truly thrive.',
     primaryCta: 'Apply Now',
     primaryLink: '/admissions',
     secondaryCta: 'Explore Schools',
-    secondaryLink: '/schools'
+    secondaryLink: '/schools',
+    fit: 'cover'
   },
   {
     id: 2,
-    image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+    image: '/hero_elite_v1.jpg',
     title: 'State-of-the-Art',
     highlight: 'Smart Classrooms',
     subtitle: 'Step into the future of learning with fully digital interactive boards, AI-assisted learning tools, and global connectivity.',
     primaryCta: 'View Facilities',
     primaryLink: '/facilities',
     secondaryCta: 'Our Vision',
-    secondaryLink: '/about'
+    secondaryLink: '/about',
+    fit: 'cover'
   },
   {
     id: 3,
@@ -35,18 +37,20 @@ const slides = [
     primaryCta: 'Student Life',
     primaryLink: '/academics',
     secondaryCta: 'Latest News',
-    secondaryLink: '/news'
+    secondaryLink: '/news',
+    fit: 'cover'
   },
   {
     id: 4,
-    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+    image: '/hero_achievements_v3.png',
     title: 'Admissions Open',
     highlight: '2026-2027 Cohort',
     subtitle: 'Secure your child\'s future. We are currently accepting applications for all grades across our three premium campuses.',
     primaryCta: 'Start Admission',
     primaryLink: '/admissions',
     secondaryCta: 'Contact Us',
-    secondaryLink: '/contact'
+    secondaryLink: '/contact',
+    fit: 'contain'
   }
 ];
 
@@ -69,7 +73,7 @@ export default function Hero() {
 
   return (
     <div 
-      className="relative min-h-[500px] h-screen flex flex-col items-center justify-center overflow-hidden bg-brand-primary group pt-24 lg:pt-32"
+      className="relative min-h-[500px] h-screen flex flex-col items-center justify-center overflow-hidden bg-black group pt-24 lg:pt-32"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -80,12 +84,15 @@ export default function Hero() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: "easeInOut" }}
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 mix-blend-overlay"
-          style={{ backgroundImage: `url("${slides[currentSlide].image}")` }}
+          className="absolute inset-0 z-0 bg-center bg-no-repeat opacity-60"
+          style={{ 
+            backgroundImage: `url("${slides[currentSlide].image}")`,
+            backgroundSize: (slides[currentSlide] as any).fit || 'cover'
+          }}
         />
       </AnimatePresence>
 
-      <div className="absolute inset-0 z-0 bg-gradient-to-t from-brand-primary via-brand-primary/60 to-transparent" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
       {/* Navigation Arrows */}
       <button 
