@@ -35,7 +35,7 @@ export default function Navbar() {
   ];
 
   return (
-    <div className="flex flex-col w-full z-50 fixed top-0 left-0 right-0">
+    <div className="flex flex-col w-full z-50 sticky top-0 left-0 right-0">
       {/* Top Bar - Orange Brand Color */}
       <div className="bg-brand-accent text-white h-8 flex items-center text-[10px] lg:text-xs font-bold hidden lg:flex">
         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex justify-between items-center gap-4 lg:gap-8">

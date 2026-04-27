@@ -6,7 +6,8 @@ import { ChevronLeft, ChevronRight, ArrowRight, BookOpen } from 'lucide-react';
 const slides = [
   {
     id: 1,
-    image: '/hero_main_v3.jpg',
+    image: '/hero_main_v4.png',
+    mobileImage: '/hero_main_v4.png',
     title: 'Shaping Future Leaders',
     highlight: 'Through Excellence',
     subtitle: 'A tradition of academic rigor combined with modern innovation. Discover a nurturing environment where your child can truly thrive.',
@@ -18,7 +19,8 @@ const slides = [
   },
   {
     id: 2,
-    image: '/hero_elite_v1.jpg',
+    image: '/hero_elite_v2.png',
+    mobileImage: '/hero_elite_v2.png',
     title: 'State-of-the-Art',
     highlight: 'Smart Classrooms',
     subtitle: 'Step into the future of learning with fully digital interactive boards, AI-assisted learning tools, and global connectivity.',
@@ -30,7 +32,8 @@ const slides = [
   },
   {
     id: 3,
-    image: 'https://images.unsplash.com/photo-1546410531-bea4f4b971a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+    image: 'https://images.unsplash.com/photo-1523050335102-c884af17d274?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+    mobileImage: 'https://images.unsplash.com/photo-1523050335102-c884af17d274?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
     title: 'Beyond Academics:',
     highlight: 'Sports & Arts',
     subtitle: 'We believe in holistic growth. From national-level sports complexes to dedicated performing arts theaters.',
@@ -43,6 +46,7 @@ const slides = [
   {
     id: 4,
     image: '/hero_achievements_v3.png',
+    mobileImage: '/hero_achievements_mobile.jpg',
     title: 'Admissions Open',
     highlight: '2026-2027 Cohort',
     subtitle: 'Secure your child\'s future. We are currently accepting applications for all grades across our three premium campuses.',
@@ -50,13 +54,22 @@ const slides = [
     primaryLink: '/admissions',
     secondaryCta: 'Contact Us',
     secondaryLink: '/contact',
-    fit: 'contain'
+    fit: 'cover'
   }
 ];
 
 export default function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Responsive check
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Auto-scroll logic
   useEffect(() => {
@@ -73,7 +86,7 @@ export default function Hero() {
 
   return (
     <div 
-      className="relative min-h-[500px] h-screen flex flex-col items-center justify-center overflow-hidden bg-black group pt-24 lg:pt-32"
+      className="relative min-h-[500px] h-[calc(100vh-64px)] lg:h-[calc(100vh-96px)] xl:h-[calc(100vh-108px)] flex flex-col items-center justify-center overflow-hidden bg-black group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -84,10 +97,9 @@ export default function Hero() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: "easeInOut" }}
-          className="absolute inset-0 z-0 bg-center bg-no-repeat opacity-60"
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
           style={{ 
-            backgroundImage: `url("${slides[currentSlide].image}")`,
-            backgroundSize: (slides[currentSlide] as any).fit || 'cover'
+            backgroundImage: `url("${isMobile && (slides[currentSlide] as any).mobileImage ? (slides[currentSlide] as any).mobileImage : slides[currentSlide].image}")`
           }}
         />
       </AnimatePresence>
