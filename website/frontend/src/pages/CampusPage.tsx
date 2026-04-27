@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { BookOpen, MonitorPlay, Focus, ShieldCheck, Microscope, Cpu, Palette, Music } from 'lucide-react';
 import SchoolHero from '../components/Campus/SchoolHero';
 import LearningPhilosophy from '../components/Campus/LearningPhilosophy';
 import MetricsSection from '../components/Campus/MetricsSection';
@@ -12,13 +11,24 @@ import idea3d from '../assets/icons/idea_3d_v2.png';
 import compass3d from '../assets/icons/compass_3d_v2.png';
 import users3d from '../assets/icons/users_3d_v2.png';
 import heart3d from '../assets/icons/heart_3d_v2.png';
+import academicsV2 from '../assets/academics_v2.png';
+
+// Highlight Icons
+import literature3d from '../assets/icons/literature_3d.png';
+import valuesEdu3d from '../assets/icons/values_edu_3d.png';
+import robotics3d from '../assets/icons/robotics_3d.png';
+import stem3d from '../assets/icons/stem_3d.png';
+import sports3d from '../assets/icons/sports_3d.png';
+import infra3d from '../assets/icons/infra_3d.png';
+import tech3d from '../assets/icons/tech_3d.png';
+import growth3d from '../assets/icons/growth_3d.png';
 
 const CAMPUS_CONTENT: Record<string, any> = {
   'city-talent': {
     name: "City Talent",
-    heroDescription: "Nurturing creativity, confidence, and all-round excellence, we provide a balanced approach that blends strong academics with holistic development. We empower students to think independently, build character, and grow into confident individuals ready for the future.",
+    heroDescription: "Our educational philosophy focuses on developing a strong learning attitude in students, empowering them to excel in any field they choose. We emphasize concept-based learning and practical understanding, enabling students to apply knowledge confidently in real-world situations. At the same time, we nurture critical thinking, creativity, and strong values, helping students grow into confident, responsible, and future-ready individuals.",
     heroImage: "/schools/city_talent_campus.jpg",
-    philosophy: "We are committed to building a strong foundation that nurtures both intellectual excellence and character development. Our approach goes beyond traditional learning, encouraging curiosity, critical thinking, and a lifelong passion for knowledge. Through a balanced blend of academics and values, we prepare students to grow into confident, responsible, and future-ready individuals.",
+    philosophy: "Our educational philosophy focuses on developing a strong learning attitude in students, empowering them to excel in any field they choose. We emphasize concept-based learning and practical understanding, enabling students to apply knowledge confidently in real-world situations. At the same time, we nurture critical thinking, creativity, and strong values, helping students grow into confident, responsible, and future-ready individuals.",
     philosophyItems: [
       {
         icon: <img src={idea3d} alt="Concept-Based" className="w-10 h-10 object-contain scale-[1.7]" />,
@@ -41,14 +51,14 @@ const CAMPUS_CONTENT: Record<string, any> = {
         desc: "We nurture emotional intelligence, physical well-being, and strong moral values to ensure all-round growth."
       }
     ],
-    academicsDesc1: "We follow a rigorous <strong class=\"text-black font-semibold\">CBSE Curriculum</strong> balanced with intensive co-curricular activities in arts and humanities.",
-    academicsDesc2: "Our goal is to ensure every student finds their unique voice through specialized workshops and creative mentorship programs.",
-    academicsImage: "https://images.unsplash.com/photo-1577896849786-738ed6c78bd3?q=80&w=1200",
+    academicsDesc1: "We implement a comprehensive <strong class=\"text-black font-semibold\">State Board curriculum</strong> designed to establish strong conceptual clarity and academic discipline. Through a balanced blend of classroom learning and practical exposure, we ensure students develop both knowledge and application skills.",
+    academicsDesc2: "Our goal is to empower every student with a solid foundation, enabling them to achieve excellence with confidence, clarity, and purpose.",
+    academicsImage: academicsV2,
     highlights: [
-      { icon: <Palette className="w-10 h-10 text-black mb-6" strokeWidth={1} />, title: "Arts Academy", desc: "Dedicated spaces for painting, sculpture, and visual arts to nurture child creativity." },
-      { icon: <Music className="w-10 h-10 text-black mb-6" strokeWidth={1} />, title: "Musical Excellence", desc: "Comprehensive training in both classical and contemporary musical instruments." },
-      { icon: <BookOpen className="w-10 h-10 text-black mb-6" strokeWidth={1} />, title: "Literary Societies", desc: "Active debating and reading clubs that foster strong communication and analytical skills." },
-      { icon: <ShieldCheck className="w-10 h-10 text-black mb-6" strokeWidth={1} />, title: "Value Education", desc: "Strong focus on character building and ethical leadership in every classroom." }
+      { icon: <img src={literature3d} alt="Literature" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Literary Societies", desc: "Active reading, writing, and debating platforms strengthen communication skills, critical thinking, and intellectual confidence." },
+      { icon: <img src={valuesEdu3d} alt="Values" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Value Education", desc: "A strong emphasis on ethics, discipline, and character development shapes responsible, respectful, and principled individuals." },
+      { icon: <img src={sports3d} alt="Sports" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Sports & Physical Development", desc: "Structured sports programs promote teamwork, physical fitness, discipline, and a competitive spirit essential for overall growth." },
+      { icon: <img src={growth3d} alt="Growth" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Holistic Growth", desc: "A balanced focus on intellectual, emotional, and personal development helps students grow into confident and well-rounded individuals." }
     ],
     principal: {
       name: "Dr. Anjali Verma",
@@ -65,10 +75,10 @@ const CAMPUS_CONTENT: Record<string, any> = {
     academicsDesc2: "For higher grades, we follow a globally aligned CBSE framework with specialized logic and analytical training sessions.",
     academicsImage: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=1200",
     highlights: [
-      { icon: <ShieldCheck className="w-10 h-10 text-black mb-6" strokeWidth={1} />, title: "Elite Infrastructure", desc: "State-of-the-art campus featuring climate-controlled classrooms and premium amenities." },
-      { icon: <MonitorPlay className="w-10 h-10 text-black mb-6" strokeWidth={1} />, title: "Hybrid Learning", desc: "Seamless integration of digital platforms with traditional classroom mentorship." },
-      { icon: <Focus className="w-10 h-10 text-black mb-6" strokeWidth={1} />, title: "Advanced Sports", desc: "Top-tier athletic facilities for swimming, tennis, and specialized physical training." },
-      { icon: <Cpu className="w-10 h-10 text-black mb-6" strokeWidth={1} />, title: "Future Skills", desc: "Focus on leadership, finance, and digital literacy from an early age." }
+      { icon: <img src={infra3d} alt="Infrastructure" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Elite Infrastructure", desc: "State-of-the-art campus featuring climate-controlled classrooms and premium amenities." },
+      { icon: <img src={tech3d} alt="Hybrid" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Hybrid Learning", desc: "Seamless integration of digital platforms with traditional classroom mentorship." },
+      { icon: <img src={sports3d} alt="Sports" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Advanced Sports", desc: "Top-tier athletic facilities for swimming, tennis, and specialized physical training." },
+      { icon: <img src={idea3d} alt="Skills" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Future Skills", desc: "Focus on leadership, finance, and digital literacy from an early age." }
     ],
     principal: {
       name: "Mr. Vikram Malhotra",
@@ -85,10 +95,10 @@ const CAMPUS_CONTENT: Record<string, any> = {
     academicsDesc2: "We integrate hands-on laboratory experiences with theoretical physics and chemistry to build a solid engineering and medical foundation.",
     academicsImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1200",
     highlights: [
-      { icon: <Cpu className="w-10 h-10 text-black mb-6" strokeWidth={1} />, title: "Robotics Labs", desc: "High-tech robotics and AI experimentation labs for building future technology." },
-      { icon: <Microscope className="w-10 h-10 text-black mb-6" strokeWidth={1} />, title: "STEM Research", desc: "Advanced science labs equipped for university-level research and experimentation." },
-      { icon: <MonitorPlay className="w-10 h-10 text-black mb-6" strokeWidth={1} />, title: "Coding Bootcamp", desc: "Intensive coding and software development modules for all secondary students." },
-      { icon: <ShieldCheck className="w-10 h-10 text-black mb-6" strokeWidth={1} />, title: "Logic & Analytics", desc: "Special sessions dedicated to competitive exam logic and advanced mathematics." }
+      { icon: <img src={robotics3d} alt="Robotics" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Robotics Labs", desc: "High-tech robotics and AI experimentation labs for building future technology." },
+      { icon: <img src={stem3d} alt="STEM" className="w-14 h-14 object-contain scale-[1.5]" />, title: "STEM Research", desc: "Advanced science labs equipped for university-level research and experimentation." },
+      { icon: <img src={tech3d} alt="Coding" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Coding Bootcamp", desc: "Intensive coding and software development modules for all secondary students." },
+      { icon: <img src={compass3d} alt="Logic" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Logic & Analytics", desc: "Special sessions dedicated to competitive exam logic and advanced mathematics." }
     ],
     principal: {
       name: "Dr. Sanjay Roy",

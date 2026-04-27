@@ -78,18 +78,11 @@ export default function LearningPhilosophy({
           
           {/* Cards Grid */}
           <div className="lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-8 lg:pt-12">
-            {philosophies.map((item, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.15, duration: 0.8 }}
-                className="group relative bg-white/60 backdrop-blur-sm p-6 sm:p-10 border border-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-12px_rgba(226,135,67,0.15)] hover:-translate-y-3 transition-all duration-500 rounded-[2rem] sm:rounded-[3rem] overflow-hidden"
-              >
+            {philosophies.map((item) => (
+              <div className="group relative bg-white/60 backdrop-blur-sm p-6 sm:p-10 border border-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] transition-all duration-500 rounded-[2rem] sm:rounded-[3rem] overflow-hidden">
                 <div className="relative z-10">
-                  <div className="mb-8 w-16 h-16 rounded-2xl bg-brand-accent/10 flex items-center justify-center group-hover:bg-brand-accent group-hover:scale-110 transition-all duration-500 shadow-inner group-hover:shadow-xl group-hover:shadow-brand-accent/20">
-                    <div className="text-brand-accent group-hover:text-white transition-colors duration-500">
+                  <div className="mb-8 w-16 h-16 rounded-2xl bg-brand-accent/10 flex items-center justify-center transition-all duration-500 shadow-inner">
+                    <div className="text-brand-accent transition-colors duration-500">
                       {item.icon}
                     </div>
                   </div>
@@ -98,14 +91,11 @@ export default function LearningPhilosophy({
                     {item.title}
                   </h3>
                   
-                  <p className="text-gray-500 leading-relaxed text-sm lg:text-base group-hover:text-gray-600 transition-colors duration-500">
+                  <p className="text-gray-500 leading-relaxed text-sm lg:text-base transition-colors duration-500">
                     {item.desc}
                   </p>
                 </div>
-
-                {/* Bottom Accent Bar */}
-                <div className="absolute bottom-0 left-0 w-0 h-1 bg-brand-accent group-hover:w-full transition-all duration-700"></div>
-              </motion.div>
+              </div>
             ))}
           </div>
 

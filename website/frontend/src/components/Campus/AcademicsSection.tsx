@@ -32,19 +32,21 @@ export default function AcademicsSection({
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 1, ease: "easeOut" }}
+            transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
             className="relative"
           >
-            {/* Decorative Frame */}
-            <div className="absolute -inset-4 border border-brand-accent/10 rounded-[2.5rem] -z-10 pointer-events-none"></div>
+            {/* Soft Glow Background */}
+            <div className="absolute -inset-10 bg-brand-accent/5 blur-[100px] -z-10 rounded-full"></div>
             
-            <div className="aspect-[4/5] overflow-hidden rounded-[2rem] shadow-2xl transform transition-transform duration-700 hover:scale-[1.02]">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] transition-all duration-700">
               <img 
                 src={image} 
                 alt="Campus Academics" 
-                className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110"
+                className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/20 to-transparent"></div>
+              {/* Premium Overlay Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/40 via-transparent to-brand-primary/10 mix-blend-multiply opacity-60"></div>
+              <div className="absolute inset-0 border-[16px] border-white/10 rounded-[3rem]"></div>
             </div>
           </motion.div>
 
@@ -52,40 +54,42 @@ export default function AcademicsSection({
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="flex flex-col space-y-10"
+            transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+            className="flex flex-col space-y-12"
           >
-            <div className="space-y-6">
-              <span className="text-xs font-bold tracking-[0.4em] text-brand-accent uppercase block">Academic Excellence</span>
-              <h2 className="text-[clamp(1.75rem,5.5vh,3.5rem)] font-serif text-brand-primary tracking-tighter leading-[0.9]">
-                Academic <br/>
-                <span className="text-brand-accent italic font-light drop-shadow-sm">Excellence.</span>
-              </h2>
-              <div className="w-20 h-1 bg-brand-accent/20 rounded-full"></div>
-              
+            <div className="space-y-8">
               <div className="space-y-4">
-                <div className="text-gray-600 font-light text-lg md:text-xl leading-relaxed" dangerouslySetInnerHTML={{ __html: description1 }} />
-                <p className="text-gray-500 font-light leading-relaxed">
+                <span className="text-[10px] md:text-xs font-bold tracking-[0.4em] text-brand-accent uppercase block mb-2">Curriculum Excellence</span>
+                <h2 className="text-[clamp(2rem,6vh,4rem)] font-serif text-brand-primary tracking-tighter leading-tight">
+                  Academic <span className="text-brand-accent italic font-light drop-shadow-sm">Excellence.</span>
+                </h2>
+                <div className="w-24 h-1.5 bg-gradient-to-r from-brand-accent to-transparent rounded-full mt-4"></div>
+              </div>
+              
+              <div className="space-y-6">
+                <div className="text-gray-600 font-light text-xl md:text-2xl leading-relaxed border-l-4 border-brand-accent/20 pl-8" dangerouslySetInnerHTML={{ __html: description1 }} />
+                <p className="text-gray-500 font-light text-lg leading-relaxed pl-8">
                   {description2}
                 </p>
               </div>
             </div>
 
-            <div className="glass-card rounded-[2rem] p-10 border border-white relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 rounded-full blur-3xl -z-10"></div>
+            <div className="bg-white/40 backdrop-blur-3xl rounded-[3rem] p-10 sm:p-12 border border-white/60 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.05)] relative overflow-hidden group">
+              {/* Background Decorative element */}
+              <div className="absolute -top-20 -right-20 w-64 h-64 bg-brand-accent/5 rounded-full blur-[80px] -z-10 transition-transform duration-1000 group-hover:scale-150"></div>
               
-              <h3 className="text-lg font-bold text-brand-primary mb-8 uppercase tracking-[0.2em] flex items-center">
-                <span className="w-8 h-px bg-brand-accent mr-4"></span>
+              <h3 className="text-xs font-black text-brand-primary/40 mb-10 uppercase tracking-[0.4em] flex items-center">
+                <span className="w-12 h-[2px] bg-brand-accent/30 mr-6"></span>
                 Key Subjects Offered
               </h3>
               
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
                 {subjects.map((subject, idx) => (
-                  <li key={idx} className="flex items-start text-sm text-gray-600 group/item">
-                    <div className="w-6 h-6 rounded-full bg-brand-accent/10 flex items-center justify-center mr-4 shrink-0 transition-colors duration-300 group-hover/item:bg-brand-accent">
-                      <Check className="w-3 h-3 text-brand-accent transition-colors duration-300 group-hover/item:text-white" />
+                  <li key={idx} className="flex items-center text-gray-700 transition-all duration-500 group/item">
+                    <div className="w-8 h-8 rounded-xl bg-brand-accent/5 border border-brand-accent/10 flex items-center justify-center mr-5 shrink-0 transition-all duration-500 group-hover/item:bg-brand-accent group-hover/item:border-brand-accent group-hover/item:shadow-lg group-hover/item:shadow-brand-accent/20">
+                      <Check className="w-4 h-4 text-brand-accent transition-colors duration-500 group-hover/item:text-white" strokeWidth={3} />
                     </div>
-                    <span className="font-medium group-hover/item:text-brand-primary transition-colors duration-300">{subject}</span>
+                    <span className="text-base font-semibold text-brand-primary/80 group-hover/item:text-brand-primary group-hover/item:translate-x-1 transition-all duration-500">{subject}</span>
                   </li>
                 ))}
               </ul>

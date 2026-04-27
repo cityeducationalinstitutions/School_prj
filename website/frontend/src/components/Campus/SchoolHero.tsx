@@ -11,7 +11,7 @@ export default function SchoolHero({
   image?: string;
 }) {
   return (
-    <section className="relative min-h-[500px] h-screen max-h-[850px] flex items-center overflow-hidden bg-brand-light pt-[80px] lg:pt-[108px]">
+    <section className="relative flex items-start overflow-hidden bg-brand-light pt-[108px] pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           
@@ -35,12 +35,12 @@ export default function SchoolHero({
 
             <div className="flex gap-4 pt-4">
               <Link to="/admissions">
-                <button className="px-8 py-4 bg-brand-accent text-white text-sm font-bold tracking-widest uppercase hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-accent/20 hover:bg-brand-primary transition-all duration-300">
+                <button className="px-8 py-4 bg-brand-accent text-white text-sm font-bold tracking-widest uppercase transition-all duration-300">
                   Admissions
                 </button>
               </Link>
               <Link to="/academics">
-                <button className="px-8 py-4 bg-brand-accent text-white text-sm font-bold tracking-widest uppercase hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-accent/20 hover:bg-brand-primary transition-all duration-300">
+                <button className="px-8 py-4 bg-brand-accent text-white text-sm font-bold tracking-widest uppercase transition-all duration-300">
                   Academics
                 </button>
               </Link>

@@ -21,9 +21,8 @@ export default function HighlightsSection({
             className="space-y-4"
           >
             <span className="text-[10px] md:text-xs font-bold tracking-[0.4em] text-brand-accent uppercase block mb-4">Distinctive Excellence</span>
-            <h2 className="text-[clamp(1.75rem,5.5vh,3.5rem)] font-serif text-brand-primary tracking-tighter leading-[0.9]">
-              What Makes Us <br/>
-              <span className="text-brand-accent italic font-light drop-shadow-sm">Different.</span>
+            <h2 className="text-[clamp(1.75rem,5.5vh,3.5rem)] font-serif text-brand-primary tracking-tighter leading-tight whitespace-nowrap">
+              What Makes Us <span className="text-brand-accent italic font-light drop-shadow-sm">Different.</span>
             </h2>
             <div className="w-24 h-1 bg-brand-accent/20 mx-auto mt-8 mb-8 rounded-full"></div>
             <p className="text-gray-500 font-light text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
@@ -40,27 +39,29 @@ export default function HighlightsSection({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1, duration: 0.8 }}
-              className="group relative glass-card p-10 border border-white hover:bg-brand-primary hover:text-white hover:-translate-y-4 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] rounded-[2.5rem] overflow-hidden flex flex-col items-center text-center"
+              className="group relative h-full"
             >
-              {/* Decorative Card Background elements */}
-              <div className="absolute -top-10 -right-10 w-24 h-24 bg-brand-accent/5 rounded-full group-hover:bg-white/10 transition-colors duration-700"></div>
-              
-              <div className="relative z-10 mb-8 w-20 h-20 rounded-2xl bg-brand-accent/10 flex items-center justify-center group-hover:bg-white/20 group-hover:scale-110 transition-all duration-700 shadow-inner">
-                <div className="text-brand-accent group-hover:text-white transition-colors duration-700 scale-125">
-                  {item.icon}
-                </div>
-              </div>
-              
-              <h3 className="text-2xl font-serif font-bold mb-5 text-brand-accent group-hover:text-white transition-colors duration-700 tracking-tight">
-                {item.title}
-              </h3>
-              
-              <p className="text-gray-500 font-light leading-relaxed text-sm group-hover:text-white/80 transition-colors duration-700">
-                {item.desc}
-              </p>
+              <div className="h-full bg-white/40 backdrop-blur-xl border border-white/60 p-8 sm:p-10 rounded-[2rem] rounded-tr-[5rem] rounded-bl-[5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden flex flex-col items-center text-center">
+                
+                {/* Decorative background number */}
+                <span className="absolute top-4 right-8 text-8xl font-serif font-black text-brand-accent/5 select-none pointer-events-none transition-colors duration-700">
+                  {idx + 1}
+                </span>
 
-              {/* Bottom Glow */}
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-brand-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></div>
+                <div className="relative z-10 mb-10 w-24 h-24 rounded-3xl bg-brand-accent/5 flex items-center justify-center transition-all duration-700 shadow-inner">
+                  <div className="scale-125 transition-transform duration-700">
+                    {item.icon}
+                  </div>
+                </div>
+                
+                <h3 className="text-2xl font-serif font-bold mb-6 text-brand-primary transition-colors duration-700 tracking-tight leading-tight">
+                  {item.title}
+                </h3>
+                
+                <p className="text-gray-500 font-light leading-relaxed text-base transition-colors duration-700">
+                  {item.desc}
+                </p>
+              </div>
             </motion.div>
           ))}
         </div>
