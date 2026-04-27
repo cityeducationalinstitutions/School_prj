@@ -8,12 +8,39 @@ import HighlightsSection from '../components/Campus/HighlightsSection';
 import AcademicsSection from '../components/Campus/AcademicsSection';
 import PrincipalMessage from '../components/Campus/PrincipalMessage';
 
+import idea3d from '../assets/icons/idea_3d_v2.png';
+import compass3d from '../assets/icons/compass_3d_v2.png';
+import users3d from '../assets/icons/users_3d_v2.png';
+import heart3d from '../assets/icons/heart_3d_v2.png';
+
 const CAMPUS_CONTENT: Record<string, any> = {
   'city-talent': {
     name: "City Talent",
-    heroDescription: "Nurturing creativity, confidence, and all-round excellence, we provide a learning environment that balances academic rigor with holistic development. Our approach encourages students to think independently, express themselves creatively, and build strong character through values and discipline. By integrating experiential learning with structured academics, we prepare students to become confident, capable, and responsible individuals ready to excel in a dynamic global world.",
+    heroDescription: "Nurturing creativity, confidence, and all-round excellence, we provide a balanced approach that blends strong academics with holistic development. We empower students to think independently, build character, and grow into confident individuals ready for the future.",
     heroImage: "/schools/city_talent_campus.jpg",
-    philosophy: "We believe in building a foundation that supports both intellectual growth and moral character. Our curriculum is designed to spark curiosity and foster a lifelong love for learning.",
+    philosophy: "We are committed to building a strong foundation that nurtures both intellectual excellence and character development. Our approach goes beyond traditional learning, encouraging curiosity, critical thinking, and a lifelong passion for knowledge. Through a balanced blend of academics and values, we prepare students to grow into confident, responsible, and future-ready individuals.",
+    philosophyItems: [
+      {
+        icon: <img src={idea3d} alt="Concept-Based" className="w-10 h-10 object-contain scale-[1.7]" />,
+        title: "Concept-Based Learning",
+        desc: "We focus on deep understanding of core concepts rather than rote memorization, enabling students to apply knowledge with clarity and confidence."
+      },
+      {
+        icon: <img src={compass3d} alt="Practical" className="w-10 h-10 object-contain scale-[1.7]" />,
+        title: "Practical Understanding",
+        desc: "We bridge the gap between theory and real-world application through hands-on learning, experiments, and experiential activities."
+      },
+      {
+        icon: <img src={users3d} alt="Engagement" className="w-10 h-10 object-contain scale-[1.7]" />,
+        title: "Student Engagement",
+        desc: "We create interactive learning environments that encourage participation, curiosity, and independent thinking."
+      },
+      {
+        icon: <img src={heart3d} alt="Holistic" className="w-10 h-10 object-contain scale-[1.7]" />,
+        title: "Holistic Development",
+        desc: "We nurture emotional intelligence, physical well-being, and strong moral values to ensure all-round growth."
+      }
+    ],
     academicsDesc1: "We follow a rigorous <strong class=\"text-black font-semibold\">CBSE Curriculum</strong> balanced with intensive co-curricular activities in arts and humanities.",
     academicsDesc2: "Our goal is to ensure every student finds their unique voice through specialized workshops and creative mentorship programs.",
     academicsImage: "https://images.unsplash.com/photo-1577896849786-738ed6c78bd3?q=80&w=1200",
@@ -31,7 +58,7 @@ const CAMPUS_CONTENT: Record<string, any> = {
   },
   'city-elite': {
     name: "City Elite",
-    heroDescription: "The peak of premium education. City Elite offers a high-performance environment with world-class facilities designed for students who aspire toward global leadership and elite excellence.",
+    heroDescription: "Empowering future-ready learners through innovation, technology, and modern teaching methodologies. We inspire students to think critically, adapt confidently, and excel in a rapidly evolving world.",
     heroImage: "/schools/city_elite_campus.jpg",
     philosophy: "Elite education is about precision, discipline, and advanced mentorship. We provide a hybrid learning environment that bridges traditional values with futuristic methodologies.",
     academicsDesc1: "City Elite proudly implements the revolutionary <strong class=\"text-black font-semibold\">Kerdo Method</strong> for our Pre-KG to Class 2 students, focusing on multisensory cognitive development.",
@@ -51,7 +78,7 @@ const CAMPUS_CONTENT: Record<string, any> = {
   },
   'new-vision': {
     name: "New Vision",
-    heroDescription: "Driving the future through science and technology. New Vision is the hub for innovators, offering intensive STEM focus and futuristic robotics for the thinkers of tomorrow.",
+    heroDescription: "Delivering excellence through advanced academics, disciplined learning, and leadership-focused development. We prepare students to achieve high performance with confidence, clarity, and a strong sense of responsibility.",
     heroImage: "https://images.unsplash.com/photo-1564981797816-1043664bf78d?q=80&w=1600",
     philosophy: "We believe in a future driven by inquiry and logic. Our mission is to equip students with the technical skills and scientific mindset required to solve global challenges.",
     academicsDesc1: "Our Science-first curriculum focuses on <strong class=\"text-black font-semibold\">IIT/NEET Foundation</strong> courses starting from Class 6, ensuring competitive excellence.",
@@ -92,6 +119,7 @@ export default function CampusPage() {
       
       <LearningPhilosophy 
         description={content.philosophy}
+        items={content.philosophyItems}
       />
       
       <MetricsSection />

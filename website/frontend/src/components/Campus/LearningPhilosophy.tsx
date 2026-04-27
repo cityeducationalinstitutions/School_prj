@@ -1,33 +1,46 @@
 import { motion } from 'framer-motion';
-import { Lightbulb, Compass, Users, Heart } from 'lucide-react';
+import idea3d from '../../assets/icons/idea_3d_v2.png';
+import compass3d from '../../assets/icons/compass_3d_v2.png';
+import users3d from '../../assets/icons/users_3d_v2.png';
+import heart3d from '../../assets/icons/heart_3d_v2.png';
+
+interface PhilosophyItem {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}
 
 export default function LearningPhilosophy({ 
-  description = "Education goes beyond the textbooks. At City Talent, we build the foundation for critical thinking, empathy, and resilience."
+  description = "Education goes beyond the textbooks. At City Talent, we build the foundation for critical thinking, empathy, and resilience.",
+  items
 }: { 
   description?: string;
+  items?: PhilosophyItem[];
 }) {
-  const philosophies = [
+  const defaultPhilosophies = [
     {
-      icon: <Lightbulb className="w-8 h-8 transition-colors duration-500" />,
+      icon: <img src={idea3d} alt="Concept-based" className="w-10 h-10 object-contain scale-[1.7]" />,
       title: "Concept-based Learning",
       desc: "Focusing on core ideas rather than rote memorization to ensure deep, transferable knowledge."
     },
     {
-      icon: <Compass className="w-8 h-8 transition-colors duration-500" />,
+      icon: <img src={compass3d} alt="Practical" className="w-10 h-10 object-contain scale-[1.7]" />,
       title: "Practical Understanding",
       desc: "Connecting classroom theories to real-world applications and hands-on experiences."
     },
     {
-      icon: <Users className="w-8 h-8 transition-colors duration-500" />,
+      icon: <img src={users3d} alt="Engagement" className="w-10 h-10 object-contain scale-[1.7]" />,
       title: "Student Engagement",
       desc: "Fostering active participation, curiosity, and a lifelong love for independent learning."
     },
     {
-      icon: <Heart className="w-8 h-8 transition-colors duration-500" />,
+      icon: <img src={heart3d} alt="Holistic" className="w-10 h-10 object-contain scale-[1.7]" />,
       title: "Holistic Development",
       desc: "Nurturing emotional intelligence, physical well-being, and strong moral character."
     }
   ];
+
+  const philosophies = items || defaultPhilosophies;
 
   return (
     <section className="py-[clamp(4rem,10vh,8rem)] bg-brand-light relative overflow-hidden">
@@ -75,13 +88,13 @@ export default function LearningPhilosophy({
                 className="group relative bg-white/60 backdrop-blur-sm p-6 sm:p-10 border border-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-12px_rgba(226,135,67,0.15)] hover:-translate-y-3 transition-all duration-500 rounded-[2rem] sm:rounded-[3rem] overflow-hidden"
               >
                 <div className="relative z-10">
-                  <div className="mb-8 w-16 h-16 rounded-2xl bg-brand-accent/10 flex items-center justify-center group-hover:bg-brand-primary group-hover:scale-110 transition-all duration-500 shadow-inner group-hover:shadow-xl group-hover:shadow-brand-primary/20">
+                  <div className="mb-8 w-16 h-16 rounded-2xl bg-brand-accent/10 flex items-center justify-center group-hover:bg-brand-accent group-hover:scale-110 transition-all duration-500 shadow-inner group-hover:shadow-xl group-hover:shadow-brand-accent/20">
                     <div className="text-brand-accent group-hover:text-white transition-colors duration-500">
                       {item.icon}
                     </div>
                   </div>
                   
-                  <h3 className="text-2xl font-serif font-bold mb-5 text-brand-accent group-hover:text-brand-primary transition-colors duration-500 tracking-tight">
+                  <h3 className="text-2xl font-serif font-bold mb-5 text-brand-accent transition-colors duration-500 tracking-tight">
                     {item.title}
                   </h3>
                   
@@ -91,7 +104,7 @@ export default function LearningPhilosophy({
                 </div>
 
                 {/* Bottom Accent Bar */}
-                <div className="absolute bottom-0 left-0 w-0 h-1 bg-brand-primary group-hover:w-full transition-all duration-700"></div>
+                <div className="absolute bottom-0 left-0 w-0 h-1 bg-brand-accent group-hover:w-full transition-all duration-700"></div>
               </motion.div>
             ))}
           </div>
