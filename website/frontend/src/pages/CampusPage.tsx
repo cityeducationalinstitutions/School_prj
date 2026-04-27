@@ -11,7 +11,6 @@ import idea3d from '../assets/icons/idea_3d_v2.png';
 import compass3d from '../assets/icons/compass_3d_v2.png';
 import users3d from '../assets/icons/users_3d_v2.png';
 import heart3d from '../assets/icons/heart_3d_v2.png';
-import academicsV2 from '../assets/academics_v2.png';
 
 // Highlight Icons
 import literature3d from '../assets/icons/literature_3d.png';
@@ -51,9 +50,9 @@ const CAMPUS_CONTENT: Record<string, any> = {
         desc: "We nurture emotional intelligence, physical well-being, and strong moral values to ensure all-round growth."
       }
     ],
-    academicsDesc1: "We implement a comprehensive <strong class=\"text-black font-semibold\">State Board curriculum</strong> designed to establish strong conceptual clarity and academic discipline. Through a balanced blend of classroom learning and practical exposure, we ensure students develop both knowledge and application skills.",
-    academicsDesc2: "Our goal is to empower every student with a solid foundation, enabling them to achieve excellence with confidence, clarity, and purpose.",
-    academicsImage: academicsV2,
+    academicsDesc1: "We follow a rigorous <strong class=\"text-black font-semibold\">CBSE Curriculum</strong> balanced with intensive co-curricular activities in arts and humanities.",
+    academicsDesc2: "Our goal is to ensure every student finds their unique voice through specialized workshops and creative mentorship programs.",
+    academicsImage: "https://images.unsplash.com/photo-1577896849786-738ed6c78bd3?q=80&w=1200",
     highlights: [
       { icon: <img src={literature3d} alt="Literature" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Literary Societies", desc: "Active reading, writing, and debating platforms strengthen communication skills, critical thinking, and intellectual confidence." },
       { icon: <img src={valuesEdu3d} alt="Values" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Value Education", desc: "A strong emphasis on ethics, discipline, and character development shapes responsible, respectful, and principled individuals." },

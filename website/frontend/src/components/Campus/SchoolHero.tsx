@@ -11,7 +11,7 @@ export default function SchoolHero({
   image?: string;
 }) {
   return (
-    <section className="relative flex items-start overflow-hidden bg-brand-light pt-[108px] pb-10">
+    <section className="relative flex items-start overflow-hidden bg-brand-light pt-[64px] pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           
