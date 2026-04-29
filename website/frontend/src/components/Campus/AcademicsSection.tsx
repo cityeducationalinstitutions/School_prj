@@ -2,55 +2,45 @@ import { motion } from 'framer-motion';
 import { 
   BookOpen, 
   Check, 
-  Users, 
-  FileText, 
   Award, 
-  ArrowRight, 
-  Microscope, 
-  Palette, 
-  Languages,
-  UserCheck,
-  Heart,
-  Globe,
-  Star
 } from 'lucide-react';
 
 export default function AcademicsSection({
-  image = "https://images.unsplash.com/photo-1546410531-bea4f4b971a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+  image = "/indian_classroom_collaboration.png",
+  description1,
+  description2
 }: {
   image?: string;
+  description1?: string;
+  description2?: string;
 }) {
   const curriculumCards = [
     {
-      title: "English & Literature",
-      desc: "Building strong communication, comprehension & expression.",
-      icon: <BookOpen className="w-5 h-5" />,
+      title: "Core Academic Foundation",
+      desc: "Building strong fundamentals in all subjects through structured teaching, clarity of concepts, and consistent practice.",
+      icon: <img src="/core_foundation_3d.png" alt="Foundation" className="w-16 h-16 object-contain" />,
     },
     {
-      title: "STEM & Innovation",
-      desc: "Nurturing curiosity through science, technology & research.",
-      icon: <Microscope className="w-5 h-5" />,
+      title: "Conceptual Understanding",
+      desc: "Focusing on deep learning rather than memorization to ensure students truly understand and apply what they learn.",
+      icon: <img src="/conceptual_learning_3d.png" alt="Understanding" className="w-16 h-16 object-contain" />,
     },
     {
-      title: "Humanities & Arts",
-      desc: "Exploring history, culture, creativity & global perspectives.",
-      icon: <Palette className="w-5 h-5" />,
+      title: "Practice & Reinforcement",
+      desc: "Regular worksheets, assignments, and guided practice to strengthen accuracy, speed, and confidence.",
+      icon: <img src="/practice_reinforcement_3d.png" alt="Practice" className="w-16 h-16 object-contain" />,
     },
     {
-      title: "Languages & Communication",
-      desc: "Developing confidence through languages & communication.",
-      icon: <Languages className="w-5 h-5" />,
+      title: "Examination Readiness",
+      desc: "Preparing students with structured revision, test strategies, and performance tracking for strong results.",
+      icon: <img src="/exam_readiness_3d.png" alt="Exams" className="w-16 h-16 object-contain" />,
     }
   ];
 
-  const metrics = [
-    { label: "Student–Teacher Ratio", value: "1:18", icon: <Users className="w-5 h-5" /> },
-    { label: "CBSE Aligned", value: "100%", icon: <UserCheck className="w-5 h-5" /> },
-    { label: "Co-Curricular Programs", value: "50+", icon: <Star className="w-5 h-5" /> }
-  ];
+
 
   return (
-    <section className="relative pt-24 pb-10 lg:pt-32 lg:pb-12 bg-[#FAF8F5] overflow-hidden">
+    <section className="relative py-24 lg:py-32 bg-[#FAF8F5] overflow-hidden">
       {/* Background Organic Shape */}
       <div className="absolute top-[10%] right-[-5%] w-[60%] h-[70%] bg-[#F4EFE8] rounded-[40%_60%_70%_30%/40%_50%_60%_40%] -z-0 opacity-60 blur-3xl transform rotate-12"></div>
 
@@ -58,7 +48,7 @@ export default function AcademicsSection({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20 items-start">
           
           {/* Left Column: Academic Storytelling */}
-          <div className="lg:col-span-5 space-y-10 lg:sticky lg:top-32 pt-0 -mt-9">
+          <div className="lg:col-span-5 space-y-10 lg:sticky lg:top-32 pt-0">
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-[#C88A4D]">
                 <BookOpen className="w-4 h-4" />
@@ -71,7 +61,10 @@ export default function AcademicsSection({
               </h2>
               
               <p className="text-[#5B6475] text-lg leading-relaxed max-w-lg font-light">
-                Our CBSE-aligned curriculum blends rigorous academics with creativity, critical thinking, and real-world application. We nurture curious minds and confident leaders through holistic learning and meaningful experiences.
+                {description1 || "We follow a structured State (SSC) curriculum built on strong academic foundations and practical understanding. Our approach emphasizes conceptual clarity, consistent practice, and real-world application to ensure students achieve both academic success and life readiness."}
+              </p>
+              <p className="text-[#5B6475] text-lg leading-relaxed max-w-lg font-light mt-4">
+                {description2 || "Our goal is to strengthen core fundamentals while nurturing curiosity, responsibility, and independent thinking. We prepare students not just for examinations, but for future challenges and opportunities."}
               </p>
             </div>
 
@@ -79,31 +72,11 @@ export default function AcademicsSection({
             <div className="relative p-8 bg-[#FAF8F5] border-l-4 border-[#C88A4D]/30 rounded-r-2xl shadow-[0_20px_40px_-15px_rgba(31,42,68,0.03)] group">
               <span className="absolute top-4 left-4 text-[#C88A4D]/20 text-6xl font-serif">“</span>
               <div className="relative z-10 space-y-3">
-                <p className="text-[#1F2A44] font-semibold text-lg">We believe every student has a unique potential.</p>
-                <p className="text-[#5B6475] text-sm font-light italic">Our academic ecosystem is designed to bring out the best in every learner—every single day.</p>
+                <p className="text-[#1F2A44] font-semibold text-lg">“Every student has the potential to achieve excellence with the right foundation and guidance.”</p>
+                <p className="text-[#5B6475] text-sm font-light italic">Our academic system is designed to consistently support progress, strengthen basics, and bring out the best in every learner.</p>
               </div>
             </div>
 
-            {/* Metrics Row */}
-            <div className="grid grid-cols-3 gap-8 pt-2">
-              {metrics.map((item, idx) => (
-                <div key={idx} className="space-y-3">
-                  <div className="w-10 h-10 rounded-full bg-[#1F2A44]/5 flex items-center justify-center text-[#1F2A44]/40">
-                    {item.icon}
-                  </div>
-                  <div>
-                    <p className="text-2xl font-serif font-bold text-[#1F2A44] leading-none mb-1">{item.value}</p>
-                    <p className="text-[10px] text-[#5B6475] uppercase tracking-wider leading-tight">{item.label}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* CTA Button */}
-            <button className="flex items-center gap-3 bg-[#1F2A44] text-white px-10 py-5 rounded-full font-medium transition-all hover:bg-[#1F2A44]/90 hover:scale-105 active:scale-95 shadow-xl shadow-[#1F2A44]/10">
-              EXPLORE CURRICULUM
-              <ArrowRight className="w-4 h-4" />
-            </button>
           </div>
 
           {/* Right Column: Visual Composition & Cards */}
@@ -141,7 +114,7 @@ export default function AcademicsSection({
                   <Check className="w-6 h-6" />
                 </div>
                 <div className="pr-4">
-                  <p className="text-[#1F2A44] font-bold text-sm">CBSE</p>
+                  <p className="text-[#1F2A44] font-bold text-sm">SSC</p>
                   <p className="text-[#5B6475] text-[11px] font-medium italic">Aligned</p>
                 </div>
               </div>
@@ -150,17 +123,14 @@ export default function AcademicsSection({
             {/* Curriculum Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
               {curriculumCards.map((card, idx) => (
-                <div key={idx} className="group/card bg-white border border-[#E7DED2] p-8 rounded-[1.5rem] transition-all duration-500 hover:shadow-2xl hover:shadow-[#1F2A44]/5 hover:-translate-y-1 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#FAF8F5] rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2 group-hover/card:bg-[#C88A4D]/5 transition-colors"></div>
-                  
+                <div key={idx} className="bg-white border border-[#E7DED2] p-8 rounded-[1.5rem] relative overflow-hidden">
                   <div className="flex items-start justify-between mb-6">
-                    <div className="w-12 h-12 rounded-xl bg-[#FAF8F5] flex items-center justify-center text-[#1F2A44]/60 group-hover/card:bg-[#1F2A44] group-hover/card:text-white transition-all">
+                    <div className="w-20 h-20 rounded-2xl bg-[#FAF8F5] flex items-center justify-center">
                       {card.icon}
                     </div>
-                    <ArrowRight className="w-5 h-5 text-[#C88A4D] opacity-0 group-hover/card:opacity-100 transform -translate-x-4 group-hover/card:translate-x-0 transition-all duration-500" />
                   </div>
                   
-                  <h3 className="text-lg font-serif font-bold text-[#1F2A44] mb-3 leading-tight">{card.title}</h3>
+                  <h3 className="text-lg font-serif font-bold text-[#C88A4D] mb-3 leading-tight">{card.title}</h3>
                   <p className="text-[#5B6475] text-sm font-light leading-relaxed pr-4">{card.desc}</p>
                 </div>
               ))}

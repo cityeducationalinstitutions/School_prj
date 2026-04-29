@@ -41,20 +41,16 @@ export default function HighlightsSection({
               transition={{ delay: idx * 0.1, duration: 0.8 }}
               className="group relative h-full"
             >
-              <div className="h-full bg-white/40 backdrop-blur-xl border border-white/60 p-8 sm:p-10 rounded-[2rem] rounded-tr-[5rem] rounded-bl-[5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden flex flex-col items-center text-center">
+              <div className="h-full bg-white/40 backdrop-blur-xl border border-white/60 p-8 sm:p-10 rounded-[2rem] rounded-tr-[5rem] rounded-bl-[5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] hover:shadow-[0_30px_60px_-15px_rgba(226,135,67,0.15)] hover:-translate-y-2 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden flex flex-col items-center text-center">
                 
-                {/* Decorative background number */}
-                <span className="absolute top-4 right-8 text-8xl font-serif font-black text-brand-accent/5 select-none pointer-events-none transition-colors duration-700">
-                  {idx + 1}
-                </span>
 
-                <div className="relative z-10 mb-10 w-24 h-24 rounded-3xl bg-brand-accent/5 flex items-center justify-center transition-all duration-700 shadow-inner">
+                <div className="relative z-10 mb-10 w-24 h-24 rounded-3xl bg-brand-accent/5 flex items-center justify-center group-hover:scale-110 group-hover:bg-brand-accent/10 transition-all duration-700 shadow-inner group-hover:shadow-brand-accent/20">
                   <div className="scale-125 transition-transform duration-700">
                     {item.icon}
                   </div>
                 </div>
                 
-                <h3 className="text-2xl font-serif font-bold mb-6 text-brand-primary transition-colors duration-700 tracking-tight leading-tight">
+                <h3 className="text-2xl font-serif font-bold mb-6 text-brand-primary group-hover:text-brand-accent transition-colors duration-700 tracking-tight leading-tight">
                   {item.title}
                 </h3>
                 

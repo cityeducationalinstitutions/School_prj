@@ -50,9 +50,9 @@ const CAMPUS_CONTENT: Record<string, any> = {
         desc: "We nurture emotional intelligence, physical well-being, and strong moral values to ensure all-round growth."
       }
     ],
-    academicsDesc1: "We follow a rigorous <strong class=\"text-black font-semibold\">CBSE Curriculum</strong> balanced with intensive co-curricular activities in arts and humanities.",
-    academicsDesc2: "Our goal is to ensure every student finds their unique voice through specialized workshops and creative mentorship programs.",
-    academicsImage: "https://images.unsplash.com/photo-1577896849786-738ed6c78bd3?q=80&w=1200",
+    academicsDesc1: "We follow a structured State (SSC) curriculum built on strong academic foundations and practical understanding. Our approach emphasizes conceptual clarity, consistent practice, and real-world application to ensure students achieve both academic success and life readiness.",
+    academicsDesc2: "Through focused teaching, disciplined learning, and continuous guidance, we help every student build confidence, perform with excellence, and grow with purpose.",
+    academicsImage: "/indian_classroom_collaboration.png",
     highlights: [
       { icon: <img src={literature3d} alt="Literature" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Literary Societies", desc: "Active reading, writing, and debating platforms strengthen communication skills, critical thinking, and intellectual confidence." },
       { icon: <img src={valuesEdu3d} alt="Values" className="w-14 h-14 object-contain scale-[1.5]" />, title: "Value Education", desc: "A strong emphasis on ethics, discipline, and character development shapes responsible, respectful, and principled individuals." },
