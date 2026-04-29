@@ -65,3 +65,55 @@ body {
     background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
   }
 }
+
+/* Short viewport scaling — for laptops with ≤800px viewport height (e.g. 1366×768) */
+@media (max-height: 800px) {
+  /* Reduce section padding globally */
+  section {
+    padding-top: clamp(1.5rem, 4vh, 3rem) !important;
+    padding-bottom: clamp(1.5rem, 4vh, 3rem) !important;
+  }
+
+  /* Scale down serif headings */
+  h2, h3 {
+    font-size: clamp(1.25rem, 3vw, 2.2rem) !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  /* Scale down card content */
+  h4 {
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem) !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Tighter paragraph text */
+  section p {
+    font-size: clamp(0.8rem, 1.3vw, 0.95rem) !important;
+    line-height: 1.6 !important;
+  }
+
+  /* Compact card padding */
+  .glass-card {
+    padding: clamp(1rem, 2.5vh, 1.75rem) !important;
+    border-radius: 1.25rem !important;
+  }
+
+  /* Reduce bottom margins in sections */
+  section .mb-20,
+  section .mb-16,
+  section .mb-10 {
+    margin-bottom: clamp(0.75rem, 2vh, 1.5rem) !important;
+  }
+
+  /* Scale down icon containers */
+  section .w-16 {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+
+  /* Reduce gap between grid items */
+  section .gap-10,
+  section .gap-8 {
+    gap: clamp(0.75rem, 1.5vh, 1.25rem) !important;
+  }
+}
