@@ -2,13 +2,21 @@ import { motion } from 'framer-motion';
 import { Target, History, Users, Award } from 'lucide-react';
 
 
-export default function MetricsSection() {
-  const metrics = [
+interface Metric {
+  value: string;
+  label: string;
+  icon: React.ReactNode;
+}
+
+export default function MetricsSection({ customMetrics }: { customMetrics?: Metric[] }) {
+  const defaultMetrics = [
     { value: "95%", label: "Academic Results", icon: <Target className="w-5 h-5 text-brand-accent" /> },
     { value: "10+", label: "Years Excellence", icon: <History className="w-5 h-5 text-brand-accent" /> },
     { value: "1000+", label: "Enrolled Students", icon: <Users className="w-5 h-5 text-brand-accent" /> },
     { value: "50+", label: "Expert Faculty", icon: <Award className="w-5 h-5 text-brand-accent" /> },
   ];
+
+  const metrics = customMetrics || defaultMetrics;
 
   return (
     <section className="relative py-4 overflow-hidden group border-y border-brand-accent/10">
