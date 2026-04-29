@@ -42,66 +42,67 @@ const slides = [
     secondaryLink: '/news',
     fit: 'cover'
   },
-  {
-    id: 4,
-    image: '/hero_achievements_v3.png',
-    mobileImage: '/hero_achievements_mobile.jpg',
-    title: 'Admissions Open',
-    highlight: '2026-2027 Cohort',
-    subtitle: 'Secure your child\'s future. We are currently accepting applications for all grades across our three premium campuses.',
-    primaryCta: 'Start Admission',
-    primaryLink: '/admissions',
-    secondaryCta: 'Contact Us',
-    secondaryLink: '/contact',
-    fit: 'cover'
-  }
-];
+    {
+      id: 4,
+      image: '/ssc_results_2026.jpg',
+      mobileImage: '/ssc_results_2026.jpg',
+      title: 'Admissions Open',
+      highlight: '2026-2027 Cohort',
+      subtitle: 'Secure your child\'s future. We are currently accepting applications for all grades across our three premium campuses.',
+      primaryCta: 'Start Admission',
+      primaryLink: '/admissions',
+      secondaryCta: 'Contact Us',
+      secondaryLink: '/contact',
+      fit: 'fill'
+    }
+  ];
 
-export default function Hero() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Responsive check
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Auto-scroll logic
-  useEffect(() => {
-    if (isHovered) return;
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [isHovered]);
-
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-  const goToSlide = (index: number) => setCurrentSlide(index);
-
-  return (
-    <div 
-      className="relative min-h-[500px] h-[calc(100vh-64px)] lg:h-[calc(100vh-96px)] xl:h-[calc(100vh-108px)] flex flex-col items-center justify-center overflow-hidden bg-black group"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentSlide}
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-          style={{ 
-            backgroundImage: `url("${isMobile && (slides[currentSlide] as any).mobileImage ? (slides[currentSlide] as any).mobileImage : slides[currentSlide].image}")`
-          }}
-        />
-      </AnimatePresence>
+  export default function Hero() {
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+  
+    // Responsive check
+    useEffect(() => {
+      const checkMobile = () => setIsMobile(window.innerWidth < 768);
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+  
+    // Auto-scroll logic
+    useEffect(() => {
+      if (isHovered) return;
+      const timer = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+      }, 5000);
+      return () => clearInterval(timer);
+    }, [isHovered]);
+  
+    const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
+    const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+    const goToSlide = (index: number) => setCurrentSlide(index);
+  
+    return (
+      <div 
+        className="relative min-h-[500px] h-[calc(100vh-64px)] lg:h-[calc(100vh-96px)] xl:h-[calc(100vh-108px)] flex flex-col items-center justify-center overflow-hidden bg-black group"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            className={`absolute inset-0 z-0 bg-center bg-no-repeat transition-all duration-700`}
+            style={{ 
+              backgroundImage: `url("${isMobile && (slides[currentSlide] as any).mobileImage ? (slides[currentSlide] as any).mobileImage : slides[currentSlide].image}")`,
+              backgroundSize: slides[currentSlide].fit === 'fill' ? '100% 100%' : slides[currentSlide].fit || 'cover'
+            }}
+          />
+        </AnimatePresence>
 
 
 
