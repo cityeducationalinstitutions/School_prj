@@ -66,11 +66,11 @@ export default function LearningPhilosophy({
               <span className="inline-block py-1.5 px-5 rounded-full border border-brand-accent/30 bg-brand-accent/5 text-brand-accent font-black text-[10px] tracking-[0.3em] uppercase mb-8">
                 Our Core Values
               </span>
-              <h2 className="text-[clamp(1.75rem,5.5vh,3.5rem)] font-serif text-brand-primary leading-[0.9] tracking-tighter mb-10">
+              <h2 className="text-[clamp(1.5rem,3.5vw,3.5rem)] font-serif text-brand-primary leading-[0.9] tracking-tighter mb-6 lg:mb-10">
                 Our Learning <br/> 
                 <span className="text-brand-accent drop-shadow-sm">Philosophy.</span>
               </h2>
-              <p className="text-gray-500 text-base sm:text-xl leading-relaxed border-l-2 border-brand-accent/20 pl-6">
+              <p className="text-gray-500 text-sm sm:text-base lg:text-xl leading-relaxed border-l-2 border-brand-accent/20 pl-6">
                 {description}
               </p>
             </div>
@@ -79,15 +79,15 @@ export default function LearningPhilosophy({
           {/* Cards Grid */}
           <div className="lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-8 lg:pt-12">
             {philosophies.map((item) => (
-              <div className="group relative bg-white/60 backdrop-blur-sm p-6 sm:p-10 border border-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] transition-all duration-500 rounded-[2rem] sm:rounded-[3rem] overflow-hidden">
+              <div className="group relative bg-white/60 backdrop-blur-sm p-5 sm:p-7 lg:p-10 border border-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] transition-all duration-500 rounded-[1.5rem] sm:rounded-[2rem] lg:rounded-[3rem] overflow-hidden">
                 <div className="relative z-10">
-                  <div className="mb-8 w-16 h-16 rounded-2xl bg-brand-accent/10 flex items-center justify-center transition-all duration-500 shadow-inner">
+                  <div className="mb-5 lg:mb-8 w-12 h-12 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl bg-brand-accent/10 flex items-center justify-center transition-all duration-500 shadow-inner">
                     <div className="text-brand-accent transition-colors duration-500">
                       {item.icon}
                     </div>
                   </div>
                   
-                  <h3 className="text-2xl font-serif font-bold mb-5 text-brand-accent transition-colors duration-500 tracking-tight">
+                  <h3 className="text-xl lg:text-2xl font-serif font-bold mb-3 lg:mb-5 text-brand-accent transition-colors duration-500 tracking-tight">
                     {item.title}
                   </h3>
                   

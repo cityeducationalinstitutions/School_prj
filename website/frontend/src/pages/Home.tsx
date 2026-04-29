@@ -72,12 +72,12 @@ export default function Home() {
 
           {/* Right Side: Content */}
           <div className="space-y-8">
-            <h2 className="text-[clamp(1.75rem,5.5vh,3.5rem)] font-serif font-bold leading-[0.95] tracking-tighter text-brand-primary">
+            <h2 className="text-[clamp(1.5rem,3.5vw,3.5rem)] font-serif font-bold leading-[0.95] tracking-tighter text-brand-primary">
               Welcome to the <br/>
               <span className="text-brand-accent">Future of Learning</span>
             </h2>
             
-            <p className="text-gray-600 text-lg leading-relaxed max-w-xl">
+            <p className="text-gray-600 text-base lg:text-lg leading-relaxed max-w-xl">
               At City Educational Institutions, we recognize that every child’s learning journey is unique. With three specialized campuses, we offer personalized academic pathways that foster individual potential, encourage innovation, and prepare students to thrive in a rapidly evolving world.
             </p>
 
@@ -112,11 +112,11 @@ export default function Home() {
             <span className="inline-block py-1 px-4 rounded-full bg-brand-accent/10 text-brand-accent font-black text-[10px] tracking-[0.3em] uppercase mb-6">
               Our Legacy
             </span>
-            <h3 className="text-[clamp(1.75rem,5.5vh,3.5rem)] font-serif font-bold mb-8 tracking-tighter leading-none">
+            <h3 className="text-[clamp(1.5rem,3.5vw,3.5rem)] font-serif font-bold mb-6 lg:mb-8 tracking-tighter leading-none">
               <span className="text-brand-primary">Our Campuses of </span>
               <span className="text-brand-accent">Excellence</span>
             </h3>
-            <p className="text-gray-500 text-xl leading-relaxed">
+            <p className="text-gray-500 text-base lg:text-xl leading-relaxed">
               Three specialized campuses, one unified vision — empowering every student to learn, grow, and succeed in their own unique way.
             </p>
           </div>
@@ -153,7 +153,7 @@ export default function Home() {
       <section className="relative py-[clamp(4rem,10vh,8rem)] bg-transparent px-4 sm:px-6 lg:px-8 border-t border-brand-primary/5 text-brand-primary">
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-primary/5 rounded-full blur-[120px] -z-10 opacity-40 hidden sm:block"></div>
         
-        <div className="text-center mb-20">
+        <div className="text-center mb-10 lg:mb-20">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -163,11 +163,11 @@ export default function Home() {
             <span className="inline-block py-1.5 px-5 rounded-full border border-brand-accent/30 bg-brand-accent/5 text-brand-accent font-black text-[10px] tracking-[0.3em] uppercase mb-6">
               Our Purpose
             </span>
-            <h3 className="text-[clamp(1.75rem,5.5vh,3.5rem)] font-serif font-bold mb-8 tracking-tighter">
+            <h3 className="text-[clamp(1.5rem,3.5vw,3.5rem)] font-serif font-bold mb-5 lg:mb-8 tracking-tighter">
               <span className="text-brand-primary">Our Educational </span>
               <span className="text-brand-accent">Philosophy</span>
             </h3>
-            <p className="max-w-4xl mx-auto text-gray-500 text-xl leading-relaxed">
+            <p className="max-w-4xl mx-auto text-gray-500 text-base lg:text-xl leading-relaxed">
               At the core of our philosophy is a commitment to excellence, integrity, and innovation — creating a learning environment that not only develops academic strength but also shapes character, leadership, and lifelong success.
             </p>
           </motion.div>
@@ -175,15 +175,15 @@ export default function Home() {
 
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-10">
-            <div className="glass-card rounded-[3.5rem] p-12 glass-card-hover border-white/60 premium-shadow silk-gradient group">
-              <div className="w-16 h-16 rounded-2xl bg-brand-accent flex items-center justify-center mb-10 shadow-xl shadow-brand-accent/20 transition-transform group-hover:rotate-6"><Eye className="w-8 h-8 text-white" /></div>
-              <h4 className="text-4xl font-serif font-bold text-brand-primary mb-6 tracking-tight leading-none">Future Vision</h4>
-              <p className="text-gray-600 leading-relaxed text-lg">To build a future-ready learning ecosystem that transforms strong foundations into lifelong success, empowering students to think critically, act confidently, and lead with purpose in a rapidly evolving world.</p>
+            <div className="glass-card rounded-[2rem] lg:rounded-[3.5rem] p-6 sm:p-8 lg:p-12 glass-card-hover border-white/60 premium-shadow silk-gradient group">
+              <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl bg-brand-accent flex items-center justify-center mb-6 lg:mb-10 shadow-xl shadow-brand-accent/20 transition-transform group-hover:rotate-6"><Eye className="w-6 h-6 lg:w-8 lg:h-8 text-white" /></div>
+              <h4 className="text-2xl lg:text-4xl font-serif font-bold text-brand-primary mb-4 lg:mb-6 tracking-tight leading-none">Future Vision</h4>
+              <p className="text-gray-600 leading-relaxed text-sm lg:text-lg">To build a future-ready learning ecosystem that transforms strong foundations into lifelong success, empowering students to think critically, act confidently, and lead with purpose in a rapidly evolving world.</p>
             </div>
-            <div className="glass-card rounded-[3.5rem] p-12 glass-card-hover border-white/60 premium-shadow silk-gradient group">
-              <div className="w-16 h-16 rounded-2xl bg-brand-accent flex items-center justify-center mb-10 shadow-xl shadow-brand-accent/20 transition-transform group-hover:-rotate-6"><Target className="w-8 h-8 text-white" /></div>
-              <h4 className="text-4xl font-serif font-bold text-brand-primary mb-6 tracking-tight leading-none">Our Mission</h4>
-              <p className="text-gray-600 leading-relaxed text-lg">To provide a solid academic and value-based foundation through innovative teaching, personalized mentorship, and disciplined learning — enabling every student to grow with confidence, achieve excellence, and contribute meaningfully to society.</p>
+            <div className="glass-card rounded-[2rem] lg:rounded-[3.5rem] p-6 sm:p-8 lg:p-12 glass-card-hover border-white/60 premium-shadow silk-gradient group">
+              <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl bg-brand-accent flex items-center justify-center mb-6 lg:mb-10 shadow-xl shadow-brand-accent/20 transition-transform group-hover:-rotate-6"><Target className="w-6 h-6 lg:w-8 lg:h-8 text-white" /></div>
+              <h4 className="text-2xl lg:text-4xl font-serif font-bold text-brand-primary mb-4 lg:mb-6 tracking-tight leading-none">Our Mission</h4>
+              <p className="text-gray-600 leading-relaxed text-sm lg:text-lg">To provide a solid academic and value-based foundation through innovative teaching, personalized mentorship, and disciplined learning — enabling every student to grow with confidence, achieve excellence, and contribute meaningfully to society.</p>
             </div>
           </div>
         </div>
