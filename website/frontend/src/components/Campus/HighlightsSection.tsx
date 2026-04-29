@@ -7,7 +7,7 @@ export default function HighlightsSection({
 }) {
 
   return (
-    <section className="py-[clamp(4rem,10vh,8rem)] bg-transparent relative overflow-hidden">
+    <section className="pt-[clamp(4rem,10vh,8rem)] pb-[clamp(1.5rem,4vh,3rem)] bg-transparent relative overflow-hidden">
       {/* Background Decorative Elements */}
       <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-brand-accent/5 rounded-full blur-[120px] -z-10 -translate-x-1/2 -translate-y-1/2 opacity-60 hidden sm:block"></div>
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-brand-primary/5 rounded-full blur-[100px] -z-10 translate-x-1/2 translate-y-1/2 opacity-40 hidden sm:block"></div>
