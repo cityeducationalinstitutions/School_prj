@@ -54,8 +54,8 @@ export default function Home() {
           <div className="relative h-[600px] w-full hidden md:block">
             <div className="absolute top-4 left-4 w-[48%] h-[65%] rounded-[2.5rem] overflow-hidden shadow-elite z-10 border-4 border-white/40 group/img">
               <img 
-                src="/about/classroom_elite.png" 
-                alt="Students learning in classroom" 
+                src="/home_hero_students.jpg" 
+                alt="Students at City Educational Institutions" 
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover/img:scale-105" 
               />
               <div className="absolute inset-0 ring-1 ring-inset ring-white/20 rounded-[2.5rem]"></div>

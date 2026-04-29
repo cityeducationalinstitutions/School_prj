@@ -1,5 +1,6 @@
 import AboutHero from '../components/About/AboutHero';
 import FacilitiesSection from '../components/About/FacilitiesSection';
+import SmartSchoolApp from '../components/SmartSchoolApp';
 
 const Facilities = () => {
   return (
@@ -7,10 +8,11 @@ const Facilities = () => {
       <AboutHero 
         title="World-Class"
         subtitle="Facilities"
-        description="Explore our state-of-the-art campuses designed to provide the ultimate environment for learning, growth, and safety. From advanced science labs to technology-enabled classrooms, we provide everything your child needs to excel."
-        image="/academics_classroom.png"
+        description="Our campus offers a safe, modern, and inspiring environment with well-equipped classrooms and advanced labs, designed to build strong academic foundations. We nurture curiosity, discipline, and active learning to support every student’s growth and confidence."
+        image="/facilities_hero_authentic.jpg"
       />
       <FacilitiesSection />
+      <SmartSchoolApp />
     </div>
   );
 };

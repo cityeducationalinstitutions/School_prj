@@ -9,7 +9,7 @@ interface AboutHeroProps {
 
 const AboutHero = ({ title, subtitle, description, image = "/about_hero_wonderla.jpg" }: AboutHeroProps) => {
   return (
-    <section className="relative min-h-[500px] h-screen max-h-[850px] flex items-center overflow-hidden bg-[#0A1F44] pt-[64px] lg:pt-[108px]">
+    <section className="relative min-h-[500px] h-screen max-h-[850px] flex items-start pt-[18vh] lg:pt-[22vh] overflow-hidden bg-[#0A1F44]">
       {/* 1. Background Layer: Overall Background Image */}
       <div className="absolute inset-0 z-0">
         <img 
@@ -44,7 +44,7 @@ const AboutHero = ({ title, subtitle, description, image = "/about_hero_wonderla
           className="max-w-2xl"
         >
           {/* Label Section */}
-          <p className="text-[#F28C38] font-serif text-2xl mb-4 tracking-wide font-medium">
+          <p className="text-[#F28C38] font-serif text-2xl mb-1 tracking-wide font-medium">
             {title}
           </p>
           
@@ -62,22 +62,11 @@ const AboutHero = ({ title, subtitle, description, image = "/about_hero_wonderla
           <div className="w-48 h-[1px] bg-white/10 mb-8"></div>
           
           {/* Description Section */}
-          <p className="text-lg md:text-xl text-white/95 max-w-xl leading-relaxed mb-12 font-light tracking-wide drop-shadow-md">
+          <p className="text-lg md:text-xl text-white/95 max-w-xl leading-relaxed mb-8 font-light tracking-wide drop-shadow-md">
             {description}
           </p>
 
-          {/* Button Section */}
-          <motion.button
-            whileHover={{ 
-              scale: 1.05, 
-              boxShadow: "0 10px 30px -5px rgba(242, 140, 56, 0.3)"
-            }}
-            whileTap={{ scale: 0.98 }}
-            className="group flex items-center gap-4 bg-[#F28C38] text-white px-10 py-4 rounded-full font-semibold transition-all shadow-lg"
-          >
-            Our Journey
-            <span className="text-xl group-hover:translate-x-1 transition-transform">→</span>
-          </motion.button>
+
         </motion.div>
       </div>
     </section>
