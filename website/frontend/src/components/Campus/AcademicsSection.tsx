@@ -40,7 +40,7 @@ export default function AcademicsSection({
 
 
   return (
-    <section className="relative pt-12 pb-24 lg:pt-16 lg:pb-32 bg-[#FAF8F5] overflow-hidden">
+    <section className="relative py-24 lg:py-32 bg-[#FAF8F5] overflow-hidden">
       {/* Background Organic Shape */}
       <div className="absolute top-[10%] right-[-5%] w-[60%] h-[70%] bg-[#F4EFE8] rounded-[40%_60%_70%_30%/40%_50%_60%_40%] -z-0 opacity-60 blur-3xl transform rotate-12"></div>
 
