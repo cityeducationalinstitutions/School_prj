@@ -8,6 +8,7 @@ import CampusPage from './pages/CampusPage';
 import Academics from './pages/Academics';
 import Facilities from './pages/Facilities';
 import Admissions from './pages/Admissions';
+import Gallery from './pages/Gallery';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/campuses/:campusId" element={<CampusPage />} />
             <Route path="/facilities" element={<Facilities />} />
             <Route path="/admissions" element={<Admissions />} />
+            <Route path="/gallery" element={<Gallery />} />
           </Routes>
         </main>
         <Footer />
