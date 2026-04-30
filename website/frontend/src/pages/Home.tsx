@@ -83,13 +83,13 @@ export default function Home() {
 
             <div className="grid sm:grid-cols-2 gap-6 pt-6">
               {[
-                { icon: <School className="w-5 h-5 text-white" />, text: "Specialized Learning Environments" },
-                { icon: <Lightbulb className="w-5 h-5 text-white" />, text: "Concept-Based Learning Approach" },
-                { icon: <Users className="w-5 h-5 text-white" />, text: "Individual Attention & Student Support" },
-                { icon: <TrendingUp className="w-5 h-5 text-white" />, text: "Future-Ready Skill Development" }
+                { icon: <img src="/icons/3d-learning-env.png" alt="Learning Environments" className="w-10 h-10 object-contain" />, text: "Specialized Learning Environments" },
+                { icon: <img src="/icons/3d-concept-learning.png" alt="Concept Learning" className="w-10 h-10 object-contain" />, text: "Concept-Based Learning Approach" },
+                { icon: <img src="/icons/3d-individual-support.png" alt="Individual Support" className="w-10 h-10 object-contain" />, text: "Individual Attention & Student Support" },
+                { icon: <img src="/icons/3d-future-skills.png" alt="Future Skills" className="w-10 h-10 object-contain" />, text: "Future-Ready Skill Development" }
               ].map((feature, idx) => (
                 <div key={idx} className="flex items-center gap-4 glass-card p-4 rounded-2xl border-white/40 hover:bg-white/90 hover:shadow-elite-hover transition-all cursor-default group/feat">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-brand-accent flex items-center justify-center shadow-lg shadow-brand-accent/20 group-hover/feat:scale-110 transition-transform">
+                  <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center transition-transform group-hover/feat:scale-110">
                     {feature.icon}
                   </div>
                   <p className="text-sm font-bold text-brand-primary tracking-tight">
@@ -137,7 +137,7 @@ export default function Home() {
                   <img src={school.image} alt={school.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-1000 ease-out" />
                 </Link>
                 <div className="glass-card w-[90%] -mt-16 relative z-20 rounded-2xl p-6 group-hover:-translate-y-2 transition-all duration-700 flex flex-col items-center text-center">
-                  <h4 className="text-2xl font-serif font-bold text-brand-primary mb-4 leading-none">{school.name}</h4>
+                  <h4 className="text-2xl font-serif font-bold text-brand-accent mb-4 leading-none">{school.name}</h4>
                   <p className="text-gray-500 text-sm leading-relaxed mb-6">{school.desc}</p>
                   <Link to={school.path} className="inline-flex items-center text-[10px] font-black text-brand-accent group-hover:text-brand-primary transition-colors uppercase tracking-[0.25em] relative">
                     Explore Campus <ArrowRight className="w-3.5 h-3.5 ml-2 transform group-hover:translate-x-2 transition-transform" />
@@ -176,12 +176,16 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-10">
             <div className="glass-card rounded-[2rem] lg:rounded-[3.5rem] p-6 sm:p-8 lg:p-12 glass-card-hover border-white/60 premium-shadow silk-gradient group">
-              <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl bg-brand-accent flex items-center justify-center mb-6 lg:mb-10 shadow-xl shadow-brand-accent/20 transition-transform group-hover:rotate-6"><Eye className="w-6 h-6 lg:w-8 lg:h-8 text-white" /></div>
+              <div className="w-16 h-16 flex items-center justify-center mb-6 lg:mb-10 transition-transform group-hover:rotate-6">
+                <img src="/icons/3d-vision.png" alt="Vision" className="w-full h-full object-contain" />
+              </div>
               <h4 className="text-2xl lg:text-4xl font-serif font-bold text-brand-primary mb-4 lg:mb-6 tracking-tight leading-none">Future Vision</h4>
               <p className="text-gray-600 leading-relaxed text-sm lg:text-lg">To build a future-ready learning ecosystem that transforms strong foundations into lifelong success, empowering students to think critically, act confidently, and lead with purpose in a rapidly evolving world.</p>
             </div>
             <div className="glass-card rounded-[2rem] lg:rounded-[3.5rem] p-6 sm:p-8 lg:p-12 glass-card-hover border-white/60 premium-shadow silk-gradient group">
-              <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl bg-brand-accent flex items-center justify-center mb-6 lg:mb-10 shadow-xl shadow-brand-accent/20 transition-transform group-hover:-rotate-6"><Target className="w-6 h-6 lg:w-8 lg:h-8 text-white" /></div>
+              <div className="w-16 h-16 flex items-center justify-center mb-6 lg:mb-10 transition-transform group-hover:-rotate-6">
+                <img src="/icons/3d-mission.png" alt="Mission" className="w-full h-full object-contain" />
+              </div>
               <h4 className="text-2xl lg:text-4xl font-serif font-bold text-brand-primary mb-4 lg:mb-6 tracking-tight leading-none">Our Mission</h4>
               <p className="text-gray-600 leading-relaxed text-sm lg:text-lg">To provide a solid academic and value-based foundation through innovative teaching, personalized mentorship, and disciplined learning — enabling every student to grow with confidence, achieve excellence, and contribute meaningfully to society.</p>
             </div>

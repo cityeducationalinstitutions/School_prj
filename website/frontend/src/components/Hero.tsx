@@ -54,6 +54,19 @@ const slides = [
       secondaryCta: 'Contact Us',
       secondaryLink: '/contact',
       fit: 'fill'
+    },
+    {
+      id: 5,
+      image: '/new_vision_results_2026.jpg',
+      mobileImage: '/new_vision_results_2026.jpg',
+      title: 'Academic Excellence',
+      highlight: 'New Vision High School',
+      subtitle: 'Celebrating our top achievers and 100% success rate in the SSC 2026 examinations.',
+      primaryCta: 'Join Us',
+      primaryLink: '/admissions',
+      secondaryCta: 'Our Vision',
+      secondaryLink: '/about',
+      fit: 'fill'
     }
   ];
 
