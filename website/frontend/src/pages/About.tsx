@@ -11,7 +11,7 @@ const About = () => {
         title="About"
         subtitle="City Educational Institutions"
         description="Built on strong foundations and a legacy of trust, we nurture young minds through quality education, modern learning, and values that last a lifetime."
-        image="/about_hero_wonderla.jpg"
+        image="/about/hero_students_planting.jpg"
       />
       <AboutIntro />
       <ApproachSection />

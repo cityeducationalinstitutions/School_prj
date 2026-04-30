@@ -71,17 +71,16 @@ export default function Home() {
           </div>
 
           {/* Right Side: Content */}
-          <div className="space-y-8">
+          <div className="space-y-4">
             <h2 className="text-[clamp(1.5rem,3.5vw,3.5rem)] font-serif font-bold leading-[0.95] tracking-tighter text-brand-primary">
-              Welcome to the <br/>
-              <span className="text-brand-accent">Future of Learning</span>
+              Welcome to the <span className="text-brand-accent">Future of Learning</span>
             </h2>
             
-            <p className="text-gray-600 text-base lg:text-lg leading-relaxed max-w-xl">
+            <p className="text-gray-600 text-base lg:text-lg leading-relaxed max-w-xl text-justify">
               At City Educational Institutions, we recognize that every child’s learning journey is unique. With three specialized campuses, we offer personalized academic pathways that foster individual potential, encourage innovation, and prepare students to thrive in a rapidly evolving world.
             </p>
 
-            <div className="grid sm:grid-cols-2 gap-6 pt-6">
+            <div className="grid sm:grid-cols-2 gap-4 pt-2">
               {[
                 { icon: <img src="/icons/3d-learning-env.png" alt="Learning Environments" className="w-10 h-10 object-contain" />, text: "Specialized Learning Environments" },
                 { icon: <img src="/icons/3d-concept-learning.png" alt="Concept Learning" className="w-10 h-10 object-contain" />, text: "Concept-Based Learning Approach" },

@@ -1,27 +1,29 @@
 import { motion } from 'framer-motion';
+import { Quote, Linkedin, Mail, ArrowRight } from 'lucide-react';
 
 const ManagementProfiles = () => {
   const leaders = [
     {
-      role: 'FOUNDER',
+      role: 'FOUNDER & CHAIRMAN',
       name: 'R Prakash Reddy',
       bio: 'Providing visionary leadership and a steadfast commitment to excellence in education. Under the guidance of R Prakash Reddy, City Educational Institutions has grown to become a beacon of holistic development and academic rigor.',
-      image: '/founder_portrait_professional_1776343305701.png',
+      image: '/8A6A0208.JPG.jpeg',
+      quote: "Our mission is to nurture not just students, but future leaders who carry the torch of excellence and integrity."
     },
     {
-      role: 'PRINCIPAL (CITY TALENT HIGH SCHOOL)',
+      role: 'PRINCIPAL (CITY TALENT)',
       name: 'MR. MURALIDHAR',
       bio: 'Guiding academic excellence and fostering a culture of holistic student development at City Talent. His leadership ensures that the curriculum evolves with global trends while staying rooted in core human values.',
       image: '/indian_mother_professional_portrait_1776173533383.png'
     },
     {
-      role: 'PRINCIPAL (CITY ELITE SCHOOL)',
+      role: 'PRINCIPAL (CITY ELITE)',
       name: 'MR. KIRAN',
-      bio: 'Nurturing student-centered education and operational excellence at City Elite. Mr. Kiran focuses on creating an environment where creative potential and academic rigor coexist in perfect balance, empowering students to achieve their best.',
+      bio: 'Nurturing student-centered education and operational excellence at City Elite. Mr. Kiran focuses on creating an environment where creative potential and academic rigor coexist in perfect balance.',
       image: '/media__1776171533667.jpg'
     },
     {
-      role: 'PRINCIPAL (NEW VISION SCHOOL)',
+      role: 'PRINCIPAL (NEW VISION)',
       name: 'MS. SHUKRUTHA',
       bio: 'Committed to academic leadership and the holistic growth of students at New Vision. Ms. Shukrutha focuses on building a strong pedagogical foundation and fostering an environment of continuous learning.',
       image: '/indian_father_professional_portrait_1776173549630.png'
@@ -29,72 +31,143 @@ const ManagementProfiles = () => {
   ];
 
   return (
-    <section className="py-[clamp(4rem,10vh,8rem)] bg-brand-light relative overflow-hidden">
-      {/* Background Soft Glows */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-accent/5 rounded-full blur-[120px] translate-x-1/2 -z-10"></div>
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Intro Header */}
-        <div className="text-center mb-24">
+    <section className="pb-16 pt-8 bg-white relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+        
+        {/* Page Title & Philosophy */}
+        <div className="max-w-3xl mb-6 pt-4">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
           >
-            <span className="text-brand-accent font-bold tracking-[0.3em] uppercase text-xs mb-4 block">Institutional Leadership</span>
-            <h2 className="text-[clamp(1.75rem,5.5vh,3.5rem)] font-serif font-bold mb-8 tracking-tighter leading-tight text-center">
-              <span className="text-brand-primary">The Pillars of </span>
-              <span className="text-brand-accent italic font-light">Our Institution</span>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-brand-primary tracking-tighter leading-none mb-3">
+              The Visionaries <span className="text-brand-accent italic font-light">Behind the Legacy</span>
             </h2>
-            <div className="w-24 h-1.5 bg-brand-accent mx-auto rounded-full"></div>
+            <div className="w-16 h-1 bg-brand-accent mb-3"></div>
+            <p className="text-gray-500 text-sm md:text-base font-light leading-relaxed">
+              Guided by decades of experience and a shared commitment to academic excellence, our leadership team ensures that every City campus remains a center of innovation and character building.
+            </p>
           </motion.div>
         </div>
 
-        {/* Leadership List - Matching Screenshot Style */}
-        <div className="space-y-16 lg:space-y-24">
-          {leaders.map((leader, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
+        {/* Founder Spotlight - Horizontal Executive Layout */}
+        <div className="mb-24">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="grid lg:grid-cols-12 items-center gap-8"
+          >
+            {/* Founder Photo - Left */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: idx * 0.1 }}
-              className="flex flex-col lg:flex-row items-stretch gap-10 lg:gap-16"
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:col-span-3 relative group"
             >
-              {/* Image Side - Rounded Rectangle */}
-              <div className="w-full lg:w-[350px] flex-shrink-0">
-                <div className="aspect-[4/5] h-full rounded-[2.5rem] overflow-hidden shadow-xl border-4 border-white transition-transform duration-700 hover:scale-[1.02]">
-                  <img 
-                    src={leader.image} 
-                    alt={leader.name} 
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(leader.name)}&background=fdf8f6&color=ff7849&size=600&bold=true`;
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Content Side - White Rounded Card */}
-              <div className="flex-grow bg-white p-6 sm:p-12 rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-gray-50 flex flex-col justify-center">
-                <div className="mb-8">
-                  <span className="inline-block px-8 py-2.5 rounded-full border-2 border-brand-accent/20 bg-brand-accent/[0.02] text-brand-accent font-bold text-xs tracking-[0.2em] uppercase mb-6">
-                    {leader.role}
-                  </span>
-                  <h3 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-bold text-brand-accent leading-tight">
-                    {leader.name}
-                  </h3>
-                </div>
-
-                <div className="space-y-6">
-                  <p className="text-gray-600 text-base sm:text-lg lg:text-xl font-light leading-relaxed">
-                    {leader.bio}
-                  </p>
-                </div>
+              <div className="aspect-[4/5] rounded-[1.5rem] overflow-hidden relative max-w-[220px] mx-auto lg:mx-0 border border-brand-accent/5">
+                <img 
+                  src={leaders[0].image} 
+                  alt={leaders[0].name} 
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/40 to-transparent"></div>
               </div>
             </motion.div>
-          ))}
+
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:col-span-9 space-y-6"
+            >
+              <div className="space-y-3">
+                <h4 className="text-brand-accent font-bold tracking-[0.2em] text-[10px] uppercase">{leaders[0].role}</h4>
+                <h3 className="text-3xl md:text-4xl font-serif font-bold text-brand-primary tracking-tight">
+                  {leaders[0].name}
+                </h3>
+              </div>
+              
+              <div className="relative">
+                <p className="text-lg md:text-xl font-serif text-brand-primary leading-relaxed italic opacity-90 pl-8 border-l-4 border-brand-accent/30">
+                  "{leaders[0].quote}"
+                </p>
+              </div>
+
+              <p className="text-gray-600 text-base leading-relaxed font-light">
+                {leaders[0].bio}
+              </p>
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Principals Section - Alternating Layout */}
+        <div className="space-y-16">
+          {leaders.slice(1).map((leader, idx) => {
+            const isImageRight = idx % 2 === 0; // idx 0 is first principal, should be right
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="group grid lg:grid-cols-12 items-center gap-8"
+              >
+                <div className={`lg:col-span-10 space-y-4 ${isImageRight ? 'order-2 lg:order-1' : 'order-2'}`}>
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-black tracking-[0.2em] text-brand-accent uppercase">
+                      {leader.role}
+                    </span>
+                    <h4 className="text-xl lg:text-2xl font-serif font-bold text-brand-primary group-hover:text-brand-accent transition-colors">
+                      {leader.name}
+                    </h4>
+                  </div>
+                  <p className="text-gray-600 text-sm md:text-base font-light leading-relaxed">
+                    {leader.bio}
+                  </p>
+                  <div className="pt-2">
+                    <button className="text-brand-primary font-bold text-[10px] tracking-widest uppercase flex items-center gap-2 group-hover:gap-4 transition-all border-b border-transparent hover:border-brand-accent">
+                      Full Profile <ArrowRight className="w-3 h-3 text-brand-accent" />
+                    </button>
+                  </div>
+                </div>
+
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: (idx * 0.1) + 0.3 }}
+                  className={`lg:col-span-2 relative ${isImageRight ? 'order-1 lg:order-2' : 'order-1'}`}
+                >
+                  <div className="aspect-[3/4] rounded-[1.25rem] overflow-hidden relative max-w-[180px] mx-auto lg:mx-0 border border-brand-accent/10">
+                    <img 
+                      src={leader.image} 
+                      alt={leader.name} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(leader.name)}&background=fdf8f6&color=ff7849&size=600&bold=true`;
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+                      <div className="flex gap-4">
+                        <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-brand-accent transition-colors cursor-pointer">
+                          <Linkedin className="w-4 h-4" />
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-brand-accent transition-colors cursor-pointer">
+                          <Mail className="w-4 h-4" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

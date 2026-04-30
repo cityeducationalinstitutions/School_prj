@@ -102,7 +102,7 @@ export default function AcademicsSection({
                   <div className="w-8 h-8 rounded-lg bg-[#C88A4D]/10 flex items-center justify-center text-[#C88A4D]">
                     <Award className="w-4 h-4" />
                   </div>
-                  <span className="text-3xl font-serif font-bold text-[#1F2A44]">98%</span>
+                  <span className="text-3xl font-serif font-bold text-[#E28743]">100%</span>
                 </div>
                 <p className="text-sm font-semibold text-[#1F2A44] mb-1">Academic Distinction</p>
                 <p className="text-[10px] text-[#5B6475] uppercase tracking-widest">Board Performance</p>
@@ -110,7 +110,7 @@ export default function AcademicsSection({
 
               {/* Floating Badge (Top Right) */}
               <div className="absolute -top-6 -right-6 bg-white p-6 rounded-[2rem] shadow-xl border border-[#E7DED2]/50 flex items-center gap-4 z-20">
-                <div className="w-12 h-12 rounded-full bg-[#1F2A44] flex items-center justify-center text-white">
+                <div className="w-12 h-12 rounded-full bg-[#E28743] flex items-center justify-center text-white">
                   <Check className="w-6 h-6" />
                 </div>
                 <div className="pr-4">
