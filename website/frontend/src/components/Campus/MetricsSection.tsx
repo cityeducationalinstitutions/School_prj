@@ -10,9 +10,9 @@ interface Metric {
 
 export default function MetricsSection({ customMetrics }: { customMetrics?: Metric[] }) {
   const defaultMetrics = [
-    { value: "95%", label: "Academic Results", icon: <Target className="w-5 h-5 text-brand-accent" /> },
-    { value: "10+", label: "Years Excellence", icon: <History className="w-5 h-5 text-brand-accent" /> },
-    { value: "1000+", label: "Enrolled Students", icon: <Users className="w-5 h-5 text-brand-accent" /> },
+    { value: "100%", label: "Academic Results", icon: <Target className="w-5 h-5 text-brand-accent" /> },
+    { value: "20+", label: "Years Excellence", icon: <History className="w-5 h-5 text-brand-accent" /> },
+    { value: "1200+", label: "Enrolled Students", icon: <Users className="w-5 h-5 text-brand-accent" /> },
     { value: "50+", label: "Expert Faculty", icon: <Award className="w-5 h-5 text-brand-accent" /> },
   ];
 

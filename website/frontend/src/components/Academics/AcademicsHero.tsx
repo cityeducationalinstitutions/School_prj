@@ -8,9 +8,9 @@ export default function AcademicsHero() {
         <img 
           src="/legends_bg.jpg" 
           alt="Legends in their fields" 
-          className="w-full h-full object-cover opacity-60 mix-blend-luminosity scale-105"
+          className="w-full h-full object-cover opacity-80 scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-primary via-brand-primary/90 to-brand-primary/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-primary via-brand-primary/80 to-transparent"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-brand-primary via-transparent to-transparent"></div>
         
         {/* Decorative Light Flares */}
