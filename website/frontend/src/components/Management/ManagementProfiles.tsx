@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Quote, Linkedin, Mail, ArrowRight } from 'lucide-react';
+import { Quote, Mail, ArrowRight } from 'lucide-react';
 
 const ManagementProfiles = () => {
   const leaders = [
@@ -156,7 +156,11 @@ const ManagementProfiles = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
                       <div className="flex gap-4">
                         <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-brand-accent transition-colors cursor-pointer">
-                          <Linkedin className="w-4 h-4" />
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                            <rect width="4" height="12" x="2" y="9"/>
+                            <circle cx="4" cy="4" r="2"/>
+                          </svg>
                         </div>
                         <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-brand-accent transition-colors cursor-pointer">
                           <Mail className="w-4 h-4" />

@@ -98,7 +98,7 @@ const slides = [
   
     return (
       <div 
-        className="relative min-h-[500px] h-[calc(100vh-64px)] lg:h-[calc(100vh-96px)] xl:h-[calc(100vh-108px)] flex flex-col items-center justify-center overflow-hidden bg-black group"
+        className="relative w-full h-[calc(100vh-64px)] md:h-[calc(100vh-64px)] lg:h-[calc(100vh-96px)] xl:h-[calc(100vh-108px)] md:min-h-[500px] flex flex-col items-center justify-center overflow-hidden bg-black group"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -112,11 +112,10 @@ const slides = [
             className={`absolute inset-0 z-0 bg-center bg-no-repeat transition-all duration-700`}
             style={{ 
               backgroundImage: `url("${isMobile && (slides[currentSlide] as any).mobileImage ? (slides[currentSlide] as any).mobileImage : slides[currentSlide].image}")`,
-              backgroundSize: slides[currentSlide].fit === 'fill' ? '100% 100%' : slides[currentSlide].fit || 'cover'
+              backgroundSize: isMobile ? '100% 100%' : (slides[currentSlide].fit === 'fill' ? '100% 100%' : slides[currentSlide].fit || 'cover')
             }}
           />
         </AnimatePresence>
-
 
 
       {/* Navigation Arrows */}
