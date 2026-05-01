@@ -118,8 +118,8 @@ const AdmissionsPopup = ({ onClose }: AdmissionsPopupProps) => {
                   >
                     <option value="">Campus</option>
                     <option value="city-talent">City Talent</option>
-                    <option value="city-elite">City Elite</option>
                     <option value="new-vision">New Vision</option>
+                    <option value="city-elite">City Elite</option>
                   </select>
                 </div>
 

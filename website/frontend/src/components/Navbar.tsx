@@ -25,8 +25,8 @@ export default function Navbar() {
       path: '/campuses/city-talent',
       dropdown: [
         { name: 'City Talent', path: '/campuses/city-talent' },
-        { name: 'City Elite', path: '/campuses/city-elite' },
-        { name: 'New Vision', path: '/campuses/new-vision' }
+        { name: 'New Vision', path: '/campuses/new-vision' },
+        { name: 'City Elite', path: '/campuses/city-elite' }
       ]
     },
     { name: 'ACADEMICS', path: '/academics' },
