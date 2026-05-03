@@ -5,23 +5,44 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 import AdmissionsPopup from '../components/Admissions/AdmissionsPopup';
+import ResultsPopup from '../components/Admissions/ResultsPopup';
 
 export default function Home() {
-  const [showPopup, setShowPopup] = useState(false);
+  const [activePopup, setActivePopup] = useState<'none' | 'results' | 'admissions'>('none');
 
   useEffect(() => {
-    // Check if popup was already shown in this session
-    const hasSeenPopup = sessionStorage.getItem('hasSeenAdmissionsPopup');
+    // Check if popups were already shown in this session
+    const hasSeenResults = sessionStorage.getItem('hasSeenResultsPopup');
     
-    if (!hasSeenPopup) {
+    if (!hasSeenResults) {
       const timer = setTimeout(() => {
-        setShowPopup(true);
-        sessionStorage.setItem('hasSeenAdmissionsPopup', 'true');
-      }, 3000);
-
+        setActivePopup('results');
+        sessionStorage.setItem('hasSeenResultsPopup', 'true');
+      }, 2000);
       return () => clearTimeout(timer);
+    } else {
+      // If results already seen, maybe show admissions if not seen
+      const hasSeenAdmissions = sessionStorage.getItem('hasSeenAdmissionsPopup');
+      if (!hasSeenAdmissions) {
+        const timer = setTimeout(() => {
+          setActivePopup('admissions');
+          sessionStorage.setItem('hasSeenAdmissionsPopup', 'true');
+        }, 3000);
+        return () => clearTimeout(timer);
+      }
     }
   }, []);
+
+  const handleCloseResults = () => {
+    setActivePopup('none');
+    const hasSeenAdmissions = sessionStorage.getItem('hasSeenAdmissionsPopup');
+    if (!hasSeenAdmissions) {
+      setTimeout(() => {
+        setActivePopup('admissions');
+        sessionStorage.setItem('hasSeenAdmissionsPopup', 'true');
+      }, 600);
+    }
+  };
 
   const testimonials = [
     {
@@ -367,9 +388,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Admissions Popup */}
-      <AnimatePresence>
-        {showPopup && <AdmissionsPopup onClose={() => setShowPopup(false)} />}
+      {/* Popups Sequence */}
+      <AnimatePresence mode="wait">
+        {activePopup === 'results' && (
+          <ResultsPopup key="results" onClose={handleCloseResults} />
+        )}
+        {activePopup === 'admissions' && (
+          <AdmissionsPopup key="admissions" onClose={() => setActivePopup('none')} />
+        )}
       </AnimatePresence>
     </div>
   );
