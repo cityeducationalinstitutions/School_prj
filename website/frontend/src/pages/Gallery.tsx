@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Maximize2, Filter } from 'lucide-react';
+import { Maximize2, Upload, Image as ImageIcon, Trash2 } from 'lucide-react';
 
 const CATEGORIES = [
   'All',
@@ -10,42 +10,86 @@ const CATEGORIES = [
   'Academic Activities',
   'Yoga & Wellness'
 ];
-const GALLERY_ITEMS = [
-  { id: 13, category: 'Academic Activities', title: 'Traffic Rules Awareness', image: '/traffic_rules_activity.png' },
-  { id: 1, category: 'Sports', title: 'Annual Athletics Meet', image: 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?q=80&w=1200' },
-  { id: 2, category: 'Academic Activities', title: 'Science Exhibition 2024', image: 'https://images.unsplash.com/photo-1564981797816-1043664bf78d?q=80&w=1200' },
-  { id: 3, category: 'Yoga & Wellness', title: 'International Yoga Day', image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1200' },
-  { id: 4, category: 'Events', title: 'Cultural Fest Celebrations', image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1200' },
-  { id: 5, category: 'School Functions', title: 'Investiture Ceremony', image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200' },
-  { id: 6, category: 'Sports', title: 'Inter-School Basketball', image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1200' },
-  { id: 7, category: 'Academic Activities', title: 'Interactive Learning Session', image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=1200' },
-  { id: 8, category: 'Events', title: 'Republic Day Parade', image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1200' },
-  { id: 9, category: 'Academic Activities', title: 'Robotics Workshop', image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1200' },
-  { id: 10, category: 'Yoga & Wellness', title: 'Mindfulness Session', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1200' },
-  { id: 11, category: 'Sports', title: 'Cricket Tournament', image: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=1200' },
-  { id: 12, category: 'School Functions', title: 'Annual Day Performance', image: 'https://images.unsplash.com/photo-1459749411177-042180ce6742?q=80&w=1200' },
+
+const INITIAL_GALLERY_ITEMS = [
+  { id: 1, category: 'Academic Activities', title: 'Traffic Rules Awareness', image: '/traffic_rules_activity.jpeg' },
+  { id: 2, category: 'Yoga & Wellness', title: 'Morning Yoga Session', image: '/yoga_session_1.png' },
+  { id: 3, category: 'Yoga & Wellness', title: 'Advanced Poses Workshop', image: '/yoga_session_2.png' },
+  { id: 4, category: 'Yoga & Wellness', title: 'International Yoga Day - Mass Session', image: '/yoga_mass_1.png' },
+  { id: 5, category: 'Yoga & Wellness', title: 'Outdoor Wellness Drive', image: '/yoga_mass_2.jpeg' },
+  { id: 6, category: 'Yoga & Wellness', title: 'Mindfulness & Meditation', image: '/yoga_session_3.jpg' },
 ];
 
 export default function Gallery() {
   const [activeTab, setActiveTab] = useState('All');
-  const [filteredItems, setFilteredItems] = useState(GALLERY_ITEMS);
+  const [galleryItems, setGalleryItems] = useState(INITIAL_GALLERY_ITEMS);
   const [visibleCount, setVisibleCount] = useState(8);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Load persistent items on mount
   useEffect(() => {
     window.scrollTo(0, 0);
+    const savedItems = localStorage.getItem('school_gallery_uploads');
+    if (savedItems) {
+      try {
+        const parsedItems = JSON.parse(savedItems);
+        setGalleryItems([...parsedItems, ...INITIAL_GALLERY_ITEMS]);
+      } catch (e) {
+        console.error("Failed to load saved gallery items", e);
+      }
+    }
   }, []);
 
-  useEffect(() => {
-    if (activeTab === 'All') {
-      setFilteredItems(GALLERY_ITEMS);
-    } else {
-      setFilteredItems(GALLERY_ITEMS.filter(item => item.category === activeTab));
+  const filteredItems = activeTab === 'All' 
+    ? galleryItems 
+    : galleryItems.filter(item => item.category === activeTab);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files[0]) {
+      const file = files[0];
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        
+        const newItem = {
+          id: Date.now(),
+          category: activeTab === 'All' ? 'Events' : activeTab,
+          title: `Uploaded: ${file.name.split('.')[0]}`,
+          image: base64String
+        };
+
+        setGalleryItems(prev => [newItem, ...prev]);
+        
+        // Persist to local storage
+        const currentUploads = JSON.parse(localStorage.getItem('school_gallery_uploads') || '[]');
+        localStorage.setItem('school_gallery_uploads', JSON.stringify([newItem, ...currentUploads]));
+      };
+      reader.readAsDataURL(file);
     }
-    setVisibleCount(8); // Reset count on tab change
-  }, [activeTab]);
+  };
+  const handleDeleteItem = (id: number | string) => {
+    // Remove from state
+    setGalleryItems(prev => prev.filter(item => item.id !== id));
+    
+    // Remove from local storage if it's an upload
+    const currentUploads = JSON.parse(localStorage.getItem('school_gallery_uploads') || '[]');
+    const updatedUploads = currentUploads.filter((item: any) => item.id !== id);
+    localStorage.setItem('school_gallery_uploads', JSON.stringify(updatedUploads));
+  };
 
   return (
     <div className="bg-white min-h-screen pt-[108px] pb-24">
+      {/* Hidden File Input */}
+      <input 
+        type="file" 
+        ref={fileInputRef}
+        onChange={handleFileUpload}
+        accept="image/*"
+        className="hidden"
+      />
+
       {/* Hero Header */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16">
         <motion.div
@@ -56,9 +100,20 @@ export default function Gallery() {
           <h1 className="text-4xl md:text-6xl font-serif font-bold text-brand-primary mb-4 tracking-tight">
             School <span className="text-brand-accent italic">Gallery</span>
           </h1>
-          <p className="text-gray-500 text-lg max-w-2xl mx-auto font-light leading-relaxed">
+          <p className="text-gray-500 text-lg max-w-2xl mx-auto font-light leading-relaxed mb-8">
             A visual journey through the vibrant life, achievements, and memorable moments at City Educational Institutions.
           </p>
+
+          {/* Dynamic Upload Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => fileInputRef.current?.click()}
+            className="inline-flex items-center gap-3 px-8 py-3.5 bg-brand-primary text-white font-bold text-xs tracking-widest uppercase rounded-full shadow-2xl shadow-brand-primary/20 hover:bg-brand-primary/90 transition-all"
+          >
+            <Upload className="w-4 h-4 text-brand-accent" />
+            Upload to {activeTab === 'All' ? 'Gallery' : activeTab}
+          </motion.button>
         </motion.div>
       </section>
 
@@ -83,40 +138,59 @@ export default function Gallery() {
 
       {/* Gallery Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          <AnimatePresence mode='popLayout'>
-            {filteredItems.slice(0, visibleCount).map((item, idx) => (
-              <motion.div
-                layout
-                key={item.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className="group relative aspect-video bg-gray-100 rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500"
-              >
-                <img 
-                  src={item.image} 
-                  alt={item.title} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                
-                {/* Hover Overlay */}
-                <div className="absolute inset-0 bg-brand-primary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center p-6 text-center">
-                  <div className="mb-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                    <Maximize2 className="w-8 h-8 text-brand-accent" />
+        {filteredItems.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <AnimatePresence mode='popLayout'>
+              {filteredItems.slice(0, visibleCount).map((item, idx) => (
+                <motion.div
+                  layout
+                  key={item.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.4, delay: idx * 0.05 }}
+                  className="group relative aspect-square bg-gray-50 rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500"
+                >
+                  <img 
+                    src={item.image} 
+                    alt={item.title} 
+                    className="w-full h-full object-contain p-2 transition-transform duration-700 group-hover:scale-105"
+                  />
+                  
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-brand-primary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center p-6 text-center">
+                    <div className="flex gap-4 mb-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                      <div className="p-2 bg-white/10 rounded-full hover:bg-brand-accent transition-colors cursor-pointer">
+                        <Maximize2 className="w-5 h-5 text-white" />
+                      </div>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteItem(item.id);
+                        }}
+                        className="p-2 bg-white/10 rounded-full hover:bg-red-500 transition-colors cursor-pointer"
+                        title="Delete Image"
+                      >
+                        <Trash2 className="w-5 h-5 text-white" />
+                      </button>
+                    </div>
+                    <h3 className="text-white font-serif font-bold text-lg mb-1 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
+                      {item.title}
+                    </h3>
+                    <p className="text-brand-accent/80 text-[10px] font-black tracking-[0.2em] uppercase transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-100">
+                      {item.category}
+                    </p>
                   </div>
-                  <h3 className="text-white font-serif font-bold text-lg mb-1 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
-                    {item.title}
-                  </h3>
-                  <p className="text-brand-accent/80 text-[10px] font-black tracking-[0.2em] uppercase transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-100">
-                    {item.category}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <div className="text-center py-20 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
+            <ImageIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-400 font-medium">No images in this category yet.</p>
+          </div>
+        )}
 
         {/* Load More Button */}
         {visibleCount < filteredItems.length && (

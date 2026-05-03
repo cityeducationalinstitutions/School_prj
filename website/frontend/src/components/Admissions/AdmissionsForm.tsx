@@ -161,8 +161,8 @@ const AdmissionsForm = () => {
                     >
                       <option value="">Preferred Campus</option>
                       <option value="city-talent">City Talent School</option>
-                      <option value="city-elite">City Elite School</option>
                       <option value="new-vision">New Vision School</option>
+                      <option value="city-elite">City Elite School</option>
                     </select>
                     <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 rotate-90" />
                   </div>

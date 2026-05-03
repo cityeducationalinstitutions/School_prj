@@ -144,8 +144,8 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-10 lg:gap-14">
             {[
               { name: 'City Talent', desc: 'Nurturing creativity, confidence, and all-round excellence.', image: '/schools/city-talent-final.png', path: '/campuses/city-talent' },
-              { name: 'City Elite', desc: 'Delivering advanced learning with a focus on performance and leadership.', image: '/schools/city_elite_main.jpg', path: '/campuses/city-elite' },
-              { name: 'New Vision', desc: 'Shaping future-ready minds through innovation and technology.', image: 'https://images.unsplash.com/photo-1564981797816-1043664bf78d?q=80&w=800&auto=format&fit=crop', path: '/campuses/new-vision' }
+              { name: 'New Vision', desc: 'Shaping future-ready minds through innovation and technology.', image: 'https://images.unsplash.com/photo-1564981797816-1043664bf78d?q=80&w=800&auto=format&fit=crop', path: '/campuses/new-vision' },
+              { name: 'City Elite', desc: 'Delivering advanced learning with a focus on performance and leadership.', image: '/schools/city_elite_main.jpg', path: '/campuses/city-elite' }
             ].map((school, idx) => (
               <div key={idx} className="group relative flex flex-col items-center">
                 <Link to={school.path} className="w-full aspect-[3/2] rounded-[2.5rem] overflow-hidden shadow-elite group-hover:shadow-2xl transition-all duration-700 relative border-4 border-white/20">

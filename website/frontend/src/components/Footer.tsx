@@ -7,8 +7,8 @@ const Footer = () => {
   const footerLinks = {
     ourSchools: [
       { name: 'City Talent', path: '/schools#talent' },
-      { name: 'City Elite', path: '/schools#elite' },
       { name: 'New Vision', path: '/schools#new-vision' },
+      { name: 'City Elite', path: '/schools#elite' },
     ],
     academicLife: [
       { name: 'Vision & Mission', path: '/about#vision' },
