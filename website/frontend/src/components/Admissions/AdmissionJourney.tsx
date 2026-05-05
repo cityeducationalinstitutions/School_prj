@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Search, MapPin, ClipboardList, UserCheck, CheckCircle, ArrowRight, ShieldCheck, GraduationCap, Clock, Star } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const AdmissionJourney = () => {
   const steps = [

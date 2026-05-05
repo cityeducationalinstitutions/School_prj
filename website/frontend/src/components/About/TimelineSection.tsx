@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { School, Book, Building, Laptop, Trophy, ShieldCheck, Users, Lightbulb, Star } from 'lucide-react';
 
 const TimelineSection = () => {
   const milestones = [

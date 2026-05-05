@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Quote, Mail, ArrowRight } from 'lucide-react';
+import { Mail, ArrowRight } from 'lucide-react';
 
 const ManagementProfiles = () => {
   const leaders = [

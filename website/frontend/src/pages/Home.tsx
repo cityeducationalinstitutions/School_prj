@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Hero from '../components/Hero';
-import { ArrowRight, Users, Lightbulb, Eye, Target, Star, School, Quote, TrendingUp } from 'lucide-react';
+import { ArrowRight, Users, Target, Star, School, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
