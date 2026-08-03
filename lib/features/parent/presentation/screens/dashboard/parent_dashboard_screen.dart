@@ -281,6 +281,7 @@ class ParentDashboardScreen extends StatelessWidget {
     final Color bannerBg = hasDue ? const Color(0xFF131742) : Colors.green.shade800;
 
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: bannerBg,
@@ -622,6 +623,7 @@ class ParentDashboardScreen extends StatelessWidget {
 
   Widget _buildFeePlaceholder(BuildContext context, Color primaryNavy) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: primaryNavy,
@@ -630,28 +632,30 @@ class ParentDashboardScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'FEE DUES & PAYMENTS',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white.withOpacity(0.65),
-                  letterSpacing: 1.0,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'FEE DUES & PAYMENTS',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white.withValues(alpha: 0.65),
+                    letterSpacing: 1.0,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Loading Dues...',
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                const SizedBox(height: 4),
+                Text(
+                  'Loading Dues...',
+                  style: GoogleFonts.inter(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           ElevatedButton(
             onPressed: () {

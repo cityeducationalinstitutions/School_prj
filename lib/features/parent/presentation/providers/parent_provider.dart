@@ -89,13 +89,14 @@ class ParentProvider with ChangeNotifier {
     if (child != null && child.uid != _currentChild?.uid) {
       _currentChild = child;
       _linkedChildren = [child];
-      _loadAllData();
+      // Defer to avoid notifyListeners during build/layout phase
+      Future.microtask(() => _loadAllData());
     } else if (uidChanged) {
       // Parent UID changed (e.g., user logged in) — refetch child
-      _fetchChildAndInit();
+      Future.microtask(() => _fetchChildAndInit());
     } else if (_currentChild != null && _feeRecord == null && !_initInProgress) {
       // Data never loaded successfully — retry
-      _loadAllData();
+      Future.microtask(() => _loadAllData());
     }
   }
 
