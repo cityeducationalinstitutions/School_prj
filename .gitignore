@@ -72,3 +72,7 @@ app.*.map.json
 **/web/main.dart.js
 **/web/main.dart.js.map
 **/web/main.dart.js.deps
+
+# Node related
+node_modules/
+**/node_modules/

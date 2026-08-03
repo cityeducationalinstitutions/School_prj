@@ -201,7 +201,7 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
                             );
                           },
                         );
-                      })()),
+                      })(),
           ),
         ],
       ),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:management/features/auth/presentation/providers/auth_provider.dart';
 import 'package:management/features/dashboard/presentation/screens/school_selection_screen.dart';
+import 'package:management/features/parent/presentation/screens/parent_portal_main.dart';
 import 'package:management/features/staff/presentation/screens/staff_dashboard.dart';
 import 'package:management/features/student/presentation/screens/student_dashboard.dart';
 
@@ -150,6 +151,8 @@ class RoleSelectionScreen extends StatelessWidget {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const StaffDashboard()));
       } else if (role == 'student') {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const StudentPortalMain()));
+      } else if (role == 'parent') {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ParentPortalMain()));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('$role portal is coming soon!')),

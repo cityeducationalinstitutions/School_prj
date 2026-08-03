@@ -5,6 +5,8 @@ import 'package:management/core/theme/app_theme.dart';
 import 'package:management/features/auth/presentation/providers/auth_provider.dart';
 import 'package:management/features/auth/presentation/screens/splash_screen.dart';
 import 'package:management/features/dashboard/presentation/screens/role_selection_screen.dart';
+import 'package:management/features/parent/presentation/providers/parent_provider.dart';
+import 'package:management/features/parent/presentation/screens/parent_portal_main.dart';
 import 'package:management/features/staff/presentation/providers/attendance_provider.dart';
 import 'package:management/features/staff/presentation/providers/grade_book_provider.dart';
 import 'package:management/features/staff/presentation/providers/diary_provider.dart';
@@ -45,6 +47,25 @@ void main() async {
             grade: auth.currentUser?.grade,
             section: auth.currentUser?.section,
           ),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, ParentProvider>(
+          create: (context) => ParentProvider(
+            parentUid: '',
+            schoolId: null,
+          ),
+          update: (context, auth, previous) {
+            if (previous != null) {
+              previous.updateContext(
+                parentUid: auth.currentUser?.uid ?? '',
+                schoolId: auth.selectedSchoolId,
+              );
+              return previous;
+            }
+            return ParentProvider(
+              parentUid: auth.currentUser?.uid ?? '',
+              schoolId: auth.selectedSchoolId,
+            );
+          },
         ),
       ],
       child: const MyApp(),
@@ -97,12 +118,14 @@ class AuthWrapper extends StatelessWidget {
       if (authProvider.selectedRole != null) {
         if (authProvider.selectedRole == 'student') return const StudentPortalMain();
         if (authProvider.selectedRole == 'staff') return const StaffDashboard();
+        if (authProvider.selectedRole == 'parent') return const ParentPortalMain();
       }
 
-      // 2. Fallback: If we have a selected school and it's a student/staff, we can go direct
+      // 2. Fallback: If we have a selected school and it's a student/staff/parent, we can go direct
       if (authProvider.selectedSchoolId != null) {
         if (user.isStudent) return const StudentPortalMain();
         if (user.isStaff) return const StaffDashboard();
+        if (user.isParent) return const ParentPortalMain();
       }
 
       // Default fallback to Role Selection if ambiguous
