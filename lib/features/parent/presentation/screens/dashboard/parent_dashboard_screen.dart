@@ -14,6 +14,7 @@ import 'package:management/features/parent/presentation/screens/notifications/pa
 import 'package:management/features/parent/presentation/screens/performance/parent_performance_screen.dart';
 import 'package:management/features/parent/presentation/screens/reportcards/parent_report_cards_screen.dart';
 import 'package:management/models/fee_model.dart';
+import 'package:management/models/school_model.dart';
 
 class ParentDashboardScreen extends StatelessWidget {
   const ParentDashboardScreen({super.key});
@@ -23,6 +24,12 @@ class ParentDashboardScreen extends StatelessWidget {
     final authProvider = context.watch<AuthProvider>();
     final parentProvider = context.watch<ParentProvider>();
     final parentUser = authProvider.currentUser;
+    final selectedSchoolId = authProvider.selectedSchoolId;
+
+    final school = SchoolModel.schools.firstWhere(
+      (s) => s.id == selectedSchoolId,
+      orElse: () => SchoolModel.schools.first,
+    );
 
     final childName = parentProvider.childName;
     final grade = parentProvider.grade;
@@ -41,11 +48,17 @@ class ParentDashboardScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Loading indicator at top
-            if (isLoading)
+      body: Column(
+        children: [
+          _ParentHeaderSection(
+            schoolName: school.name,
+            themeColor: brandOrange,
+            logoPath: school.logoPath,
+            provider: parentProvider,
+            primaryNavy: primaryNavy,
+          ),
+          // Loading indicator at top
+          if (isLoading)
               const LinearProgressIndicator(
                 backgroundColor: Color(0xFFE8E8E8),
                 valueColor: AlwaysStoppedAnimation<Color>(brandOrange),
@@ -62,24 +75,31 @@ class ParentDashboardScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 1. TOP HEADER WITH NOTIFICATION BELL
-                      _buildHeader(context, parentUser?.name ?? 'Parent', parentProvider, primaryNavy),
+                      // 1. STUDENT CARD & CHILD SWITCHER
+                      _buildStudentInfoCard(context, childName, grade, section, rollNo, parentProvider, primaryNavy, brandOrange),
                       const SizedBox(height: 20),
 
-                      // 2. STUDENT CARD & CHILD SWITCHER
-                      _buildStudentInfoCard(childName, grade, section, rollNo, parentProvider, primaryNavy, brandOrange),
+                      // URGENT ALERTS / ANNOUNCEMENTS SUMMARY
+                      if (parentProvider.announcements.isNotEmpty) ...[
+                        Text(
+                          'Recent School Alerts',
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: primaryNavy,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildRecentAlertsSection(context, parentProvider, primaryNavy),
+                        const SizedBox(height: 24),
+                      ],
+
+                      // 3. PERFORMANCE BANNER
+                      _buildPerformanceBanner(context, overallPct, performanceStatus, primaryNavy, brandOrange),
                       const SizedBox(height: 20),
 
-                      // 3. REMAINING FEE DUES BANNER
-                      if (fee != null)
-                        _buildRemainingFeeBanner(context, fee, currencyFormat, primaryNavy)
-                      else
-                        _buildFeePlaceholder(context, primaryNavy),
-
-                      const SizedBox(height: 20),
-
-                      // 4. METRICS ROW (Attendance % & Performance Badge)
-                      _buildMetricsRow(context, attendancePct, performanceStatus, overallPct, primaryNavy, brandOrange),
+                      // 4. ATTENDANCE & FEES ROW
+                      _buildAttendanceAndFeesRow(context, attendancePct, fee, currencyFormat, primaryNavy, brandOrange),
                       const SizedBox(height: 24),
 
                       // 5. QUICK ACTIONS GRID
@@ -95,18 +115,7 @@ class ParentDashboardScreen extends StatelessWidget {
                       _buildQuickActionsGrid(context, primaryNavy, brandOrange),
                       const SizedBox(height: 24),
 
-                      // 6. URGENT ALERTS / ANNOUNCEMENTS SUMMARY
-                      Text(
-                        'Recent School Alerts',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: primaryNavy,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildRecentAlertsSection(context, parentProvider, primaryNavy),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 6),
                     ],
                   ),
                 ),
@@ -114,74 +123,11 @@ class ParentDashboardScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context, String parentName, ParentProvider provider, Color primaryNavy) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-          Expanded(
-            child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'PARENT PORTAL',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-                color: Colors.grey.shade600,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'Welcome, $parentName',
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: primaryNavy,
-              ),
-            ),
-          ],
-        ),
-          ),
-        Stack(
-          children: [
-            IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ParentNotificationsScreen()),
-                );
-              },
-              icon: const Icon(Icons.notifications_none_rounded, size: 28),
-              color: primaryNavy,
-            ),
-            if (provider.unreadNotificationCount > 0)
-              Positioned(
-                right: 8,
-                top: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '${provider.unreadNotificationCount}',
-                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ],
     );
   }
 
   Widget _buildStudentInfoCard(
+    BuildContext context,
     String studentName,
     String grade,
     String section,
@@ -190,6 +136,8 @@ class ParentDashboardScreen extends StatelessWidget {
     Color primaryNavy,
     Color brandOrange,
   ) {
+    final bool hasMultipleChildren = provider.linkedChildren.length > 1;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -248,22 +196,35 @@ class ParentDashboardScreen extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: brandOrange.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.school_rounded, color: Color(0xFFE28743), size: 14),
-                const SizedBox(width: 4),
-                Text(
-                  'Student',
-                  style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFFE28743)),
-                ),
-              ],
+          GestureDetector(
+            onTap: hasMultipleChildren ? () {
+              _showChildSwitcher(context, provider, primaryNavy, brandOrange);
+            } : null,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: hasMultipleChildren ? primaryNavy.withOpacity(0.08) : brandOrange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (!hasMultipleChildren)
+                    const Icon(Icons.school_rounded, color: Color(0xFFE28743), size: 14),
+                  if (!hasMultipleChildren) const SizedBox(width: 4),
+                  Text(
+                    hasMultipleChildren ? 'Switch Child' : 'Student',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: hasMultipleChildren ? primaryNavy : const Color(0xFFE28743),
+                    ),
+                  ),
+                  if (hasMultipleChildren) const SizedBox(width: 4),
+                  if (hasMultipleChildren)
+                    Icon(Icons.keyboard_arrow_down_rounded, color: primaryNavy, size: 16),
+                ],
+              ),
             ),
           ),
         ],
@@ -271,96 +232,157 @@ class ParentDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRemainingFeeBanner(
-    BuildContext context,
-    FeeRecord fee,
-    NumberFormat format,
-    Color primaryNavy,
-  ) {
-    final bool hasDue = fee.remainingAmount > 0;
-    final Color bannerBg = hasDue ? const Color(0xFF131742) : Colors.green.shade800;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: bannerBg,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: bannerBg.withOpacity(0.2),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
+  void _showChildSwitcher(BuildContext context, ParentProvider provider, Color primaryNavy, Color brandOrange) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'REMAINING FEE BALANCES',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
+                'Select Child',
+                style: GoogleFonts.outfit(
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white.withOpacity(0.65),
-                  letterSpacing: 1.0,
+                  color: primaryNavy,
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                hasDue ? format.format(fee.remainingAmount) : 'Fully Paid 🎉',
-                style: GoogleFonts.inter(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: hasDue ? const Color(0xFFFFD54F) : Colors.white,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                hasDue ? 'Due Date: ${DateFormat('dd MMM yyyy').format(fee.dueDate)}' : 'No outstanding dues',
-                style: GoogleFonts.inter(fontSize: 11, color: Colors.white70),
-              ),
+              const SizedBox(height: 16),
+              ...provider.linkedChildren.map((child) {
+                final bool isSelected = provider.currentChild?.uid == child.uid;
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  leading: CircleAvatar(
+                    backgroundColor: isSelected ? brandOrange : primaryNavy.withOpacity(0.1),
+                    child: Text(
+                      child.name.isNotEmpty ? child.name[0].toUpperCase() : 'S',
+                      style: GoogleFonts.outfit(
+                        fontWeight: FontWeight.bold,
+                        color: isSelected ? Colors.white : primaryNavy,
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    child.name,
+                    style: GoogleFonts.inter(
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: primaryNavy,
+                    ),
+                  ),
+                  subtitle: Text('Class ${child.grade} • Section ${child.section}'),
+                  trailing: isSelected ? Icon(Icons.check_circle_rounded, color: brandOrange) : null,
+                  onTap: () {
+                    provider.selectChild(child);
+                    Navigator.pop(context);
+                  },
+                );
+              }).toList(),
             ],
           ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ParentFeesScreen()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE28743),
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            ),
-            child: const Text('View Fees'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildMetricsRow(
+  Widget _buildPerformanceBanner(
     BuildContext context,
-    double attendancePct,
-    String performanceStatus,
     double overallPct,
+    String performanceStatus,
     Color primaryNavy,
     Color brandOrange,
   ) {
     final Color perfColor = performanceStatus == 'Good'
-        ? Colors.green.shade700
+        ? Colors.green.shade400
         : performanceStatus == 'Average'
-            ? Colors.amber.shade900
-            : Colors.red.shade700;
+            ? Colors.amber.shade400
+            : Colors.red.shade400;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const ParentPerformanceScreen()));
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: primaryNavy,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: primaryNavy.withOpacity(0.2),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'ACADEMIC PERFORMANCE',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white.withOpacity(0.65),
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${overallPct.toStringAsFixed(1)}%',
+                    style: GoogleFonts.inter(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.trending_up_rounded, color: perfColor, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        performanceStatus.toUpperCase(),
+                        style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: perfColor),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.insights_rounded, color: Colors.white, size: 32),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAttendanceAndFeesRow(
+    BuildContext context,
+    double attendancePct,
+    FeeRecord? fee,
+    NumberFormat format,
+    Color primaryNavy,
+    Color brandOrange,
+  ) {
+    final bool hasDue = fee != null && fee.remainingAmount > 0;
 
     return Row(
       children: [
@@ -407,11 +429,11 @@ class ParentDashboardScreen extends StatelessWidget {
         ),
         const SizedBox(width: 14),
 
-        // Performance Card
+        // Fees Card
         Expanded(
           child: GestureDetector(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ParentPerformanceScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const ParentFeesScreen()));
             },
             child: Container(
               padding: const EdgeInsets.all(18),
@@ -426,22 +448,25 @@ class ParentDashboardScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(Icons.insights_rounded, color: Color(0xFFE28743), size: 24),
-                      Text(
-                        '${overallPct.toStringAsFixed(0)}%',
-                        style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w800, color: perfColor),
+                      Icon(Icons.payments_rounded, color: hasDue ? Colors.amber.shade800 : Colors.green, size: 24),
+                      Flexible(
+                        child: Text(
+                          fee == null ? '...' : (hasDue ? format.format(fee.remainingAmount) : 'Paid'),
+                          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w800, color: fee == null ? Colors.grey : (hasDue ? Colors.amber.shade900 : Colors.green)),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Performance',
+                    'Fee Status',
                     style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: primaryNavy),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    performanceStatus,
-                    style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: perfColor),
+                    fee == null ? 'Loading...' : (hasDue ? 'Dues Pending' : 'Clear'),
+                    style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -455,50 +480,37 @@ class ParentDashboardScreen extends StatelessWidget {
   Widget _buildQuickActionsGrid(BuildContext context, Color primaryNavy, Color brandOrange) {
     final List<Map<String, dynamic>> actions = [
       {
-        'title': 'Fee Details',
-        'icon': Icons.account_balance_wallet_rounded,
-        'color': Colors.amber.shade800,
-        'screen': const ParentFeesScreen(),
-      },
-      {
-        'title': 'Report Cards',
-        'icon': Icons.picture_as_pdf_rounded,
-        'color': const Color(0xFFD32F2F),
-        'screen': const ParentReportCardsScreen(),
-      },
-      {
         'title': 'Attendance',
-        'icon': Icons.calendar_month_rounded,
+        'subtitle': 'Monthly History',
+        'imagePath': 'assets/icons/3d_attendance.png',
         'color': Colors.green.shade700,
         'screen': const ParentAttendanceScreen(),
       },
       {
         'title': 'Marksheets',
-        'icon': Icons.table_chart_rounded,
+        'subtitle': 'Academic Scores',
+        'imagePath': 'assets/icons/3d_gradebook.png',
         'color': primaryNavy,
         'screen': const ParentMarksheetsScreen(),
       },
       {
-        'title': 'Digital Diary',
-        'icon': Icons.menu_book_rounded,
-        'color': brandOrange,
-        'screen': const ParentDiaryScreen(),
-      },
-      {
         'title': 'Exam Schedule',
-        'icon': Icons.event_note_rounded,
+        'subtitle': 'Timetables',
+        'imagePath': 'assets/icons/3d_exams.png',
         'color': Colors.purple.shade700,
         'screen': const ParentExamScheduleScreen(),
       },
       {
         'title': 'Performance',
-        'icon': Icons.analytics_rounded,
+        'subtitle': 'Insights & Stats',
+        'imagePath': 'assets/icons/analytics.png',
         'color': Colors.teal.shade700,
         'screen': const ParentPerformanceScreen(),
       },
       {
         'title': 'Circulars',
-        'icon': Icons.campaign_rounded,
+        'subtitle': 'School Alerts',
+        'imagePath': 'assets/icons/announcements.png',
         'color': Colors.blue.shade700,
         'screen': const ParentAnnouncementsScreen(),
       },
@@ -506,52 +518,87 @@ class ParentDashboardScreen extends StatelessWidget {
 
     return GridView.builder(
       shrinkWrap: true,
+      padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 12,
-        mainAxisExtent: 94,
+        crossAxisCount: 2,
+        mainAxisSpacing: 20,
+        crossAxisSpacing: 20,
+        childAspectRatio: 0.82,
       ),
       itemCount: actions.length,
       itemBuilder: (context, index) {
         final item = actions[index];
         final Color itemColor = item['color'] as Color;
 
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => item['screen'] as Widget),
-            );
-          },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                height: 50,
-                width: 50,
-                decoration: BoxDecoration(
-                  color: itemColor.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: itemColor.withOpacity(0.15)),
+        return Container(
+          decoration: BoxDecoration(
+            color: itemColor.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: itemColor.withOpacity(0.15), width: 1.5),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => item['screen'] as Widget),
+                );
+              },
+              borderRadius: BorderRadius.circular(28),
+              splashColor: itemColor.withOpacity(0.2),
+              highlightColor: itemColor.withOpacity(0.1),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: itemColor.withOpacity(0.2),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          item['imagePath'] as String,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      item['title'] as String,
+                      style: GoogleFonts.outfit(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        height: 1.2,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      item['subtitle'] as String,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
                 ),
-                child: Icon(item['icon'] as IconData, color: itemColor, size: 24),
               ),
-              const SizedBox(height: 4),
-              Text(
-                item['title'] as String,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.inter(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w600,
-                  color: primaryNavy,
-                  height: 1.1,
-                ),
-              ),
-            ],
+            ),
           ),
         );
       },
@@ -671,6 +718,127 @@ class ParentDashboardScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('View Fees'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ParentHeaderSection extends StatelessWidget {
+  final String schoolName;
+  final Color themeColor;
+  final String logoPath;
+  final ParentProvider provider;
+  final Color primaryNavy;
+
+  const _ParentHeaderSection({
+    required this.schoolName,
+    required this.themeColor,
+    required this.logoPath,
+    required this.provider,
+    required this.primaryNavy,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xffF9F9F9),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.35,
+              child: Image.asset(
+                'assets/images/header_bg.png',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            right: 20,
+            child: Stack(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ParentNotificationsScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.notifications_none_rounded, size: 28),
+                  color: primaryNavy,
+                ),
+                if (provider.unreadNotificationCount > 0)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '${provider.unreadNotificationCount}',
+                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      height: 72,
+                      width: 72,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: themeColor.withOpacity(0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ClipOval(child: Image.asset(logoPath, fit: BoxFit.cover)),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      schoolName.toUpperCase(),
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: themeColor,
+                        letterSpacing: 0.3,
+                        height: 1.1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),

@@ -62,13 +62,16 @@ class ParentPerformanceScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'PERFORMANCE EVALUATION',
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white.withOpacity(0.65),
-                          letterSpacing: 1.0,
+                      Expanded(
+                        child: Text(
+                          'PERFORMANCE EVALUATION',
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white.withOpacity(0.65),
+                            letterSpacing: 1.0,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Container(

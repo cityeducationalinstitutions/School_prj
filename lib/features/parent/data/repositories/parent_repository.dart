@@ -9,18 +9,33 @@ import 'package:management/models/user_model.dart';
 class ParentRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// Fetches the linked student profile for a parent user
-  Future<UserModel?> getLinkedStudent(String parentUid) async {
+  /// Fetches all linked student profiles for a parent user
+  Future<List<UserModel>> getLinkedStudents(String parentUid) async {
     try {
       // 1. Try fetching parent user doc from 'users'
       final parentDoc = await _firestore.collection('users').doc(parentUid).get();
       if (parentDoc.exists) {
         final data = parentDoc.data();
+        
+        // 1a. Check for multiple children in 'childrenIds'
+        if (data != null && data.containsKey('childrenIds') && data['childrenIds'] is List) {
+          final List<dynamic> childrenIds = data['childrenIds'];
+          List<UserModel> students = [];
+          for (var id in childrenIds) {
+            final studentDoc = await _firestore.collection('users').doc(id.toString()).get();
+            if (studentDoc.exists) {
+              students.add(UserModel.fromMap(studentDoc.data()!, studentDoc.id));
+            }
+          }
+          if (students.isNotEmpty) return students;
+        }
+
+        // 1b. Fallback to single child ID
         final String? childId = data?['childStudentId'] ?? data?['studentId'];
         if (childId != null && childId.isNotEmpty) {
           final studentDoc = await _firestore.collection('users').doc(childId).get();
           if (studentDoc.exists) {
-            return UserModel.fromMap(studentDoc.data()!, studentDoc.id);
+            return [UserModel.fromMap(studentDoc.data()!, studentDoc.id)];
           }
         }
       }
@@ -29,16 +44,16 @@ class ParentRepository {
       final query = await _firestore
           .collection('users')
           .where('roles', arrayContains: 'student')
-          .limit(1)
+          .limit(2) // Return up to 2 fallback students for demonstration
           .get();
 
       if (query.docs.isNotEmpty) {
-        return UserModel.fromMap(query.docs.first.data(), query.docs.first.id);
+        return query.docs.map((doc) => UserModel.fromMap(doc.data(), doc.id)).toList();
       }
     } catch (e) {
-      debugPrint('Error fetching linked student in ParentRepository: $e');
+      debugPrint('Error fetching linked students in ParentRepository: $e');
     }
-    return null;
+    return [];
   }
 
   /// Real-time stream of Fee Details for a student

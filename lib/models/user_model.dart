@@ -7,6 +7,7 @@ class UserModel {
   final String? classId; // Optional class assignment for students
   final String? grade; // Human-readable grade (e.g., 10th)
   final String? section; // Human-readable section (e.g., S1)
+  final String? profileImageUrl; // URL for the user's profile picture
 
   UserModel({
     required this.uid,
@@ -17,6 +18,7 @@ class UserModel {
     this.classId,
     this.grade,
     this.section,
+    this.profileImageUrl,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map, String uid) {
@@ -29,6 +31,7 @@ class UserModel {
       classId: map['classId'],
       grade: map['grade'],
       section: map['section'],
+      profileImageUrl: map['profileImageUrl'],
     );
   }
 
@@ -41,6 +44,7 @@ class UserModel {
       'classId': classId,
       'grade': grade,
       'section': section,
+      'profileImageUrl': profileImageUrl,
     };
   }
 

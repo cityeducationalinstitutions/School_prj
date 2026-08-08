@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:management/features/auth/data/auth_repository.dart';
 import 'package:management/models/user_model.dart';
@@ -104,6 +105,21 @@ class AuthProvider with ChangeNotifier {
       });
       _currentUser = await _repository.getUserProfile(_currentUser!.uid);
       if (schoolId != null) _selectedSchoolId = schoolId;
+    } catch (e) {
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateProfilePicture(File file) async {
+    if (_currentUser == null) return;
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.uploadProfilePicture(_currentUser!.uid, file);
+      _currentUser = await _repository.getUserProfile(_currentUser!.uid);
     } catch (e) {
       rethrow;
     } finally {

@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:management/features/parent/presentation/screens/dashboard/parent_dashboard_screen.dart';
 import 'package:management/features/parent/presentation/screens/diary/parent_diary_screen.dart';
 import 'package:management/features/parent/presentation/screens/fees/parent_fees_screen.dart';
-import 'package:management/features/parent/presentation/screens/reportcards/parent_report_cards_screen.dart';
+import 'package:management/features/parent/presentation/screens/profile_tab.dart';
 
 class ParentPortalMain extends StatefulWidget {
   const ParentPortalMain({super.key});
@@ -18,8 +18,8 @@ class _ParentPortalMainState extends State<ParentPortalMain> {
   final List<Widget> _tabs = const [
     ParentDashboardScreen(),
     ParentFeesScreen(),
-    ParentReportCardsScreen(),
     ParentDiaryScreen(),
+    ParentProfileTab(),
   ];
 
   @override
@@ -60,12 +60,12 @@ class _ParentPortalMainState extends State<ParentPortalMain> {
               label: 'Fees',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.picture_as_pdf_rounded),
-              label: 'Report Cards',
-            ),
-            BottomNavigationBarItem(
               icon: Icon(Icons.menu_book_rounded),
               label: 'Diary',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_rounded),
+              label: 'Profile',
             ),
           ],
         ),

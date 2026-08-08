@@ -112,10 +112,10 @@ class ParentProvider with ChangeNotifier {
     _initInProgress = true;
     _setLoading(true);
     try {
-      final child = await _repository.getLinkedStudent(parentUid);
-      if (child != null) {
-        _currentChild = child;
-        _linkedChildren = [child];
+      final children = await _repository.getLinkedStudents(parentUid);
+      if (children.isNotEmpty) {
+        _currentChild = children.first;
+        _linkedChildren = children;
       } else if (_currentChild == null) {
         _currentChild = UserModel(
           uid: 'demo_child_01',

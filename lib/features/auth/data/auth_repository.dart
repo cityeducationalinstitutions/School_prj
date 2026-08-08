@@ -1,5 +1,8 @@
+import 'dart:io';
+import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:management/models/user_model.dart';
 
 class AuthRepository {
@@ -96,6 +99,24 @@ class AuthRepository {
 
   Future<void> updateUserProfile(String uid, Map<String, dynamic> data) async {
     await _firestore.collection('users').doc(uid).update(data);
+  }
+
+  Future<String> uploadProfilePicture(String uid, File file) async {
+    try {
+      final ref = FirebaseStorage.instance.ref().child('users').child(uid).child('profile_image.jpg');
+      final bytes = await file.readAsBytes();
+      final metadata = SettableMetadata(contentType: 'image/jpeg');
+      await ref.putData(bytes, metadata);
+      final downloadUrl = await ref.getDownloadURL();
+      await updateUserProfile(uid, {'profileImageUrl': downloadUrl});
+      return downloadUrl;
+    } catch (e) {
+      // Fallback for Windows Desktop since firebase_storage is not fully supported
+      final bytes = await file.readAsBytes();
+      final base64String = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+      await updateUserProfile(uid, {'profileImageUrl': base64String});
+      return base64String;
+    }
   }
 
   Future<void> signOut() async {
