@@ -149,6 +149,7 @@ class ParentMarksheetsScreen extends StatelessWidget {
 
   Widget _buildMarksTable(List<StudentMark> marks, Color primaryNavy) {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -164,27 +165,38 @@ class ParentMarksheetsScreen extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: DataTable(
-          headingRowColor: WidgetStateProperty.all(primaryNavy.withOpacity(0.05)),
-          columnSpacing: 16,
-          horizontalMargin: 20,
-          columns: [
+            headingRowColor: WidgetStateProperty.all(primaryNavy.withOpacity(0.05)),
+            columnSpacing: 10,
+            horizontalMargin: 12,
+            columns: [
             DataColumn(
               label: Text(
                 'Subject',
-                style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: primaryNavy, fontSize: 13),
+                style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: primaryNavy, fontSize: 11),
+                softWrap: false,
               ),
             ),
             DataColumn(
               label: Text(
                 'Exam',
-                style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: primaryNavy, fontSize: 13),
+                style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: primaryNavy, fontSize: 11),
+                softWrap: false,
               ),
             ),
             DataColumn(
               numeric: true,
               label: Text(
                 'Score',
-                style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: primaryNavy, fontSize: 13),
+                style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: primaryNavy, fontSize: 11),
+                softWrap: false,
+              ),
+            ),
+            DataColumn(
+              numeric: true,
+              label: Text(
+                'Percentage',
+                style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: primaryNavy, fontSize: 11),
+                softWrap: false,
               ),
             ),
           ],
@@ -201,19 +213,29 @@ class ParentMarksheetsScreen extends StatelessWidget {
                 DataCell(
                   Text(
                     m.subject,
-                    style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black87),
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 11, color: Colors.black87),
+                    softWrap: false,
                   ),
                 ),
                 DataCell(
                   Text(
                     m.examName.isNotEmpty ? m.examName : 'Regular',
-                    style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade600),
+                    style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600),
+                    softWrap: false,
                   ),
                 ),
                 DataCell(
                   Text(
                     '${m.marks.toInt()} / ${m.totalMarks.toInt()}',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14, color: scoreColor),
+                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 12, color: scoreColor),
+                    softWrap: false,
+                  ),
+                ),
+                DataCell(
+                  Text(
+                    '${pct.toStringAsFixed(1)}%',
+                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 12, color: scoreColor),
+                    softWrap: false,
                   ),
                 ),
               ],

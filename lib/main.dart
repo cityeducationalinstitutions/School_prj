@@ -17,6 +17,8 @@ import 'package:management/features/staff/presentation/providers/exam_provider.d
 import 'package:management/features/staff/presentation/screens/staff_dashboard.dart';
 import 'package:management/features/student/presentation/providers/student_provider.dart';
 import 'package:management/features/student/presentation/screens/student_dashboard.dart';
+import 'package:management/features/admin/presentation/providers/admin_provider.dart';
+import 'package:management/features/admin/presentation/screens/admin_portal_main.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +27,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AdminProvider()),
         ChangeNotifierProvider(create: (_) => AttendanceProvider()),
         ChangeNotifierProvider(create: (_) => GradeBookProvider()),
         ChangeNotifierProvider(create: (_) => DiaryProvider()),
@@ -116,6 +119,7 @@ class AuthWrapper extends StatelessWidget {
     if (user != null) {
       // 1. If we have an explicitly chosen role (e.g. from RoleSelectionScreen), prioritize it
       if (authProvider.selectedRole != null) {
+        if (authProvider.selectedRole == 'admin') return const AdminPortalMain();
         if (authProvider.selectedRole == 'student') return const StudentPortalMain();
         if (authProvider.selectedRole == 'staff') return const StaffDashboard();
         if (authProvider.selectedRole == 'parent') return const ParentPortalMain();
@@ -123,6 +127,7 @@ class AuthWrapper extends StatelessWidget {
 
       // 2. Fallback: If we have a selected school and it's a student/staff/parent, we can go direct
       if (authProvider.selectedSchoolId != null) {
+        if (user.isAdmin) return const AdminPortalMain();
         if (user.isStudent) return const StudentPortalMain();
         if (user.isStaff) return const StaffDashboard();
         if (user.isParent) return const ParentPortalMain();

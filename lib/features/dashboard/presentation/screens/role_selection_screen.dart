@@ -6,6 +6,7 @@ import 'package:management/features/dashboard/presentation/screens/school_select
 import 'package:management/features/parent/presentation/screens/parent_portal_main.dart';
 import 'package:management/features/staff/presentation/screens/staff_dashboard.dart';
 import 'package:management/features/student/presentation/screens/student_dashboard.dart';
+import 'package:management/features/admin/presentation/screens/admin_portal_main.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
   const RoleSelectionScreen({super.key});
@@ -153,6 +154,8 @@ class RoleSelectionScreen extends StatelessWidget {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const StudentPortalMain()));
       } else if (role == 'parent') {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ParentPortalMain()));
+      } else if (role == 'admin') {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AdminPortalMain()));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('$role portal is coming soon!')),
