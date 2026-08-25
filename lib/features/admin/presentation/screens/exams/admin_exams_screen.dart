@@ -13,10 +13,12 @@ class AdminExamsScreen extends StatefulWidget {
 
 class _AdminExamsScreenState extends State<AdminExamsScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String _selectedGrade = 'Class 10';
-  String _selectedExam = 'Quarterly';
+  String _selectedGrade = 'Class 8';
+  String _selectedSection = 'All';
+  String _selectedExam = 'Half-Yearly';
 
-  final List<String> _grades = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
+  final List<String> _grades = ['All', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
+  final List<String> _sections = ['All', 'A', 'B', 'C', 'S1', 'S2'];
   final List<String> _exams = ['Quarterly', 'Half-Yearly', 'Annual', 'Final', 'Unit Test 1', 'Unit Test 2'];
 
   @override
@@ -24,7 +26,7 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
     final adminProvider = Provider.of<AdminProvider>(context);
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -35,22 +37,22 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
               Text(
                 'Gradebook Management',
                 style: GoogleFonts.outfit(
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFF131742),
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               Text(
-                'Class-wise & subject-wise performance diagnostics',
+                'Class-wise, section-wise & subject diagnostics',
                 style: GoogleFonts.inter(
-                  fontSize: 13,
+                  fontSize: 12,
                   color: Colors.grey.shade500,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 18),
 
           // Filters Card
           Card(
@@ -61,43 +63,87 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
               side: BorderSide(color: Colors.grey.shade100),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
+              padding: const EdgeInsets.all(14),
+              child: Column(
                 children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8F9FE),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: _selectedGrade,
-                          isExpanded: true,
-                          icon: const Icon(Icons.keyboard_arrow_down_rounded),
-                          items: _grades.map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
-                          onChanged: (val) => setState(() => _selectedGrade = val!),
+                  // Row 1: Class and Section Filter
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8F9FE),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _selectedGrade,
+                              isExpanded: true,
+                              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF131742), size: 20),
+                              items: _grades.map((g) => DropdownMenuItem(
+                                value: g,
+                                child: Text(
+                                  g == 'All' ? 'All Classes' : g,
+                                  style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600),
+                                ),
+                              )).toList(),
+                              onChanged: (val) => setState(() => _selectedGrade = val!),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8F9FE),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _selectedSection,
+                              isExpanded: true,
+                              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF131742), size: 20),
+                              items: _sections.map((s) => DropdownMenuItem(
+                                value: s,
+                                child: Text(
+                                  s == 'All' ? 'All Sec' : 'Sec $s',
+                                  style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600),
+                                ),
+                              )).toList(),
+                              onChanged: (val) => setState(() => _selectedSection = val!),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8F9FE),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: _selectedExam,
-                          isExpanded: true,
-                          icon: const Icon(Icons.keyboard_arrow_down_rounded),
-                          items: _exams.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                          onChanged: (val) => setState(() => _selectedExam = val!),
-                        ),
+                  const SizedBox(height: 10),
+                  // Row 2: Exam Selector
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8F9FE),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: _selectedExam,
+                        isExpanded: true,
+                        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF131742), size: 20),
+                        items: _exams.map((e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(
+                            'Exam: $e',
+                            style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600),
+                          ),
+                        )).toList(),
+                        onChanged: (val) => setState(() => _selectedExam = val!),
                       ),
                     ),
                   ),
@@ -105,7 +151,7 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 18),
 
           // Summary Stats Cards
           StreamBuilder<QuerySnapshot>(
@@ -124,9 +170,29 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
                 for (var doc in snapshot.data!.docs) {
                   final data = doc.data() as Map<String, dynamic>;
                   final String exam = data['examName'] ?? data['examType'] ?? 'N/A';
-                  if (exam.toLowerCase() == _selectedExam.toLowerCase()) {
-                    filteredMarks.add(data);
+                  final String grade = data['grade'] ?? data['classId'] ?? '';
+                  final String section = data['section'] ?? '';
+
+                  // Filter by exam
+                  if (exam.toLowerCase() != _selectedExam.toLowerCase()) {
+                    continue;
                   }
+
+                  // Filter by grade
+                  if (_selectedGrade != 'All') {
+                    if (grade.isNotEmpty && !grade.toLowerCase().contains(_selectedGrade.replaceAll('Class ', '').toLowerCase()) && !grade.toLowerCase().contains(_selectedGrade.toLowerCase())) {
+                      continue;
+                    }
+                  }
+
+                  // Filter by section
+                  if (_selectedSection != 'All') {
+                    if (section.isNotEmpty && section.toLowerCase() != _selectedSection.toLowerCase()) {
+                      continue;
+                    }
+                  }
+
+                  filteredMarks.add(data);
                 }
 
                 if (filteredMarks.isNotEmpty) {
@@ -159,15 +225,15 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
               return Row(
                 children: [
                   Expanded(child: _buildExamStatCard('Class Average', '${overallAverage.toStringAsFixed(1)}%', Colors.blue, Icons.analytics_rounded)),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(child: _buildExamStatCard('Highest Mark', '${highestMarks.toInt()} / 100', Colors.green, Icons.emoji_events_rounded)),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(child: _buildExamStatCard('Passing Rate', '${overallPassingRate.toStringAsFixed(1)}%', Colors.purple, Icons.check_circle_rounded)),
                 ],
               );
             },
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 18),
 
           // Gradebook List / Table
           Expanded(
@@ -179,7 +245,16 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
                 }
 
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text('No academic marks found.'));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.menu_book_rounded, size: 48, color: Colors.grey.shade300),
+                        const SizedBox(height: 12),
+                        Text('No marks records found.', style: GoogleFonts.inter(color: Colors.grey)),
+                      ],
+                    ),
+                  );
                 }
 
                 // Group marks by (subject, exam)
@@ -189,9 +264,25 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
                   final data = doc.data() as Map<String, dynamic>;
                   final String subject = data['subject'] ?? 'N/A';
                   final String exam = data['examName'] ?? data['examType'] ?? 'N/A';
+                  final String grade = data['grade'] ?? data['classId'] ?? '';
+                  final String section = data['section'] ?? '';
 
                   if (exam.toLowerCase() != _selectedExam.toLowerCase()) {
                     continue;
+                  }
+
+                  // Grade filter
+                  if (_selectedGrade != 'All') {
+                    if (grade.isNotEmpty && !grade.toLowerCase().contains(_selectedGrade.replaceAll('Class ', '').toLowerCase()) && !grade.toLowerCase().contains(_selectedGrade.toLowerCase())) {
+                      continue;
+                    }
+                  }
+
+                  // Section filter
+                  if (_selectedSection != 'All') {
+                    if (section.isNotEmpty && section.toLowerCase() != _selectedSection.toLowerCase()) {
+                      continue;
+                    }
                   }
 
                   final String key = '$subject|$exam';
@@ -202,7 +293,16 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
                 }
 
                 if (groupedData.isEmpty) {
-                  return const Center(child: Text('No marks matches selected filters.'));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.filter_list_off_rounded, size: 48, color: Colors.grey.shade300),
+                        const SizedBox(height: 12),
+                        Text('No subject marks match the selected filters.', style: GoogleFonts.inter(color: Colors.grey)),
+                      ],
+                    ),
+                  );
                 }
 
                 List<_SubjectPerformance> performanceList = [];
@@ -342,7 +442,7 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
               color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: color, size: 20),
+            child: Icon(icon, color: color, size: 18),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -351,7 +451,7 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
               children: [
                 Text(title, style: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 10, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 2),
-                Text(value, style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF131742))),
+                Text(value, style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: const Color(0xFF131742))),
               ],
             ),
           ),
@@ -365,8 +465,8 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
     final Color passColor = perf.passRate >= 75 ? Colors.green : (perf.passRate >= 50 ? Colors.orange : Colors.red);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -386,7 +486,7 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
               CircleAvatar(
                 radius: 20,
                 backgroundColor: const Color(0xFF131742).withOpacity(0.06),
-                child: Icon(icon, color: const Color(0xFF131742), size: 20),
+                child: Icon(icon, color: const Color(0xFF131742), size: 18),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -425,7 +525,7 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           // Passing rate progress bar
           Row(
             children: [
@@ -440,7 +540,7 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Text(
                 '${perf.passRate.toStringAsFixed(0)}% Pass',
                 style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: passColor),

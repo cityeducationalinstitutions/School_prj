@@ -26,6 +26,23 @@ class _AdminStudentProfileScreenState extends State<AdminStudentProfileScreen> w
 
   Future<void> _fetchParentDetails() async {
     try {
+      // Direct check on student document for parentName & parentPhone
+      final studentDoc = await _firestore.collection('users').doc(widget.student.uid).get();
+      if (studentDoc.exists && studentDoc.data() != null) {
+        final sData = studentDoc.data()!;
+        if (sData['parentName'] != null || sData['parentPhone'] != null) {
+          setState(() {
+            _parentData = {
+              'name': sData['parentName'],
+              'phone': sData['parentPhone'] ?? sData['parentMobile'],
+              'email': sData['parentEmail'] ?? 'parent.${widget.student.displayStudentId.toLowerCase()}@cityschool.edu',
+            };
+            _isLoadingParent = false;
+          });
+          return;
+        }
+      }
+
       // Query parent users who have this student in their childrenIds
       final q1 = await _firestore
           .collection('users')
@@ -117,7 +134,9 @@ class _AdminStudentProfileScreenState extends State<AdminStudentProfileScreen> w
                         style: GoogleFonts.inter(fontSize: 13, color: Colors.white70),
                       ),
                       const SizedBox(height: 6),
-                      Row(
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -130,8 +149,7 @@ class _AdminStudentProfileScreenState extends State<AdminStudentProfileScreen> w
                               style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
                             ),
                           ),
-                          if (widget.student.section != null) ...[
-                            const SizedBox(width: 8),
+                          if (widget.student.section != null)
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
@@ -143,7 +161,17 @@ class _AdminStudentProfileScreenState extends State<AdminStudentProfileScreen> w
                                 style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
                               ),
                             ),
-                          ],
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Roll No: #${widget.student.displayRollNo}',
+                              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -237,7 +265,9 @@ class _AdminStudentProfileScreenState extends State<AdminStudentProfileScreen> w
             children: [
               _buildInfoRow('Full Name', _capitalize(widget.student.name)),
               _buildInfoRow('Email Address', widget.student.email),
-              _buildInfoRow('Student UID', widget.student.uid),
+              _buildInfoRow('Roll Number', '#${widget.student.displayRollNo}'),
+              _buildInfoRow('Student ID', widget.student.displayStudentId),
+              _buildInfoRow('Decided Annual Fee', '₹ ${(widget.student.decidedFee ?? 35000).toInt()}'),
             ],
           ),
           const SizedBox(height: 16),
@@ -639,56 +669,192 @@ class _AdminStudentProfileScreenState extends State<AdminStudentProfileScreen> w
     final topicController = TextEditingController();
     final homeworkController = TextEditingController();
     final subjectController = TextEditingController(text: 'General');
+    bool isSaving = false;
 
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Add Remark / Homework'),
-          content: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: subjectController,
-                  decoration: const InputDecoration(labelText: 'Subject / Category'),
-                  validator: (v) => v!.isEmpty ? 'Required' : null,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Dialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 440),
+                padding: const EdgeInsets.all(22),
+                child: Form(
+                  key: formKey,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE28743).withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.assignment_rounded, color: Color(0xFFE28743), size: 22),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Add Teacher Remark',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF131742),
+                                    ),
+                                  ),
+                                  Text(
+                                    'Publish diary note or assignment',
+                                    style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade500),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () => Navigator.pop(dialogContext),
+                              icon: const Icon(Icons.close_rounded, color: Colors.grey, size: 20),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                          ],
+                        ),
+                        const Divider(height: 24),
+
+                        // Subject
+                        Text('Subject / Category', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF131742))),
+                        const SizedBox(height: 6),
+                        TextFormField(
+                          controller: subjectController,
+                          style: GoogleFonts.inter(fontSize: 13),
+                          decoration: InputDecoration(
+                            hintText: 'e.g. Mathematics, Science, General',
+                            prefixIcon: const Icon(Icons.menu_book_rounded, size: 18, color: Color(0xFF131742)),
+                            filled: true,
+                            fillColor: const Color(0xFFF8F9FE),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE28743), width: 1.5)),
+                          ),
+                          validator: (v) => v == null || v.trim().isEmpty ? 'Subject is required' : null,
+                        ),
+                        const SizedBox(height: 14),
+
+                        // Topic
+                        Text('Topic / Heading', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF131742))),
+                        const SizedBox(height: 6),
+                        TextFormField(
+                          controller: topicController,
+                          style: GoogleFonts.inter(fontSize: 13),
+                          decoration: InputDecoration(
+                            hintText: 'e.g. Chapter 4 Exercises',
+                            prefixIcon: const Icon(Icons.title_rounded, size: 18, color: Color(0xFF131742)),
+                            filled: true,
+                            fillColor: const Color(0xFFF8F9FE),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE28743), width: 1.5)),
+                          ),
+                          validator: (v) => v == null || v.trim().isEmpty ? 'Topic is required' : null,
+                        ),
+                        const SizedBox(height: 14),
+
+                        // Remark Details / Homework
+                        Text('Remark / Homework Description', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF131742))),
+                        const SizedBox(height: 6),
+                        TextFormField(
+                          controller: homeworkController,
+                          maxLines: 3,
+                          style: GoogleFonts.inter(fontSize: 13),
+                          decoration: InputDecoration(
+                            hintText: 'Enter student guidance, homework tasks, or remarks...',
+                            filled: true,
+                            fillColor: const Color(0xFFF8F9FE),
+                            contentPadding: const EdgeInsets.all(14),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE28743), width: 1.5)),
+                          ),
+                          validator: (v) => v == null || v.trim().isEmpty ? 'Description is required' : null,
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Action Buttons
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => Navigator.pop(dialogContext),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.grey.shade700,
+                                  side: BorderSide(color: Colors.grey.shade300),
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                                child: Text('Cancel', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: isSaving ? null : () async {
+                                  if (formKey.currentState!.validate()) {
+                                    setDialogState(() => isSaving = true);
+                                    try {
+                                      await _firestore.collection('diary').add({
+                                        'classId': widget.student.classId ?? '',
+                                        'grade': widget.student.grade ?? '',
+                                        'section': widget.student.section ?? '',
+                                        'subject': subjectController.text.trim(),
+                                        'topic': topicController.text.trim(),
+                                        'homework': homeworkController.text.trim(),
+                                        'date': Timestamp.now(),
+                                        'createdAt': FieldValue.serverTimestamp(),
+                                      });
+                                      if (mounted) Navigator.pop(dialogContext);
+                                    } catch (e) {
+                                      setDialogState(() => isSaving = false);
+                                    }
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFE28743),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                                child: isSaving
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                      )
+                                    : Text('Publish Remark', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                TextFormField(
-                  controller: topicController,
-                  decoration: const InputDecoration(labelText: 'Topic'),
-                  validator: (v) => v!.isEmpty ? 'Required' : null,
-                ),
-                TextFormField(
-                  controller: homeworkController,
-                  decoration: const InputDecoration(labelText: 'Remark Details / Homework Description'),
-                  maxLines: 3,
-                  validator: (v) => v!.isEmpty ? 'Required' : null,
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-            ElevatedButton(
-              onPressed: () async {
-                if (formKey.currentState!.validate()) {
-                  await _firestore.collection('diary').add({
-                    'classId': widget.student.classId ?? '',
-                    'grade': widget.student.grade ?? '',
-                    'section': widget.student.section ?? '',
-                    'subject': subjectController.text.trim(),
-                    'topic': topicController.text.trim(),
-                    'homework': homeworkController.text.trim(),
-                    'date': Timestamp.now(),
-                  });
-                  if (mounted) Navigator.pop(context);
-                }
-              },
-              child: const Text('Publish'),
-            ),
-          ],
+              ),
+            );
+          },
         );
       },
     );
